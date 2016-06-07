@@ -147,14 +147,6 @@ function makeSelectable( Component, options = {}) {
       }
     }
 
-    isClick(e) {
-      const { x, y } = this.mouseDownData
-      return (
-        Math.abs(e.pageX - x) <= this.clickTolerance &&
-        Math.abs(e.pageY - y) <= this.clickTolerance
-      )
-    }
-
     mouseDown(e) {
       if (!this.props.selectable) {
         if (this.props.onMouseDown) {
@@ -232,7 +224,7 @@ function makeSelectable( Component, options = {}) {
 
       if (!this.mouseDownData) return
 
-      if (this.isClick(e)) {
+      if (mouseMath.isClick(e, this.mouseDownData, this.clickTolerance)) {
         if (this.state.selecting) {
           this.setState({ selecting: false })
         }
@@ -255,7 +247,7 @@ function makeSelectable( Component, options = {}) {
         this.setState({selecting: true})
       }
 
-      if (!this.isClick(e.pageX, e.pageY)) {
+      if (!mouseMath.isClick(e, this.mouseDownData, this.clickTolerance)) {
         this._selectRect = mouseMath.createSelectRect(e, this.mouseDownData)
       }
       if (this.props.constantSelect) {

@@ -81,4 +81,12 @@ export default class mouseMath {
       bottom: top + h
     }
   }
+  
+  static isClick(e, { x, y }, tolerance) {
+    return (
+      Math.abs(e.pageX - x) <= tolerance &&
+      Math.abs(e.pageY - y) <= tolerance
+    )
+  }
+
 }
