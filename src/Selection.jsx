@@ -198,7 +198,7 @@ function makeSelectable( Component, options = {}) {
       }
 
       if (this.props.constantSelect) {
-        this.createSelectRect(e)
+        this._selectRect = mouseMath.createSelectRect(e, this.mouseDownData)
         this.selectNodes(e)
       }
 
@@ -218,7 +218,7 @@ function makeSelectable( Component, options = {}) {
       if (!this.mouseDownData) return
       this.handlers.stopmouseup()
       this.handlers.stopmousemove()
-      this.createSelectRect(e)
+      this._selectRect = mouseMath.createSelectRect(e, this.mouseDownData)
       if (this.props.constantSelect && !this.props.preserveSelection) {
         this.deselectNodes()
         return
@@ -256,28 +256,10 @@ function makeSelectable( Component, options = {}) {
       }
 
       if (!this.isClick(e.pageX, e.pageY)) {
-        this.createSelectRect(e)
+        this._selectRect = mouseMath.createSelectRect(e, this.mouseDownData)
       }
       if (this.props.constantSelect) {
         this.selectNodes(e)
-      }
-    }
-
-    createSelectRect(e) {
-      const { x, y } = this.mouseDownData
-      const w = Math.abs(x - e.pageX)
-      const h = Math.abs(y - e.pageY)
-
-      const left = Math.min(e.pageX, x)
-      const top = Math.min(e.pageY, y)
-
-      this._selectRect = {
-        top,
-        left,
-        x: e.pageX,
-        y: e.pageY,
-        right: left + w,
-        bottom: top + h
       }
     }
 

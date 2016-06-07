@@ -64,4 +64,21 @@ export default class mouseMath {
       bottom: (node.offsetHeight || 0) + top
     }
   }
+
+  static createSelectRect(e, { x, y }) {
+    const w = Math.abs(x - e.pageX)
+    const h = Math.abs(y - e.pageY)
+
+    const left = Math.min(e.pageX, x)
+    const top = Math.min(e.pageY, y)
+
+    return {
+      top,
+      left,
+      x: e.pageX,
+      y: e.pageY,
+      right: left + w,
+      bottom: top + h
+    }
+  }
 }
