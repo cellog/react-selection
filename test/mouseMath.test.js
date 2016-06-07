@@ -99,12 +99,57 @@ describe("mouseMath", () => {
     mock.offsetHeight = undefined
     mock.offsetWidth = undefined
 
-    mouseMath.getBoundsForNode(mock, () => 0).should
+    mouseMath.getBoundsForNode(mouseMath.getBoundsForNode(mock, () => 0)).should
       .eql({
         bottom: 40,
         left: 40,
         right: 40,
         top: 40
       })
+  })
+
+  describe("pageOffset", () => {
+    const mockwin = {
+    }
+    const mockdoc = {
+      body: {
+      }
+    }
+
+    it("should return 0 by default", () => {
+      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(0)
+      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(0)
+    })
+
+    it("should return scrollLeft/scrollTop as last resort", () => {
+      mockdoc.body.scrollLeft = 5
+      mockdoc.body.scrollTop = 6
+      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(5)
+      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(6)
+    })
+
+    it("should return scrollX/scrollY as 2nd to last resort", () => {
+      mockdoc.body.scrollLeft = 5
+      mockdoc.body.scrollTop = 6
+      mockwin.scrollX = 4
+      mockwin.scrollY = 3
+      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(4)
+      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(3)
+    })
+
+    it("should return pageXOffset/pageYOffset as first choice", () => {
+      mockdoc.body.scrollLeft = 5
+      mockdoc.body.scrollTop = 6
+      mockwin.scrollX = 4
+      mockwin.scrollY = 3
+      mockwin.pageXOffset = 2
+      mockwin.pageYOffset = 1
+      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(2)
+      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(1)
+    })
+
+    it("should throw on incorrect direction", () => {
+      (() => mouseMath.pageOffset('foo')).should.throw("direction must be one of top or left, was \"foo\"")
+    })
   })
 })
