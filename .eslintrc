@@ -1,14 +1,19 @@
 root: true
 
+parser: "babel-eslint"
+
 env:
   es6: true
   node: true
   browser: true
   mocha: true
 
+ecmaVersion: 7
+
 ecmaFeatures:
   modules: true
   jsx: true
+  classes: true
 
 extends:
   "airbnb"

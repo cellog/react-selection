@@ -35,7 +35,7 @@ function makeSelectable( Component, options = {}) {
         selectedValueList: []
       }
     }
-    
+
     static propTypes = {
       clickTolerance: PropTypes.number,
       constantSelect: PropTypes.bool,
@@ -43,9 +43,11 @@ function makeSelectable( Component, options = {}) {
       preserveSelection: PropTypes.bool,
       selectIntermediates: PropTypes.bool,
       onSelectSlot: PropTypes.func,
-      onFinishSelect: PropTypes.func
+      onFinishSelect: PropTypes.func,
+      onMouseDown: PropTypes.func,
+      onClick: PropTypes.func
     }
-    
+
     static defaultProps = {
       clickTolerance: 5,
       constantSelect: false,
@@ -79,7 +81,9 @@ function makeSelectable( Component, options = {}) {
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
           console.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, this.bounds)
         }
-        this.props.onSelectSlot && this.props.onSelectSlot(values, () => nodes, valuelist, () => nodelist, this.bounds)
+        if (this.props.onSelectSlot) {
+          this.props.onSelectSlot(values, () => nodes, valuelist, () => nodelist, this.bounds)
+        }
       }
     }
 
@@ -93,9 +97,8 @@ function makeSelectable( Component, options = {}) {
         console.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds)
       }
       this.props.onFinishSelect(newvalues, () => newnodes, valuelist, () => nodelist, this.bounds)
-      
     }
-    
+
     getChildContext() {
       return {
         registerSelectable: (component, key, value, callback) => {
@@ -133,22 +136,31 @@ function makeSelectable( Component, options = {}) {
     }
 
     componentWillUnmount() {
-      this.handlers.stopmousedown && this.handlers.stopmousedown()
-      this.handlers.stopmouseup && this.handlers.stopmouseup()
-      this.handlers.stopmousemove && this.handlers.stopmousemove()
+      if (this.handlers.stopmousedown) {
+        this.handlers.stopmousedown()
+      }
+      if (this.handlers.stopmouseup) {
+        this.handlers.stopmouseup()
+      }
+      if (this.handlers.stopmousemove) {
+        this.handlers.stopmousemove()
+      }
     }
 
     isClick(e) {
-      const { x, y } = this.mouseDownData;
+      const { x, y } = this.mouseDownData
       return (
         Math.abs(e.pageX - x) <= this.clickTolerance &&
         Math.abs(e.pageY - y) <= this.clickTolerance
-      );
+      )
     }
 
     mouseDown(e) {
       if (!this.props.selectable) {
-        return this.props.onMouseDown && this.props.onMouseDown(e)
+        if (this.props.onMouseDown) {
+          this.props.onMouseDown(e)
+        }
+        return
       }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
         console.log('mousedown')
@@ -161,8 +173,9 @@ function makeSelectable( Component, options = {}) {
         this.node = findDOMNode(this.ref)
         this.bounds = mouseMath.getBoundsForNode(this.node)
       }
-      if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, e.clientX, e.clientY))
+      if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, e.clientX, e.clientY)) {
         return
+      }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
         console.log('mousedown: left click')
       }
@@ -197,7 +210,10 @@ function makeSelectable( Component, options = {}) {
 
     click(e) {
       if (!this.props.selectable) {
-        return this.props.onClick && this.props.onClick(e)
+        if (this.props.onClick) {
+          this.props.onClick(e)
+        }
+        return
       }
       if (!this.mouseDownData) return
       this.handlers.stopmouseup()
@@ -233,23 +249,24 @@ function makeSelectable( Component, options = {}) {
 
     mouseMove(e) {
       if (!this.mouseDownData) return
-      const old = this.state.selecting;
+      const old = this.state.selecting
 
       if (!old) {
         this.setState({selecting: true})
       }
 
-      if (!this.isClick(e.pageX, e.pageY))
-      this.createSelectRect(e)
+      if (!this.isClick(e.pageX, e.pageY)) {
+        this.createSelectRect(e)
+      }
       if (this.props.constantSelect) {
         this.selectNodes(e)
       }
     }
 
     createSelectRect(e) {
-      const { x, y } = this.mouseDownData;
-      const w = Math.abs(x - e.pageX);
-      const h = Math.abs(y - e.pageY);
+      const { x, y } = this.mouseDownData
+      const w = Math.abs(x - e.pageX)
+      const h = Math.abs(y - e.pageY)
 
       const left = Math.min(e.pageX, x)
       const top = Math.min(e.pageY, y)
@@ -276,8 +293,8 @@ function makeSelectable( Component, options = {}) {
     }
 
     selectNodes() {
-      let nodes = {...this.state.selectedNodes}
-      let values = {...this.state.selectedValues}
+      const nodes = {...this.state.selectedNodes}
+      const values = {...this.state.selectedValues}
       const changedNodes = []
       const selectedIndices = []
       const saveNode = (node, bounds) => {
@@ -313,7 +330,7 @@ function makeSelectable( Component, options = {}) {
       if (this.props.selectIntermediates) {
         const min = Math.min(...selectedIndices)
         const max = Math.max(...selectedIndices)
-        const filled = Array.apply(min, Array(max-min)).map((x, y) => min + y + 1)
+        const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
         filled.unshift(min)
         const diff = filled.filter(val => selectedIndices.indexOf(val) === -1)
         diff.forEach(idx => saveNode(this.sortedNodes[idx], mouseMath.getBoundsForNode(findDOMNode(this.sortedNodes[idx].component))))
@@ -328,24 +345,28 @@ function makeSelectable( Component, options = {}) {
 
     render() {
       if (this.containerDiv) {
-        return <div
+        return (
+          <div
+            onMouseDown={this.mouseDown}
+            onClick={this.click}
+          >
+            <Component
+              {...this.props}
+              {...this.state}
+              ref={(ref) => { this.ref = ref }}
+            />
+          </div>
+        )
+      }
+      return (
+        <Component
+          {...this.props}
+          {...this.state}
           onMouseDown={this.mouseDown}
           onClick={this.click}
-        >
-          <Component
-            {...this.props}
-            {...this.state}
-            ref={(ref) => { this.ref = ref }}
-          />
-        </div>
-      }
-      return <Component
-        {...this.props}
-        {...this.state}
-        onMouseDown={this.mouseDown}
-        onClick={this.click}
-        ref={(ref) => { this.ref = ref }}
-      />
+          ref={(ref) => { this.ref = ref }}
+        />
+      )
     }
   }
 }

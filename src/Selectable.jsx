@@ -5,13 +5,12 @@ function Selectable(Component, options) {
   let unregister = () => null
   return class extends React.Component {
     static displayName = `Selectable(${displayName})`
-    
+
     constructor(props, context) {
       super(props, context)
       this.state = {
         selected: false
       }
-      const key = options.key(this.props)
     }
 
     static contextTypes = {
@@ -25,7 +24,7 @@ function Selectable(Component, options) {
       this.context.registerSelectable(this, key, options.value(this.props), this.selectItem.bind(this))
       unregister = this.context.unregisterSelectable.bind(null, this, key)
     }
-    
+
     componentWillUnmount() {
       unregister()
       unregister = () => null

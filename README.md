@@ -1,4 +1,4 @@
-# babel-npm-boilerplate [![Build Status](https://travis-ci.org/cellog/react-selection.svg)](https://travis-ci.org/cellog/react-selection) [![npm version](https://badge.fury.io/js/react-selection.svg)](http://badge.fury.io/js/react-selection)
+# react-selection [![Build Status](https://travis-ci.org/cellog/react-selection.svg)](https://travis-ci.org/cellog/react-selection) [![npm version](https://badge.fury.io/js/react-selection.svg)](http://badge.fury.io/js/react-selection)
 
 Instantly make selectable React components and containers for those components
 
@@ -16,4 +16,4 @@ To be continued...
 
 ## License
 
-MIT
+MIT License
