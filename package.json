@@ -18,7 +18,6 @@
     "storybook": "start-storybook -p 9001"
   },
   "dependencies": {
-    "dom-helpers": "^2.4.0",
     "react": "^15.1.0",
     "react-dom": "^15.1.0"
   },
