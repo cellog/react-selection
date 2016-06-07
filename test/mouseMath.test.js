@@ -8,7 +8,6 @@ describe("mouseMath", () => {
   }
 
   describe("isClick", () => {
-
     it("should accept a valid value", () => {
       mouseMath.isClick(e, { x: 50, y: 50 }, 5).should.be.true
     })
@@ -44,5 +43,68 @@ describe("mouseMath", () => {
       x: 50,
       y: 50
     })
+  })
+
+  describe("getBoundsForNode", () => {
+    const mock = {
+      offsetWidth: 8,
+      offsetHeight: 8,
+      getBoundingClientRect() {
+        return {
+          left: 40,
+          top: 40,
+          right: 50,
+          bottom: 50,
+          width: 10,
+          height: 10
+        }
+      }
+    }
+
+    mouseMath.getBoundsForNode(mock, () => 0).should
+      .eql({
+        bottom: 48,
+        left: 40,
+        right: 48,
+        top: 40
+      })
+
+    mouseMath.getBoundsForNode(mock, (dir) => dir === 'left' ? 0 : 5).should
+      .eql({
+        bottom: 53,
+        left: 40,
+        right: 48,
+        top: 45
+      })
+
+    mouseMath.getBoundsForNode(mock, (dir) => dir === 'left' ? 5 : 0).should
+      .eql({
+        bottom: 48,
+        left: 45,
+        right: 53,
+        top: 40
+      })
+
+    mock.offsetHeight = 10
+    mock.offsetWidth = 10
+
+    mouseMath.getBoundsForNode(mock, () => 0).should
+      .eql({
+        bottom: 50,
+        left: 40,
+        right: 50,
+        top: 40
+      })
+
+    mock.offsetHeight = undefined
+    mock.offsetWidth = undefined
+
+    mouseMath.getBoundsForNode(mock, () => 0).should
+      .eql({
+        bottom: 40,
+        left: 40,
+        right: 40,
+        top: 40
+      })
   })
 })

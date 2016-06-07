@@ -50,12 +50,12 @@ export default class mouseMath {
    * @param  {HTMLElement} node
    * @return {Object}
    */
-  static getBoundsForNode(node) {
+  static getBoundsForNode(node, pageOffset = mouseMath.pageOffset) {
     if (!node.getBoundingClientRect) return node
 
     const rect = node.getBoundingClientRect()
-    const left = rect.left + mouseMath.pageOffset('left')
-    const top = rect.top + mouseMath.pageOffset('top')
+    const left = rect.left + pageOffset('left')
+    const top = rect.top + pageOffset('top')
 
     return {
       top,
