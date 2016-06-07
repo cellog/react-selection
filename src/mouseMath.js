@@ -1,9 +1,9 @@
 import Debug from './debug.js'
 
 export default class mouseMath {
-  static contains(element, x, y) {
+  static contains(element, x, y, doc = document) {
     if (!element) return true
-    const point = document.elementFromPoint(x, y)
+    const point = doc.elementFromPoint(x, y)
     return element.contains(point)
   }
 
@@ -26,13 +26,13 @@ export default class mouseMath {
 
     return !(
       // 'a' bottom doesn't touch 'b' top
-      ((aBottom - tolerance ) < bTop) ||
+      ((aBottom + tolerance ) < bTop) ||
       // 'a' top doesn't touch 'b' bottom
-      ((aTop + tolerance) > (bBottom)) ||
+      ((aTop - tolerance) > (bBottom)) ||
       // 'a' right doesn't touch 'b' left
-      ((aRight - tolerance) < bLeft ) ||
+      ((aRight + tolerance) < bLeft ) ||
       // 'a' left doesn't touch 'b' right
-      ((aLeft + tolerance) > (bRight) )
+      ((aLeft - tolerance) > (bRight) )
     )
   }
 

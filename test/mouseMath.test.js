@@ -149,7 +149,58 @@ describe("mouseMath", () => {
     })
 
     it("should throw on incorrect direction", () => {
-      (() => mouseMath.pageOffset('foo')).should.throw("direction must be one of top or left, was \"foo\"")
+      (() => mouseMath.pageOffset('foo', mockwin, mockdoc)).should.throw("direction must be one of top or left, was \"foo\"")
+    })
+  })
+
+  describe("objectsCollide", () => {
+    const obj = {
+      top: 50,
+      left: 50,
+      right: 55,
+      bottom: 55
+    }
+
+    it("should detect no collision when there is none", () => {
+      mouseMath.objectsCollide(obj, {
+        top: 56,
+        left: 56,
+        right: 66,
+        bottom: 66
+      }).should.eql(false)
+    })
+
+    it("should detect a collision when tolerance would make it", () => {
+      mouseMath.objectsCollide(obj, {
+        top: 40,
+        left: 40,
+        right: 49,
+        bottom: 49
+      }, 1).should.eql(true, 'tolerance collision failed')
+    })
+
+    it("should detect a collision with a mouse click", () => {
+      mouseMath.objectsCollide(obj, {
+        top: 50,
+        left: 50
+      }).should.eql(true, '50')
+
+      mouseMath.objectsCollide(obj, {
+        top: 55,
+        left: 55
+      }).should.eql(true, '55')
+
+      mouseMath.objectsCollide(obj, {
+        top: 53,
+        left: 53
+      }).should.eql(true, '53')
+    })
+
+    it("should fail a collision", () => {
+      mouseMath.objectsCollide({
+        top: 55,
+        left: 56
+      }, obj).should.eql(false)
     })
   })
 })
