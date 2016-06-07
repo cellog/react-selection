@@ -38,7 +38,6 @@ function Selectable(Component, options) {
       _this.state = {
         selected: false
       };
-      var key = options.key(_this.props);
       return _this;
     }
 

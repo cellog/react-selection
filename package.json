@@ -1,5 +1,5 @@
 {
-  "name": "react-selection",
+  "name": "react-selection-hoc",
   "author": "Gregory Beaver",
   "version": "0.1.0",
   "description": "Make any React-based collection of similar components selectable",

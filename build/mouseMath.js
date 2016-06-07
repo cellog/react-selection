@@ -31,7 +31,6 @@ var mouseMath = function () {
     value: function objectsCollide(nodeA, nodeB) {
       var tolerance = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
       var key = arguments.length <= 3 || arguments[3] === undefined ? '(unknown)' : arguments[3];
-      var debugCallback = arguments[4];
 
       var _mouseMath$getBoundsF = mouseMath.getBoundsForNode(nodeA);
 
@@ -51,7 +50,9 @@ var mouseMath = function () {
       var _mouseMath$getBoundsF6 = _mouseMath$getBoundsF4.bottom;
       var bBottom = _mouseMath$getBoundsF6 === undefined ? bTop : _mouseMath$getBoundsF6;
 
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) _debug2.default.debugBounds(mouseMath.getBoundsForNode, nodeA, nodeB, key);
+      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
+        _debug2.default.debugBounds(mouseMath.getBoundsForNode, nodeA, nodeB, key, tolerance);
+      }
 
       return !(
       // 'a' bottom doesn't touch 'b' top
@@ -66,8 +67,12 @@ var mouseMath = function () {
   }, {
     key: 'pageOffset',
     value: function pageOffset(dir) {
-      if (dir === 'left') return window.pageXOffset || window.scrollX || document.body.scrollLeft || 0;
-      if (dir === 'top') return window.pageYOffset || window.scrollY || document.body.scrollTop || 0;
+      if (dir === 'left') {
+        return window.pageXOffset || window.scrollX || document.body.scrollLeft || 0;
+      }
+      if (dir === 'top') {
+        return window.pageYOffset || window.scrollY || document.body.scrollTop || 0;
+      }
     }
 
     /**

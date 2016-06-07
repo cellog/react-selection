@@ -40,8 +40,26 @@ var Debug = function () {
     }
   }, {
     key: 'debugBounds',
-    value: function debugBounds(getBoundsForNode, nodeA, nodeB, key) {
+    value: function debugBounds(getBoundsForNode, nodeA, nodeB, key, tolerance) {
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+        var _getBoundsForNode = getBoundsForNode(nodeA);
+
+        var aTop = _getBoundsForNode.top;
+        var aLeft = _getBoundsForNode.left;
+        var _getBoundsForNode$rig = _getBoundsForNode.right;
+        var aRight = _getBoundsForNode$rig === undefined ? aLeft : _getBoundsForNode$rig;
+        var _getBoundsForNode$bot = _getBoundsForNode.bottom;
+        var aBottom = _getBoundsForNode$bot === undefined ? aTop : _getBoundsForNode$bot;
+
+        var _getBoundsForNode2 = getBoundsForNode(nodeB);
+
+        var bTop = _getBoundsForNode2.top;
+        var bLeft = _getBoundsForNode2.left;
+        var _getBoundsForNode2$ri = _getBoundsForNode2.right;
+        var bRight = _getBoundsForNode2$ri === undefined ? bLeft : _getBoundsForNode2$ri;
+        var _getBoundsForNode2$bo = _getBoundsForNode2.bottom;
+        var bBottom = _getBoundsForNode2$bo === undefined ? bTop : _getBoundsForNode2$bo;
+
         console.log('collide ' + key + ': ', getBoundsForNode(nodeA), getBoundsForNode(nodeB));
         if (Debug.DEBUGGING.collisions) {
           console.log('a bottom < b top', aBottom - tolerance < bTop);

@@ -7,7 +7,7 @@ Instantly make selectable React components and containers for those components
 Clone this repo or download using `npm`
 
 ```
-npm install react-selection --save
+npm install react-selection-hoc --save
 ```
 
 ## Usage

@@ -113,11 +113,13 @@ function makeSelectable(Component) {
             if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
               console.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, _this2.bounds);
             }
-            _this2.props.onSelectSlot && _this2.props.onSelectSlot(values, function () {
-              return nodes;
-            }, valuelist, function () {
-              return nodelist;
-            }, _this2.bounds);
+            if (_this2.props.onSelectSlot) {
+              _this2.props.onSelectSlot(values, function () {
+                return nodes;
+              }, valuelist, function () {
+                return nodelist;
+              }, _this2.bounds);
+            }
           })();
         }
       }
@@ -193,9 +195,15 @@ function makeSelectable(Component) {
     }, {
       key: 'componentWillUnmount',
       value: function componentWillUnmount() {
-        this.handlers.stopmousedown && this.handlers.stopmousedown();
-        this.handlers.stopmouseup && this.handlers.stopmouseup();
-        this.handlers.stopmousemove && this.handlers.stopmousemove();
+        if (this.handlers.stopmousedown) {
+          this.handlers.stopmousedown();
+        }
+        if (this.handlers.stopmouseup) {
+          this.handlers.stopmouseup();
+        }
+        if (this.handlers.stopmousemove) {
+          this.handlers.stopmousemove();
+        }
       }
     }, {
       key: 'isClick',
@@ -210,7 +218,10 @@ function makeSelectable(Component) {
       key: 'mouseDown',
       value: function mouseDown(e) {
         if (!this.props.selectable) {
-          return this.props.onMouseDown && this.props.onMouseDown(e);
+          if (this.props.onMouseDown) {
+            this.props.onMouseDown(e);
+          }
+          return;
         }
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
           console.log('mousedown');
@@ -223,7 +234,9 @@ function makeSelectable(Component) {
           this.node = (0, _reactDom.findDOMNode)(this.ref);
           this.bounds = _mouseMath2.default.getBoundsForNode(this.node);
         }
-        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, e.clientX, e.clientY)) return;
+        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, e.clientX, e.clientY)) {
+          return;
+        }
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
           console.log('mousedown: left click');
         }
@@ -259,7 +272,10 @@ function makeSelectable(Component) {
       key: 'click',
       value: function click(e) {
         if (!this.props.selectable) {
-          return this.props.onClick && this.props.onClick(e);
+          if (this.props.onClick) {
+            this.props.onClick(e);
+          }
+          return;
         }
         if (!this.mouseDownData) return;
         this.handlers.stopmouseup();
@@ -303,7 +319,9 @@ function makeSelectable(Component) {
           this.setState({ selecting: true });
         }
 
-        if (!this.isClick(e.pageX, e.pageY)) this.createSelectRect(e);
+        if (!this.isClick(e.pageX, e.pageY)) {
+          this.createSelectRect(e);
+        }
         if (this.props.constantSelect) {
           this.selectNodes(e);
         }
@@ -443,7 +461,9 @@ function makeSelectable(Component) {
     preserveSelection: _react.PropTypes.bool,
     selectIntermediates: _react.PropTypes.bool,
     onSelectSlot: _react.PropTypes.func,
-    onFinishSelect: _react.PropTypes.func
+    onFinishSelect: _react.PropTypes.func,
+    onMouseDown: _react.PropTypes.func,
+    onClick: _react.PropTypes.func
   }, _class.defaultProps = {
     clickTolerance: 5,
     constantSelect: false,
