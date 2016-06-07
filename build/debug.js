@@ -1,0 +1,76 @@
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Debug = function () {
+  function Debug() {
+    _classCallCheck(this, Debug);
+  }
+
+  _createClass(Debug, null, [{
+    key: 'debug',
+    value: function debug(_ref) {
+      var _ref$bounds = _ref.bounds;
+      var bounds = _ref$bounds === undefined ? false : _ref$bounds;
+      var _ref$clicks = _ref.clicks;
+      var clicks = _ref$clicks === undefined ? false : _ref$clicks;
+      var _ref$selection = _ref.selection;
+      var selection = _ref$selection === undefined ? false : _ref$selection;
+      var _ref$registration = _ref.registration;
+      var registration = _ref$registration === undefined ? false : _ref$registration;
+      var _ref$collisions = _ref.collisions;
+      var collisions = _ref$collisions === undefined ? false : _ref$collisions;
+
+      if (bounds || clicks || selection || registration || collisions) {
+        var props = { bounds: bounds, clicks: clicks, selection: selection, registration: registration, collisions: collisions };
+        Debug.DEBUGGING = _extends({
+          debug: true
+        }, props);
+      } else {
+        Debug.DEBUGGING.debug = false;
+      }
+    }
+  }, {
+    key: 'debugBounds',
+    value: function debugBounds(getBoundsForNode, nodeA, nodeB, key) {
+      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+        console.log('collide ' + key + ': ', getBoundsForNode(nodeA), getBoundsForNode(nodeB));
+        if (Debug.DEBUGGING.collisions) {
+          console.log('a bottom < b top', aBottom - tolerance < bTop);
+          console.log('a top > b bottom', aTop + tolerance > bBottom);
+          console.log('a right < b left', aBottom - tolerance < bTop);
+          console.log('a left > b right', aLeft + tolerance > bRight);
+        }
+        console.log(!(
+        // 'a' bottom doesn't touch 'b' top
+        aBottom - tolerance < bTop ||
+        // 'a' top doesn't touch 'b' bottom
+        aTop + tolerance > bBottom ||
+        // 'a' right doesn't touch 'b' left
+        aRight - tolerance < bLeft ||
+        // 'a' left doesn't touch 'b' right
+        aLeft + tolerance > bRight) ? key + ' COLLIDES' : key + ' does not collide');
+      }
+    }
+  }]);
+
+  return Debug;
+}();
+
+Debug.DEBUGGING = {
+  debug: false,
+  bounds: false,
+  clicks: false,
+  selection: false,
+  registration: false,
+  collisions: false
+};
+exports.default = Debug;
