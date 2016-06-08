@@ -13,7 +13,11 @@ module.exports = {
 
   resolve: {
     alias: {
-      'react-selection-hoc': path.join(__dirname, '..', 'src')
+      'react-selection-hoc': path.join(__dirname, '..', 'src'),
+      './Selection.jsx': path.join(__dirname, '..', 'src', 'Selection.jsx'),
+      './Selectable.jsx': path.join(__dirname, '..', 'src', 'Selectable.jsx'),
+      './mouseMath.js': path.join(__dirname, '..', 'src', 'mouseMath.js'),
+      './debug.js': path.join(__dirname, '..', 'src', 'debug.js')
     },
     extensions: ['', '.js', '.jsx']
   },
