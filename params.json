@@ -1,0 +1,6 @@
+{
+  "name": "React-selection",
+  "tagline": "Make any React-based collection of similar components selectable",
+  "body": "# react-selection [![Build Status](https://travis-ci.org/cellog/react-selection.svg)](https://travis-ci.org/cellog/react-selection) [![npm version](https://badge.fury.io/js/react-selection.svg)](http://badge.fury.io/js/react-selection)\r\n\r\nInstantly make selectable React components and containers for those components\r\n\r\n## Installation\r\n\r\nClone this repo or download using `npm`\r\n\r\n```\r\nnpm install react-selection-hoc --save\r\n```\r\n\r\n## Usage\r\n\r\nTo be continued...\r\n\r\n## License\r\n\r\nMIT License\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
