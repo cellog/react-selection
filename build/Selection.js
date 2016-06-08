@@ -61,7 +61,7 @@ function makeSelectable(Component) {
       _this.mouseMove = _this.mouseMove.bind(_this);
       _this.click = _this.click.bind(_this);
       _this.mouseDownData = null;
-      _this.clickTolerance = 5;
+      _this.clickTolerance = 2;
       _this.handlers = {
         stopmouseup: function stopmouseup() {
           return null;
@@ -206,15 +206,6 @@ function makeSelectable(Component) {
         }
       }
     }, {
-      key: 'isClick',
-      value: function isClick(e) {
-        var _mouseDownData = this.mouseDownData;
-        var x = _mouseDownData.x;
-        var y = _mouseDownData.y;
-
-        return Math.abs(e.pageX - x) <= this.clickTolerance && Math.abs(e.pageY - y) <= this.clickTolerance;
-      }
-    }, {
       key: 'mouseDown',
       value: function mouseDown(e) {
         if (!this.props.selectable) {
@@ -259,7 +250,7 @@ function makeSelectable(Component) {
         };
 
         if (this.props.constantSelect) {
-          this.createSelectRect(e);
+          this._selectRect = _mouseMath2.default.createSelectRect(e, this.mouseDownData);
           this.selectNodes(e);
         }
 
@@ -280,7 +271,7 @@ function makeSelectable(Component) {
         if (!this.mouseDownData) return;
         this.handlers.stopmouseup();
         this.handlers.stopmousemove();
-        this.createSelectRect(e);
+        this._selectRect = _mouseMath2.default.createSelectRect(e, this.mouseDownData);
         if (this.props.constantSelect && !this.props.preserveSelection) {
           this.deselectNodes();
           return;
@@ -295,7 +286,7 @@ function makeSelectable(Component) {
 
         if (!this.mouseDownData) return;
 
-        if (this.isClick(e)) {
+        if (_mouseMath2.default.isClick(e, this.mouseDownData, this.clickTolerance)) {
           if (this.state.selecting) {
             this.setState({ selecting: false });
           }
@@ -319,34 +310,12 @@ function makeSelectable(Component) {
           this.setState({ selecting: true });
         }
 
-        if (!this.isClick(e.pageX, e.pageY)) {
-          this.createSelectRect(e);
+        if (!_mouseMath2.default.isClick(e, this.mouseDownData, this.clickTolerance)) {
+          this._selectRect = _mouseMath2.default.createSelectRect(e, this.mouseDownData);
         }
         if (this.props.constantSelect) {
           this.selectNodes(e);
         }
-      }
-    }, {
-      key: 'createSelectRect',
-      value: function createSelectRect(e) {
-        var _mouseDownData2 = this.mouseDownData;
-        var x = _mouseDownData2.x;
-        var y = _mouseDownData2.y;
-
-        var w = Math.abs(x - e.pageX);
-        var h = Math.abs(y - e.pageY);
-
-        var left = Math.min(e.pageX, x);
-        var top = Math.min(e.pageY, y);
-
-        this._selectRect = {
-          top: top,
-          left: left,
-          x: e.pageX,
-          y: e.pageY,
-          right: left + w,
-          bottom: top + h
-        };
       }
     }, {
       key: 'deselectNodes',

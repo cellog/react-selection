@@ -22,8 +22,10 @@ var mouseMath = function () {
   _createClass(mouseMath, null, [{
     key: 'contains',
     value: function contains(element, x, y) {
+      var doc = arguments.length <= 3 || arguments[3] === undefined ? document : arguments[3];
+
       if (!element) return true;
-      var point = document.elementFromPoint(x, y);
+      var point = doc.elementFromPoint(x, y);
       return element.contains(point);
     }
   }, {
@@ -56,23 +58,27 @@ var mouseMath = function () {
 
       return !(
       // 'a' bottom doesn't touch 'b' top
-      aBottom - tolerance < bTop ||
+      aBottom + tolerance < bTop ||
       // 'a' top doesn't touch 'b' bottom
-      aTop + tolerance > bBottom ||
+      aTop - tolerance > bBottom ||
       // 'a' right doesn't touch 'b' left
-      aRight - tolerance < bLeft ||
+      aRight + tolerance < bLeft ||
       // 'a' left doesn't touch 'b' right
-      aLeft + tolerance > bRight);
+      aLeft - tolerance > bRight);
     }
   }, {
     key: 'pageOffset',
     value: function pageOffset(dir) {
+      var win = arguments.length <= 1 || arguments[1] === undefined ? window : arguments[1];
+      var doc = arguments.length <= 2 || arguments[2] === undefined ? document : arguments[2];
+
       if (dir === 'left') {
-        return window.pageXOffset || window.scrollX || document.body.scrollLeft || 0;
+        return win.pageXOffset || win.scrollX || doc.body.scrollLeft || 0;
       }
       if (dir === 'top') {
-        return window.pageYOffset || window.scrollY || document.body.scrollTop || 0;
+        return win.pageYOffset || win.scrollY || doc.body.scrollTop || 0;
       }
+      throw new Error('direction must be one of top or left, was "' + dir + '"');
     }
 
     /**
@@ -84,11 +90,13 @@ var mouseMath = function () {
   }, {
     key: 'getBoundsForNode',
     value: function getBoundsForNode(node) {
+      var pageOffset = arguments.length <= 1 || arguments[1] === undefined ? mouseMath.pageOffset : arguments[1];
+
       if (!node.getBoundingClientRect) return node;
 
       var rect = node.getBoundingClientRect();
-      var left = rect.left + mouseMath.pageOffset('left');
-      var top = rect.top + mouseMath.pageOffset('top');
+      var left = rect.left + pageOffset('left');
+      var top = rect.top + pageOffset('top');
 
       return {
         top: top,
@@ -96,6 +104,35 @@ var mouseMath = function () {
         right: (node.offsetWidth || 0) + left,
         bottom: (node.offsetHeight || 0) + top
       };
+    }
+  }, {
+    key: 'createSelectRect',
+    value: function createSelectRect(e, _ref) {
+      var x = _ref.x;
+      var y = _ref.y;
+
+      var w = Math.abs(x - e.pageX);
+      var h = Math.abs(y - e.pageY);
+
+      var left = Math.min(e.pageX, x);
+      var top = Math.min(e.pageY, y);
+
+      return {
+        top: top,
+        left: left,
+        x: e.pageX,
+        y: e.pageY,
+        right: left + w,
+        bottom: top + h
+      };
+    }
+  }, {
+    key: 'isClick',
+    value: function isClick(e, _ref2, tolerance) {
+      var x = _ref2.x;
+      var y = _ref2.y;
+
+      return Math.abs(e.pageX - x) <= tolerance && Math.abs(e.pageY - y) <= tolerance;
     }
   }]);
 
