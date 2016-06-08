@@ -207,7 +207,7 @@ describe("mouseMath", () => {
 
   describe("contains", () => {
     it("should return true for no element", () => {
-      mouseMath.contains(false, 1, 0).should.eql(true)
+      mouseMath.contains(false, 1, 0, null).should.eql(true)
     })
 
     it("should call elementFromPoint and contains", () => {
