@@ -1,4 +1,5 @@
 import 'should'
+import sinon from 'sinon'
 import mouseMath from '../src/mouseMath.js'
 
 describe("mouseMath", () => {
@@ -201,6 +202,31 @@ describe("mouseMath", () => {
         top: 55,
         left: 56
       }, obj).should.eql(false)
+    })
+  })
+
+  describe("contains", () => {
+    it("should return true for no element", () => {
+      mouseMath.contains(false, 1, 0).should.eql(true)
+    })
+
+    it("should call elementFromPoint and contains", () => {
+      const doc = {
+        elementFromPoint: sinon.stub()
+      }
+      const elm = {
+        contains: sinon.spy()
+      }
+
+      doc.elementFromPoint.returns('hi')
+
+      mouseMath.contains(elm, 1, 2, doc)
+
+      doc.elementFromPoint.called.should.eql(true, 'elementFromPoint was not called')
+      elm.contains.called.should.eql(true, 'contains was not called')
+
+      doc.elementFromPoint.calledWithExactly(1, 2).should.eql(true, 'called with point values')
+      elm.contains.calledWithExactly('hi').should.eql(true, 'called with elementFromPoint return value')
     })
   })
 })

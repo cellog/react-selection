@@ -34,7 +34,9 @@
     "isparta": "^4.0.0",
     "jsdom": "^9.2.1",
     "mocha": "^2.3.4",
+    "selenium-webdriver": "^2.53.2",
     "should": "^9.0.0",
+    "sinon": "^1.17.4",
     "teaspoon": "^6.4.0"
   },
   "repository": {
