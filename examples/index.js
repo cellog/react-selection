@@ -44,12 +44,12 @@ ReactDOM.render((
 ), document.getElementById('example1'))
 
 const generateThing = (...i) => <SelectableThing thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
-const things = Array(20).fill(0).map(generateThing)
+const things = Array(50).fill(0).map(generateThing)
 
 const Sel2 = Selection(Test, (a, b) => Number(a) - Number(b))
 
 ReactDOM.render((
-  <Sel2 selectable constantSelect selectIntermediates style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+  <Sel2 selectable constantSelect selectIntermediates style={{display: 'flex', flexFlow: 'row wrap', width: '100%'}}>
     {things}
   </Sel2>
 ), document.getElementById('example2')
