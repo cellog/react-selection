@@ -125,7 +125,7 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { style: _extends({ width: '100%', height: 200, padding: 30, backgroundColor: '#ff8888' }, this.props.style) },
+	        { style: _extends({ width: '100%', padding: 30, backgroundColor: '#ff8888' }, this.props.style) },
 	        this.props.children
 	      );
 	    }

@@ -30,7 +30,7 @@ const SelectableThing = Selectable(Thing, {
 
 class Test extends React.Component {
   render() {
-    return <div style={{width: '100%', height: 200, padding: 30, backgroundColor: '#ff8888', ...this.props.style}}>{this.props.children}</div>
+    return <div style={{width: '100%', padding: 30, backgroundColor: '#ff8888', ...this.props.style}}>{this.props.children}</div>
   }
 }
 const Sel = Selection(Test)
