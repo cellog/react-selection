@@ -39,7 +39,31 @@
 <h2>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
 
-<p>To be continued...</p>
+<p>Turn any React component into a container for selectable things:</p>
+<pre>
+  require React, { Component } from 'react'
+  require { Selection } from 'react-selection-hoc'
+  @Selection
+  class MyComponent extends Component {
+    render() {
+      return <div>{this.props.children}</div>
+    }
+  }
+</pre>
+
+Or in es6:
+
+<pre>
+  require React, { Component } from 'react'
+  require { Selection } from 'react-selection-hoc'
+  
+  class MyComponentPure extends Component {
+    render() {
+      return <div>{this.props.children}</div>
+    }
+  }
+  const MyComponent = Selection(MyComponentPure)
+</pre>
 
 <h2>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h2>
