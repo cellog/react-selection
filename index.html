@@ -93,7 +93,86 @@ Or in es6:
 <h2>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h2>
 
+<p>The source:</p>
+<p>First, the pure components that will be made into a selection container and selectable items:</p>
+
+<pre>
+import { Selection, Selectable } from 'react-selection-hoc'
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+class Thing extends React.Component {
+  static propTypes = {
+    index: React.PropTypes.number.isRequired,
+    thing: React.PropTypes.string.isRequired
+  }
+  render() {
+    return &lt;div style={{
+        width: 50,
+        height: 50,
+        backgroundColor: (this.props.selected ? 'green' : 'red'),
+        margin: 10}}
+    &gt;
+      {this.props.thing}
+    &lt;/div&gt;
+  }
+}
+
+class Test extends React.Component {
+  render() {
+    return &lt;div style={{width: '100%', height: 200, padding: 30, backgroundColor: '#ff8888', ...this.props.style}}&gt;
+      {this.props.children}
+    &lt;/div&gt;
+  }
+}
+</pre>
+
+<p>And the code to make the elements selectable, used throughout the examples:</p>
+<pre>
+const SelectableThing = Selectable(Thing, {
+  key: (props) => {
+    return props.index
+  },
+  value: (props) => {
+    return props.thing
+  }
+})
+const Sel = Selection(Test)
+</pre>
+
+<p>This first example shows basic usage.</p>
+
+<pre>
+  ReactDOM.render((
+  &lt;Sel constantSelect selectable&gt;
+    &lt;SelectableThing thing="hi" index={1}/&gt;
+    &lt;SelectableThing thing="there" index={2} /&gt;
+    &lt;SelectableThing thing="foo" index={3} /&gt;
+  &lt;/Sel&gt;
+), document.getElementById('example1'))
+
+</pre>
+
 <div id="example1" class="example"></div>
+
+<p>
+  For grids, if you want the code to select elements that are adjacent,
+  but not within the rectangle represented by the selection, use code like this example:
+</p>
+
+<pre>
+const generateThing = (...i) => &lt;SelectableThing thing={`hi${i[1]}`} index={i[1]} key={i[1]} /&gt;
+const things = Array(50).fill(0).map(generateThing)
+
+const Sel2 = Selection(Test, (a, b) =&gt; Number(a) - Number(b))
+
+ReactDOM.render((
+    &lt;Sel2 selectable constantSelect selectIntermediates style={{display: 'flex', flexFlow: 'row wrap', width: '100%'}}&gt;
+      {things}
+    &lt;/Sel2&gt;
+  ), document.getElementById('example2')
+)
+</pre>
 
 <div id="example2" class="example"></div>
 
