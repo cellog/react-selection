@@ -8,6 +8,11 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <style>
+      .example {
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
     <section class="page-header">
@@ -52,20 +57,23 @@
 Or in es6:
 
 <pre>
+  <![CDATA[
   require React, { Component } from 'react'
   require { Selection } from 'react-selection-hoc'
   
   class MyComponentPure extends Component {
     render() {
-      return <div>{this.props.children}</div>
+      return &lt;div&gt;{this.props.children}&lt;/div&gt;
     }
   }
   const MyComponent = Selection(MyComponentPure)
+  ]]>
 </pre>
 
 <p>Then, turn any React component into a thing that can be selected:</p>
 
 <pre>
+  <![CDATA[
   require React, { Component } from 'react'
   require { Selectable } from 'react-selection-hoc'
 
@@ -83,7 +91,7 @@ Or in es6:
     return props.value
   }
 })
-  
+  ]]>
 </pre>
 <h2>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h2>
