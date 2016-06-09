@@ -13,6 +13,11 @@ function makeSelectable( Component, options = {}) {
     static displayName = `Selection(${displayName})`
     constructor(props) {
       super(props)
+      this.touchStart = this.touchStart.bind(this)
+      this.touchEnd = this.touchEnd.bind(this)
+      this.touchMove = this.touchMove.bind(this)
+      this.touchCancel = this.touchCancel.bind(this)
+
       this.mouseDown = this.mouseDown.bind(this)
       this.mouseUp = this.mouseUp.bind(this)
       this.mouseMove = this.mouseMove.bind(this)
@@ -21,7 +26,10 @@ function makeSelectable( Component, options = {}) {
       this.clickTolerance = 2
       this.handlers = {
         stopmouseup: () => null,
-        stopmousemove: () => null
+        stopmousemove: () => null,
+        stoptouchend: () => null,
+        stoptouchmove: () => null,
+        stoptouchcancel: () => null
       }
       this.selectables = {}
       this.selectableKeys = []
@@ -45,6 +53,7 @@ function makeSelectable( Component, options = {}) {
       onSelectSlot: PropTypes.func,
       onFinishSelect: PropTypes.func,
       onMouseDown: PropTypes.func,
+      onTouchStart: PropTypes.func,
       onClick: PropTypes.func
     }
 
@@ -145,59 +154,86 @@ function makeSelectable( Component, options = {}) {
       if (this.handlers.stopmousemove) {
         this.handlers.stopmousemove()
       }
+      if (this.handlers.stoptouchend) {
+        this.handlers.stoptouchend()
+      }
+      if (this.handlers.stoptouchmove) {
+        this.handlers.stoptouchmove()
+      }
+      if (this.handlers.stoptouchcancel) {
+        this.handlers.stoptouchcancel()
+      }
+    }
+
+    touchStart(e) {
+      this.startSelectHandler(e, this.props.onTouchStart, 'touchstart', () => {
+        this.addListener(document, 'touchend', this.touchEnd)
+        this.addListener(document, 'touchmove', this.touchMove)
+      })
     }
 
     mouseDown(e) {
+      this.startSelectHandler(e, this.props.onMouseDown, 'mousedown', () => {
+        this.addListener(document, 'mouseup', this.mouseUp)
+        this.addListener(document, 'mousemove', this.mouseMove)
+      })
+    }
+
+    startSelectHandler(e, priorHandler, eventname, newEvents) {
       if (!this.props.selectable) {
-        if (this.props.onMouseDown) {
-          this.props.onMouseDown(e)
+        if (priorHandler) {
+          priorHandler(e)
         }
         return
       }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log('mousedown')
+        console.log(eventname)
       }
       if (!this.props.selectable) return
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log('mousedown: selectable')
+        console.log(`${eventname}: selectable`)
       }
       if (!this.node) {
         this.node = findDOMNode(this.ref)
         this.bounds = mouseMath.getBoundsForNode(this.node)
       }
-      if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, e.clientX, e.clientY)) {
+      const coords = mouseMath.getCoordinates(e)
+      console.log(coords)
+      if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, coords.clientX, coords.clientY)) {
+        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
+          console.log(`${eventname}: buttons or not contained`)
+        }
         return
       }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log('mousedown: left click')
+        console.log(`${eventname}: left click`)
       }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-        console.log('mousedown: bounds', this.bounds, e.pageY, e.pageX)
+        console.log(`${eventname}: bounds`, this.bounds, e.pageY, e.pageX)
       }
       if (!mouseMath.objectsCollide(this.bounds, {
-        top: e.pageY,
-        left: e.pageX
+        top: coords.pageY,
+        left: coords.pageX
       })) return
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log('mousedown: maybe select')
+        console.log(`${eventname}: maybe select`)
       }
 
       this.mouseDownData = {
-        x: e.pageX,
-        y: e.pageY,
-        clientX: e.clientX,
-        clientY: e.clientY
+        x: coords.pageX,
+        y: coords.pageY,
+        clientX: coords.clientX,
+        clientY: coords.clientY
       }
 
       if (this.props.constantSelect) {
-        this._selectRect = mouseMath.createSelectRect(e, this.mouseDownData)
+        this._selectRect = mouseMath.createSelectRect(coords, this.mouseDownData)
         this.selectNodes(e)
       }
 
       e.preventDefault()
 
-      this.addListener(document, 'mouseup', this.mouseUp)
-      this.addListener(document, 'mousemove', this.mouseMove)
+      newEvents()
     }
 
     click(e) {
@@ -215,7 +251,23 @@ function makeSelectable( Component, options = {}) {
         this.deselectNodes()
         return
       }
-      this.selectNodes(e)
+      this.selectNodes()
+    }
+
+    touchEnd(e) {
+      this.handlers.stoptouchmove()
+      this.handlers.stoptouchend()
+
+      if (!this.mouseDownData) return
+      this.endSelect(e)
+    }
+
+    touchCancel() {
+      this.handlers.stoptouchmove()
+      this.handlers.stoptouchend()
+      this.deselectNodes()
+      this.propagateFinishedSelect()
+      this.setState({ selecting: false })
     }
 
     mouseUp(e) {
@@ -223,7 +275,10 @@ function makeSelectable( Component, options = {}) {
       this.handlers.stopmousemove()
 
       if (!this.mouseDownData) return
+      this.endSelect(e)
+    }
 
+    endSelect(e) {
       if (mouseMath.isClick(e, this.mouseDownData, this.clickTolerance)) {
         if (this.state.selecting) {
           this.setState({ selecting: false })
@@ -236,22 +291,32 @@ function makeSelectable( Component, options = {}) {
         this.deselectNodes()
         return
       }
-      this.selectNodes(e)
+      this.selectNodes()
+    }
+
+    touchMove(e) {
+      if (!this.mouseDownData) return
+      this.expandSelect(e)
     }
 
     mouseMove(e) {
       if (!this.mouseDownData) return
+      this.expandSelect(e)
+    }
+
+    expandSelect(e) {
       const old = this.state.selecting
 
       if (!old) {
         this.setState({selecting: true})
       }
 
-      if (!mouseMath.isClick(e, this.mouseDownData, this.clickTolerance)) {
-        this._selectRect = mouseMath.createSelectRect(e, this.mouseDownData)
+      const coords = mouseMath.getCoordinates(e)
+      if (!mouseMath.isClick(coords, this.mouseDownData, this.clickTolerance)) {
+        this._selectRect = mouseMath.createSelectRect(coords, this.mouseDownData)
       }
       if (this.props.constantSelect) {
-        this.selectNodes(e)
+        this.selectNodes()
       }
     }
 
@@ -323,6 +388,10 @@ function makeSelectable( Component, options = {}) {
           <div
             onMouseDown={this.mouseDown}
             onClick={this.click}
+            onTouchStart={this.touchStart}
+            onTouchMove={this.touchMove}
+            onTouchEnd={this.touchEnd}
+            onTouchCancel={this.touchCancel}
           >
             <Component
               {...this.props}
@@ -338,6 +407,10 @@ function makeSelectable( Component, options = {}) {
           {...this.state}
           onMouseDown={this.mouseDown}
           onClick={this.click}
+          onTouchStart={this.touchStart}
+          onTouchMove={this.touchMove}
+          onTouchEnd={this.touchEnd}
+          onTouchCancel={this.touchCancel}
           ref={(ref) => { this.ref = ref }}
         />
       )

@@ -7,6 +7,25 @@ export default class mouseMath {
     return element.contains(point)
   }
 
+  static getCoordinates(e) {
+    if (e.clientX) {
+      return {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        pageX: e.pageX,
+        pageY: e.pageY
+      }
+    }
+    if (e.touches || e.touches[0]) {
+      return {
+        clientX: e.touches[0].clientX,
+        clientY: e.touches[0].clientY,
+        pageX: e.touches[0].pageX,
+        pageY: e.touches[0].pageY
+      }
+    }
+  }
+
   static objectsCollide(nodeA, nodeB, tolerance = 0, key = '(unknown)') {
     const {
       top: aTop,
