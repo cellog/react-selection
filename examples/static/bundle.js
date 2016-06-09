@@ -189,13 +189,17 @@
 	        var _ref$checked = _ref.checked;
 	        var checked = _ref$checked === undefined ? _react.PropTypes.bool.isRequired : _ref$checked;
 	        return _react2.default.createElement(
-	          'label',
-	          { htmlFor: name },
-	          name,
-	          ' ',
-	          _react2.default.createElement('input', { type: 'checkbox', value: checked, checked: checked, onChange: function onChange() {
-	              return _this4.setState(_defineProperty({}, name, !_this4.state[name]));
-	            } })
+	          'div',
+	          null,
+	          _react2.default.createElement(
+	            'label',
+	            { htmlFor: name },
+	            name,
+	            ' ',
+	            _react2.default.createElement('input', { type: 'checkbox', value: checked, checked: checked, onChange: function onChange() {
+	                return _this4.setState(_defineProperty({}, name, !_this4.state[name]));
+	              } })
+	          )
 	        );
 	      };
 	      var ret = [];

@@ -71,9 +71,9 @@ class Demo extends Component {
     const Checkbox = ({
       name = PropTypes.string.isRequired,
       checked = PropTypes.bool.isRequired
-    }) => <label htmlFor={name}>{name} <input type="checkbox" value={checked} checked={checked} onChange={
+    }) => <div><label htmlFor={name}>{name} <input type="checkbox" value={checked} checked={checked} onChange={
         () => this.setState({ [name]: !this.state[name] })
-      }/></label>
+      }/></label></div>
     const ret = []
 
     for (const name in this.state) {
