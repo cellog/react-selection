@@ -1,5 +1,5 @@
 import { Selection, Selectable } from 'react-selection-hoc'
-import React from 'react'
+import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 
 class Thing extends React.Component {
@@ -53,4 +53,49 @@ ReactDOM.render((
     {things}
   </Sel2>
 ), document.getElementById('example2')
+)
+
+class Demo extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      constantSelect: false,
+      selectable: true,
+      preserveSelection: false,
+      selectIntermediates: false
+    }
+  }
+
+  renderCheckboxes() {
+    const Checkbox = ({
+      name = PropTypes.string.isRequired,
+      checked = PropTypes.bool.isRequired
+    }) => <label htmlFor={name}>{name} <input type="checkbox" value={checked} onChange={
+        () => this.setState({ name: !this.state[name] })
+      }/></label>
+    const ret = []
+
+    for (const name in this.state) {
+      ret.push(<Checkbox name={name} checked={this.state[name]} />)
+    }
+    return ret
+  }
+
+  render() {
+    return (
+      <div>
+        {this.renderCheckboxes()}
+        <Sel2 {...this.state} style={{display: 'flex', flexFlow: 'row wrap', width: '100%'}}>
+          {things}
+        </Sel2>
+      </div>
+    )
+  }
+}
+
+
+ReactDOM.render((
+    <Demo />
+  ), document.getElementById('example3')
 )

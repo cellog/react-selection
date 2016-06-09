@@ -159,6 +159,71 @@
 	  things
 	), document.getElementById('example2'));
 
+	var Demo = function (_Component) {
+	  _inherits(Demo, _Component);
+
+	  function Demo(props) {
+	    _classCallCheck(this, Demo);
+
+	    var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(Demo).call(this, props));
+
+	    _this3.state = {
+	      constantSelect: false,
+	      selectable: true,
+	      preserveSelection: false,
+	      selectIntermediates: false
+	    };
+	    return _this3;
+	  }
+
+	  _createClass(Demo, [{
+	    key: 'renderCheckboxes',
+	    value: function renderCheckboxes() {
+	      var _this4 = this;
+
+	      var Checkbox = function Checkbox(_ref) {
+	        var _ref$name = _ref.name;
+	        var name = _ref$name === undefined ? _react.PropTypes.string.isRequired : _ref$name;
+	        var _ref$checked = _ref.checked;
+	        var checked = _ref$checked === undefined ? _react.PropTypes.bool.isRequired : _ref$checked;
+	        return _react2.default.createElement(
+	          'label',
+	          { htmlFor: name },
+	          name,
+	          ' ',
+	          _react2.default.createElement('input', { type: 'checkbox', value: checked, onChange: function onChange() {
+	              return _this4.setState({ name: !_this4.state[name] });
+	            } })
+	        );
+	      };
+	      var ret = [];
+
+	      for (var name in this.state) {
+	        ret.push(_react2.default.createElement(Checkbox, { name: name, checked: this.state[name] }));
+	      }
+	      return ret;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        this.renderCheckboxes(),
+	        _react2.default.createElement(
+	          Sel2,
+	          _extends({}, this.state, { style: { display: 'flex', flexFlow: 'row wrap', width: '100%' } }),
+	          things
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Demo;
+	}(_react.Component);
+
+	_reactDom2.default.render(_react2.default.createElement(Demo, null), document.getElementById('example3'));
+
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
