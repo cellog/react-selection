@@ -46,6 +46,10 @@
 
 	'use strict';
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _reactSelectionHoc = __webpack_require__(1);
 
 	var _react = __webpack_require__(5);
@@ -58,52 +62,87 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	//
-	// class Thing extends React.Component {
-	//   static propTypes = {
-	//     index: React.PropTypes.number.isRequired,
-	//     thing: React.PropTypes.string.isRequired
-	//   }
-	//   render() {
-	//     return <div style={{
-	//         width: 50,
-	//         height: 50,
-	//         backgroundColor: (this.props.selected ? 'green' : 'red'),
-	//         margin: 10}}
-	//     >
-	//       {this.props.thing}
-	//     </div>
-	//   }
-	// }
-	//
-	// const SelectableThing = Selectable(Thing, {
-	//   key: (props) => {
-	//     return props.index
-	//   },
-	//   value: (props) => {
-	//     return props.thing
-	//   }
-	// })
-	//
-	// class Test extends React.Component {
-	//   render() {
-	//     return <div style={{width: 100, height: 200, padding: 30, backgroundColor: '#ff8888', ...this.props.style}}>{this.props.children}</div>
-	//   }
-	// }
-	// const Sel = Selection(Test)
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Thing = function (_React$Component) {
+	  _inherits(Thing, _React$Component);
+
+	  function Thing() {
+	    _classCallCheck(this, Thing);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Thing).apply(this, arguments));
+	  }
+
+	  _createClass(Thing, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { style: {
+	            width: 50,
+	            height: 50,
+	            backgroundColor: this.props.selected ? 'green' : 'red',
+	            margin: 10 }
+	        },
+	        this.props.thing
+	      );
+	    }
+	  }]);
+
+	  return Thing;
+	}(_react2.default.Component);
+
+	Thing.propTypes = {
+	  index: _react2.default.PropTypes.number.isRequired,
+	  thing: _react2.default.PropTypes.string.isRequired
+	};
+
+
+	var SelectableThing = (0, _reactSelectionHoc.Selectable)(Thing, {
+	  key: function key(props) {
+	    return props.index;
+	  },
+	  value: function value(props) {
+	    return props.thing;
+	  }
+	});
+
+	var Test = function (_React$Component2) {
+	  _inherits(Test, _React$Component2);
+
+	  function Test() {
+	    _classCallCheck(this, Test);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Test).apply(this, arguments));
+	  }
+
+	  _createClass(Test, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { style: _extends({ width: 100, height: 200, padding: 30, backgroundColor: '#ff8888' }, this.props.style) },
+	        this.props.children
+	      );
+	    }
+	  }]);
+
+	  return Test;
+	}(_react2.default.Component);
+
+	var Sel = (0, _reactSelectionHoc.Selection)(Test);
 
 	_reactDom2.default.render(_react2.default.createElement(
-	  'div',
-	  null,
-	  'test'
+	  Sel,
+	  { constantSelect: true, selectable: true },
+	  _react2.default.createElement(SelectableThing, { thing: 'hi', index: 1 }),
+	  _react2.default.createElement(SelectableThing, { thing: 'there', index: 2 }),
+	  _react2.default.createElement(SelectableThing, { thing: 'foo', index: 3 })
 	), document.getElementById('example1'));
-	// const unused = (
-	//   <Sel constantSelect selectable>
-	//     <SelectableThing thing="hi" index={1}/>
-	//     <SelectableThing thing="there" index={2} />
-	//     <SelectableThing thing="foo" index={3} />
-	//   </Sel>
-	// )
 
 /***/ },
 /* 1 */
