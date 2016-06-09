@@ -125,7 +125,7 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { style: _extends({ width: 100, height: 200, padding: 30, backgroundColor: '#ff8888' }, this.props.style) },
+	        { style: _extends({ width: '100%', height: 200, padding: 30, backgroundColor: '#ff8888' }, this.props.style) },
 	        this.props.children
 	      );
 	    }
@@ -143,6 +143,21 @@
 	  _react2.default.createElement(SelectableThing, { thing: 'there', index: 2 }),
 	  _react2.default.createElement(SelectableThing, { thing: 'foo', index: 3 })
 	), document.getElementById('example1'));
+
+	var generateThing = function generateThing() {
+	  return _react2.default.createElement(SelectableThing, { thing: 'hi' + (arguments.length <= 1 ? undefined : arguments[1]), index: arguments.length <= 1 ? undefined : arguments[1], key: arguments.length <= 1 ? undefined : arguments[1] });
+	};
+	var things = Array(20).fill(0).map(generateThing);
+
+	var Sel2 = (0, _reactSelectionHoc.Selection)(Test, function (a, b) {
+	  return Number(a) - Number(b);
+	});
+
+	_reactDom2.default.render(_react2.default.createElement(
+	  Sel2,
+	  { selectable: true, constantSelect: true, selectIntermediates: true, style: { display: 'flex', flexFlow: 'row wrap', width: '50%' } },
+	  things
+	), document.getElementById('example2'));
 
 /***/ },
 /* 1 */
