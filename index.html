@@ -37,6 +37,7 @@
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
 
 <p>Turn any React component into a container for selectable things:</p>
+
 <pre>
   require React, { Component } from 'react'
   require { Selection } from 'react-selection-hoc'
@@ -62,6 +63,28 @@ Or in es6:
   const MyComponent = Selection(MyComponentPure)
 </pre>
 
+<p>Then, turn any React component into a thing that can be selected:</p>
+
+<pre>
+  require React, { Component } from 'react'
+  require { Selectable } from 'react-selection-hoc'
+
+  class MySelectablePureComponent extends Component {
+    render() {
+      return <div key={this.props.index}>{this.props.value}</div>
+    }
+  }
+  
+  const MySelectableComponent = Selectable(MySelectablePureComponent, {
+  key: (props) => {
+    return props.index
+  },
+  value: (props) => {
+    return props.value
+  }
+})
+  
+</pre>
 <h2>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h2>
 
