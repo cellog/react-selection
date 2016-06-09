@@ -12,7 +12,7 @@ npm install react-selection-hoc --save
 
 ## Usage
 
-To be continued...
+Full examples and documentation is at [http://cellog.github.io/react-selection/]()
 
 ## License
 
