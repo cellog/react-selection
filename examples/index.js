@@ -36,10 +36,10 @@ import ReactDOM from 'react-dom'
 // const Sel = Selection(Test)
 
 ReactDOM.render(<div>test</div>, document.getElementById('example1'))
-const unused = (
-  <Sel constantSelect selectable>
-    <SelectableThing thing="hi" index={1}/>
-    <SelectableThing thing="there" index={2} />
-    <SelectableThing thing="foo" index={3} />
-  </Sel>
-))
+// const unused = (
+//   <Sel constantSelect selectable>
+//     <SelectableThing thing="hi" index={1}/>
+//     <SelectableThing thing="there" index={2} />
+//     <SelectableThing thing="foo" index={3} />
+//   </Sel>
+// )
