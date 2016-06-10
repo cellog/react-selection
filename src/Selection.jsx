@@ -180,7 +180,8 @@ function makeSelectable( Component, options = {}) {
     }
 
     startSelectHandler(e, priorHandler, eventname, newEvents) {
-      if (!this.props.selectable) {
+      const invalid = e.touches && e.touches.length > 1
+      if (!this.props.selectable || invalid) {
         if (priorHandler) {
           priorHandler(e)
         }
@@ -197,7 +198,7 @@ function makeSelectable( Component, options = {}) {
         this.node = findDOMNode(this.ref)
         this.bounds = mouseMath.getBoundsForNode(this.node)
       }
-      const coords = mouseMath.getCoordinates(e)
+      const coords = mouseMath.getCoordinates(e, e.touches[0].identifier)
       console.log(coords)
       if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, coords.clientX, coords.clientY)) {
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
@@ -223,7 +224,8 @@ function makeSelectable( Component, options = {}) {
         x: coords.pageX,
         y: coords.pageY,
         clientX: coords.clientX,
-        clientY: coords.clientY
+        clientY: coords.clientY,
+        touchID: e.touches ? e.touches[0].identifier : false 
       }
 
       if (this.props.constantSelect) {
@@ -311,7 +313,7 @@ function makeSelectable( Component, options = {}) {
         this.setState({selecting: true})
       }
 
-      const coords = mouseMath.getCoordinates(e)
+      const coords = mouseMath.getCoordinates(e, this.mouseDownData.touchID)
       if (!mouseMath.isClick(coords, this.mouseDownData, this.clickTolerance)) {
         this._selectRect = mouseMath.createSelectRect(coords, this.mouseDownData)
       }

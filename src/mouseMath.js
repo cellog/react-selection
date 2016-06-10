@@ -7,7 +7,7 @@ export default class mouseMath {
     return element.contains(point)
   }
 
-  static getCoordinates(e) {
+  static getCoordinates(e, id) {
     if (e.clientX) {
       return {
         clientX: e.clientX,
@@ -16,12 +16,16 @@ export default class mouseMath {
         pageY: e.pageY
       }
     }
-    if (e.touches || e.touches[0]) {
+    if (e.touches) {
+      let idx = 0
+      for (; idx < e.touches.length; idx++) {
+        if (e.touches[idx].identifier === id) break
+      }
       return {
-        clientX: e.touches[0].clientX,
-        clientY: e.touches[0].clientY,
-        pageX: e.touches[0].pageX,
-        pageY: e.touches[0].pageY
+        clientX: e.touches[idx].clientX,
+        clientY: e.touches[idx].clientY,
+        pageX: e.touches[idx].pageX,
+        pageY: e.touches[idx].pageY
       }
     }
   }
