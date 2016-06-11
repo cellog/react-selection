@@ -229,4 +229,77 @@ describe("mouseMath", () => {
       elm.contains.calledWithExactly('hi').should.eql(true, 'called with elementFromPoint return value')
     })
   })
+
+  describe("getCoordinates", () => {
+    it("should extract clientX and company", () => {
+      mouseMath.getCoordinates({
+        clientX: 1,
+        foo: 3,
+        clientY: 2,
+        pageX: 3,
+        pageY: 4
+      }, 1).should.eql({
+        clientX: 1,
+        clientY: 2,
+        pageX: 3,
+        pageY: 4
+      })
+    })
+
+    it("should extract clientX and company, mobile", () => {
+      mouseMath.getCoordinates({
+        clientX: 9,
+        touches: [{
+          clientX: 5,
+          clientY: 6,
+          pageX: 7,
+          pageY: 8,
+          identifier: 0
+        }, {
+          clientX: 1,
+          clientY: 2,
+          pageX: 3,
+          pageY: 4,
+          identifier: 1
+        }],
+        clientY: 10,
+        pageX: 11,
+        pageY: 12
+      }, 1).should.eql({
+        clientX: 1,
+        clientY: 2,
+        pageX: 3,
+        pageY: 4
+      })
+    })
+
+    it("should extract clientX and company, mobile", () => {
+      mouseMath.getCoordinates({
+        clientX: 9,
+        touches: [{
+          clientX: 5,
+          clientY: 6,
+          pageX: 7,
+          pageY: 8,
+          identifier: 0
+        }, {
+          clientX: 1,
+          clientY: 2,
+          pageX: 3,
+          pageY: 4,
+          identifier: 1
+        }],
+        clientY: 10,
+        pageX: 11,
+        pageY: 12
+      }, 5, {
+        warn: (t) => t.should.eql('no touch found with identifier')
+      }).should.eql({
+        clientX: 5,
+        clientY: 6,
+        pageX: 7,
+        pageY: 8
+      })
+    })
+  })
 })

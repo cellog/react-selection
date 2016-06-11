@@ -7,8 +7,8 @@ export default class mouseMath {
     return element.contains(point)
   }
 
-  static getCoordinates(e, id) {
-    if (e.clientX) {
+  static getCoordinates(e, id, con = console) {
+    if (!e.touches && e.clientX) {
       return {
         clientX: e.clientX,
         clientY: e.clientY,
@@ -19,7 +19,13 @@ export default class mouseMath {
     if (e.touches) {
       let idx = 0
       for (; idx < e.touches.length; idx++) {
-        if (e.touches[idx].identifier === id) break
+        if (e.touches[idx].identifier === id) {
+          break
+        }
+      }
+      if (idx >= e.touches.length) {
+        con.warn('no touch found with identifier')
+        idx = 0
       }
       return {
         clientX: e.touches[idx].clientX,
