@@ -588,7 +588,8 @@
 	    }, {
 	      key: 'startSelectHandler',
 	      value: function startSelectHandler(e, priorHandler, eventname, newEvents) {
-	        if (!this.props.selectable) {
+	        var invalid = e.touches && e.touches.length > 1;
+	        if (!this.props.selectable || invalid) {
 	          if (priorHandler) {
 	            priorHandler(e);
 	          }
@@ -605,7 +606,7 @@
 	          this.node = (0, _reactDom.findDOMNode)(this.ref);
 	          this.bounds = _mouseMath2.default.getBoundsForNode(this.node);
 	        }
-	        var coords = _mouseMath2.default.getCoordinates(e);
+	        var coords = _mouseMath2.default.getCoordinates(e, e.touches[0].identifier);
 	        console.log(coords);
 	        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, coords.clientX, coords.clientY)) {
 	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
@@ -631,7 +632,8 @@
 	          x: coords.pageX,
 	          y: coords.pageY,
 	          clientX: coords.clientX,
-	          clientY: coords.clientY
+	          clientY: coords.clientY,
+	          touchID: e.touches ? e.touches[0].identifier : false
 	        };
 
 	        if (this.props.constantSelect) {
@@ -727,7 +729,7 @@
 	          this.setState({ selecting: true });
 	        }
 
-	        var coords = _mouseMath2.default.getCoordinates(e);
+	        var coords = _mouseMath2.default.getCoordinates(e, this.mouseDownData.touchID);
 	        if (!_mouseMath2.default.isClick(coords, this.mouseDownData, this.clickTolerance)) {
 	          this._selectRect = _mouseMath2.default.createSelectRect(coords, this.mouseDownData);
 	        }
@@ -922,8 +924,10 @@
 	    }
 	  }, {
 	    key: 'getCoordinates',
-	    value: function getCoordinates(e) {
-	      if (e.clientX) {
+	    value: function getCoordinates(e, id) {
+	      var con = arguments.length <= 2 || arguments[2] === undefined ? console : arguments[2];
+
+	      if (!e.touches && e.clientX) {
 	        return {
 	          clientX: e.clientX,
 	          clientY: e.clientY,
@@ -931,12 +935,22 @@
 	          pageY: e.pageY
 	        };
 	      }
-	      if (e.touches || e.touches[0]) {
+	      if (e.touches) {
+	        var idx = 0;
+	        for (; idx < e.touches.length; idx++) {
+	          if (e.touches[idx].identifier === id) {
+	            break;
+	          }
+	        }
+	        if (idx >= e.touches.length) {
+	          con.warn('no touch found with identifier');
+	          idx = 0;
+	        }
 	        return {
-	          clientX: e.touches[0].clientX,
-	          clientY: e.touches[0].clientY,
-	          pageX: e.touches[0].pageX,
-	          pageY: e.touches[0].pageY
+	          clientX: e.touches[idx].clientX,
+	          clientY: e.touches[idx].clientY,
+	          pageX: e.touches[idx].pageX,
+	          pageY: e.touches[idx].pageY
 	        };
 	      }
 	    }
