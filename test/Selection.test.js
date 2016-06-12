@@ -5,6 +5,7 @@ import React, { Component, PropTypes } from 'react'
 
 describe("Selection", () => {
   const Blah = class A extends Component {
+    static displayName = 'A'
     static propTypes = {
       name: PropTypes.string,
       children: PropTypes.any

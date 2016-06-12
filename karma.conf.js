@@ -1,10 +1,11 @@
 /* eslint no-var: 0, babel/object-shorthand: 0 */
 require('babel-register')
 const sauceBrowsers = require('./test/saucebrowsers.js')
+const ieBrowsers = require('./test/onlyie.js')
 
 const isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
 const reporters = ['mocha', 'saucelabs']
-const browsers = sauceBrowsers
+const browsers = process.env.ONLYIE ? ieBrowsers : sauceBrowsers
 
 const sauceParams = {
   testName: "react-selection-hoc unit tests",
