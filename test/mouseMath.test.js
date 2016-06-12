@@ -121,15 +121,19 @@ describe("mouseMath", () => {
     }
 
     it("should return 0 by default", () => {
-      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(0)
-      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(0)
+      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
+      expect(a).to.equal(0)
+      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
+      expect(b).to.equal(0)
     })
 
     it("should return scrollLeft/scrollTop as last resort", () => {
       mockdoc.body.scrollLeft = 5
       mockdoc.body.scrollTop = 6
-      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(5)
-      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(6)
+      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
+      expect(a).to.equal(5)
+      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
+      expect(b).to.equal(6)
     })
 
     it("should return scrollX/scrollY as 2nd to last resort", () => {
@@ -137,8 +141,10 @@ describe("mouseMath", () => {
       mockdoc.body.scrollTop = 6
       mockwin.scrollX = 4
       mockwin.scrollY = 3
-      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(4)
-      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(3)
+      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
+      expect(a).to.equal(4)
+      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
+      expect(b).to.equal(3)
     })
 
     it("should return pageXOffset/pageYOffset as first choice", () => {
@@ -148,8 +154,10 @@ describe("mouseMath", () => {
       mockwin.scrollY = 3
       mockwin.pageXOffset = 2
       mockwin.pageYOffset = 1
-      mouseMath.pageOffset('left', mockwin, mockdoc).should.equal(2)
-      mouseMath.pageOffset('top', mockwin, mockdoc).should.equal(1)
+      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
+      expect(a).to.equal(2)
+      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
+      expect(b).to.equal(1)
     })
 
     it("should throw on incorrect direction", () => {
