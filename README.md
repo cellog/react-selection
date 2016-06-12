@@ -17,3 +17,10 @@ Full examples and documentation is at [http://cellog.github.io/react-selection/]
 ## License
 
 MIT License
+
+## Thanks
+
+[![http://www.browserstack.com](https://www.browserstack.com/images/layout/browserstack-logo-600x315.png)](http://www.browserstack.com)
+
+Huge thanks to [BrowserStack](http://www.browserstack.com) for providing
+cross-browser testing on real devices.
