@@ -29,7 +29,9 @@ module.exports = function(wallaby) {
       // this fools meteor into ignoring the require statement.
       // otherwise, it will try to load jsdom into the web version build and server build.
       const fool = require
-      const jsdom = fool('jsdom').jsdom;
+      const jsdom = fool('jsdom').jsdom
+      const sinon = fool('sinon')
+      const expect = fool('chai').expect
 
 // from mocha-jsdom https://github.com/rstacruz/mocha-jsdom/blob/master/index.js#L80
       const propagateToGlobal = (window) => {
@@ -46,6 +48,8 @@ module.exports = function(wallaby) {
       const win = doc.defaultView
       global.document = doc
       global.window = win
+      global.sinon = sinon
+      global.expect = expect
 
       propagateToGlobal(win)
     }

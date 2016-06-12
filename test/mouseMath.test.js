@@ -1,5 +1,4 @@
 import 'should'
-import sinon from 'sinon'
 import mouseMath from '../src/mouseMath.js'
 
 describe("mouseMath", () => {
@@ -14,15 +13,19 @@ describe("mouseMath", () => {
     })
 
     it("should accept a valid value within tolerance", () => {
-      mouseMath.isClick(e, { x: 55, y: 50 }, 5).should.be.true("x is 55")
+      const a = mouseMath.isClick(e, { x: 55, y: 50 }, 5)
+      expect(a, "x is 55").to.be.true
 
-      mouseMath.isClick(e, { x: 50, y: 55 }, 5).should.be.true("y is 55")
+      const b = mouseMath.isClick(e, { x: 50, y: 55 }, 5)
+      expect(b, "y is 55").to.be.true
     })
 
     it("should fail outside tolerance", () => {
-      mouseMath.isClick(e, { x: 56, y: 50 }, 5).should.be.false("x is 56")
+      const a = mouseMath.isClick(e, { x: 56, y: 50 }, 5)
+      expect(a, "x is 56").to.be.false
 
-      mouseMath.isClick(e, { x: 50, y: 44 }, 5).should.be.false("y is 44")
+      const b = mouseMath.isClick(e, { x: 50, y: 44 }, 5)
+      expect(b, "y is 44").to.be.false
     })
   })
 
