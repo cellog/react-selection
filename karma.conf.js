@@ -2,10 +2,12 @@
 require('babel-register')
 const sauceBrowsers = require('./test/saucebrowsers.js')
 const ieBrowsers = require('./test/onlyie.js')
+const iosBrowsers = require('./test/onlyios.js')
 
 const isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
 const reporters = ['mocha', 'saucelabs']
 let browsers = process.env.ONLYIE ? ieBrowsers : sauceBrowsers
+if (process.env.ONLYIOS) browsers = iosBrowsers
 let browserKeys = Object.keys(browsers)
 let singleRun = true
 

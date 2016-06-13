@@ -125,20 +125,24 @@ describe("mouseMath", () => {
       expect(b).to.equal(0)
     })
 
-    it("should return scrollX/scrollY as 2nd to last resort", () => {
-      mockwin.scrollX = 4
-      mockwin.scrollY = 3
+    it("should return pageXOffset/pageYOffset", () => {
+      mockwin.pageXOffset = 4
+      mockwin.pageYOffset = 3
       const a = mouseMath.pageOffset('left', mockwin)
       expect(a).to.equal(4)
       const b = mouseMath.pageOffset('top', mockwin)
       expect(b).to.equal(3)
     })
 
-    it("should return pageXOffset/pageYOffset as first choice", () => {
-      mockwin.scrollX = 4
-      mockwin.scrollY = 3
-      mockwin.pageXOffset = 2
-      mockwin.pageYOffset = 1
+    it("should return parent pageXOffset/pageYOffset as first choice", () => {
+      mockwin.pageXOffset = 0
+      mockwin.pageYOffset = 0
+      mockwin.parent = {
+        window: {
+          pageXOffset: 2,
+          pageYOffset: 1
+        }
+      }
       const a = mouseMath.pageOffset('left', mockwin)
       expect(a).to.equal(2)
       const b = mouseMath.pageOffset('top', mockwin)
@@ -168,12 +172,13 @@ describe("mouseMath", () => {
       document.body.appendChild(div)
       var component = render(<Boohoo />, div);
       window.scroll(20,20)
+      expect(document.body.scrollTop).to.equal(20)
 
       const a = mouseMath.pageOffset('left')
       const b = mouseMath.pageOffset('top')
 
-      expect(a).to.equal(20)
-      expect(b).to.equal(20)
+      expect(b).to.equal(20, "top should be 20")
+      expect(a).to.equal(20, "left should be 20")
       unmountComponentAtNode(div)
     })
   })

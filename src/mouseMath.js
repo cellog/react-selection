@@ -66,13 +66,16 @@ export default class mouseMath {
   }
 
   static pageOffset(dir, win = window) {
-    if (dir === 'left') {
-      return (win.pageXOffset || win.scrollX || 0)
+    if (dir !== 'left' && dir !== 'top') {
+      throw new Error(`direction must be one of top or left, was "${dir}"`)
     }
-    if (dir === 'top') {
-      return (win.pageYOffset || win.scrollY || 0)
+    let actual = win
+    if (win.parent) {
+      actual = win.parent.window
     }
-    throw new Error(`direction must be one of top or left, was "${dir}"`)
+    let offset = dir === 'left' ? 'pageXOffset' : 'pageYOffset'
+    offset = actual[offset] ? actual[offset] : 0
+    return offset || 0
   }
 
   /**
