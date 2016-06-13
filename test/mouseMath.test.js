@@ -169,10 +169,9 @@ describe("mouseMath", () => {
       }
 
       var div = document.createElement('div');
-      document.body.appendChild(div)
+      document.body.insertBefore(div, document.body.firstElementChild)
       var component = render(<Boohoo />, div);
       window.scroll(20,20)
-      expect(document.body.scrollTop).to.equal(20)
 
       const a = mouseMath.pageOffset('left')
       const b = mouseMath.pageOffset('top')
