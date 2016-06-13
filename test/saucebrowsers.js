@@ -130,6 +130,60 @@ const browsers = {
     browserName: 'iphone',
     platform: 'OS X 10.9',
     version: '7.1'
+  },
+  sl_android_51: {
+    base: 'SauceLabs',
+    browserName: 'android',
+    platform: 'Linux',
+    version: '5.1',
+    deviceName: 'Android Emulator',
+    deviceType: 'tablet',
+    deviceOrientation: 'portrait'
+  },
+  sl_android_51: {
+    base: 'SauceLabs',
+    browserName: 'android',
+    platform: 'Linux',
+    version: '5.1',
+    deviceName: 'Android Emulator',
+    deviceType: 'phone',
+    deviceOrientation: 'portrait'
+  },
+  sl_android_51: {
+    base: 'SauceLabs',
+    browserName: 'android',
+    platform: 'Linux',
+    version: '4.4',
+    deviceName: 'Android Emulator',
+    deviceType: 'phone',
+    deviceOrientation: 'portrait'
+  },
+  sl_android_51: {
+    base: 'SauceLabs',
+    browserName: 'android',
+    platform: 'Linux',
+    version: '4.3',
+    deviceName: 'Android Emulator',
+    deviceType: 'phone',
+    deviceOrientation: 'portrait'
+  },
+  sl_android_51: {
+    base: 'SauceLabs',
+    browserName: 'android',
+    platform: 'Linux',
+    version: '4.2',
+    deviceName: 'Android Emulator',
+    deviceType: 'phone',
+    deviceOrientation: 'portrait'
+  },
+  sl_android_51: {
+    base: 'SauceLabs',
+    browserName: 'android',
+    platform: 'Linux',
+    version: '4.1',
+    deviceName: 'Android Emulator',
+    deviceType: 'phone',
+    deviceOrientation: 'portrait'
   }
 }
 
