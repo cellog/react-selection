@@ -3,73 +3,73 @@ const browsers = {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: '50.0'
+    version: '50'
   },
   sl_chrome_10_49: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: '49.0'
+    version: '49'
   },
   sl_chrome_10_48: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: '48.0'
+    version: '48'
   },
   sl_chrome_10_47: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: '47.0'
+    version: '47'
   },
   sl_chrome_10_46: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: '46.0'
+    version: '46'
   },
   sl_chrome_10_45: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: '45.0'
+    version: '45'
   },
   sl_chrome_10_43: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: '43.0'
+    version: '43'
   },
   sl_firefox_10_46: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: '46.0'
+    version: '46'
   },
   sl_firefox_10_45: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: '45.0'
+    version: '45'
   },
   sl_firefox_10_44: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: '44.0'
+    version: '44'
   },
   sl_firefox_10_43: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: '43.0'
+    version: '43'
   },
   sl_firefox_10_42: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: '42.0'
+    version: '42'
   },
   sl_edge_10_13: {
     base: 'SauceLabs',
