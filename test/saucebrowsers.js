@@ -83,6 +83,12 @@ const browsers = {
     platform: 'Windows 10',
     version: '11.103'
   },
+  sl_ie_8_10: {
+    base: 'SauceLabs',
+    browserName: 'internet explorer',
+    platform: 'Windows 8',
+    version: '10'
+  },
   sl_ie_7_9: {
     base: 'SauceLabs',
     browserName: 'internet explorer',
@@ -184,6 +190,12 @@ const browsers = {
     deviceName: 'Android Emulator',
     deviceType: 'phone',
     deviceOrientation: 'portrait'
+  },
+  sl_opera: {
+    base: 'SauceLabs',
+    browserName: 'opera',
+    platform: 'Linux',
+    version: '12.15'
   }
 }
 

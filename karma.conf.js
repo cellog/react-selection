@@ -5,7 +5,9 @@ const ieBrowsers = require('./test/onlyie.js')
 
 const isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
 const reporters = ['mocha', 'saucelabs']
-const browsers = process.env.ONLYIE ? ieBrowsers : sauceBrowsers
+let browsers = process.env.ONLYIE ? ieBrowsers : sauceBrowsers
+let browserKeys = Object.keys(browsers)
+let singleRun = true
 
 const sauceParams = {
   testName: "react-selection-hoc unit tests",
@@ -17,6 +19,12 @@ if (isCI) {
   sauceParams.build = process.env.TRAVIS_BUILD_NUMBER
 } else {
   sauceParams.startConnect = false
+}
+
+if (process.env.QUICKTEST) {
+  browsers = {}
+  browserKeys = ['Chrome']
+  singleRun = false
 }
 
 module.exports = function(config) {
@@ -61,11 +69,11 @@ module.exports = function(config) {
     sauceLabs: sauceParams,
 
     customLaunchers: browsers,
-    browsers: Object.keys(browsers),
+    browsers: browserKeys,
 
     captureTimeout: 1200000,
     browserNoActivityTimeout: 45000,
 
-    singleRun: true
+    singleRun
   })
 }

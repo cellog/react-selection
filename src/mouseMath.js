@@ -65,12 +65,12 @@ export default class mouseMath {
     )
   }
 
-  static pageOffset(dir, win = window, doc = document) {
+  static pageOffset(dir, win = window) {
     if (dir === 'left') {
-      return (win.pageXOffset || win.scrollX || doc.body.scrollLeft || 0)
+      return (win.pageXOffset || win.scrollX || 0)
     }
     if (dir === 'top') {
-      return (win.pageYOffset || win.scrollY || doc.body.scrollTop || 0)
+      return (win.pageYOffset || win.scrollY || 0)
     }
     throw new Error(`direction must be one of top or left, was "${dir}"`)
   }

@@ -1,4 +1,6 @@
 import 'should'
+import React from 'react'
+import { render, unmountComponentAtNode } from 'react-dom'
 import mouseMath from '../src/mouseMath.js'
 
 describe("mouseMath", () => {
@@ -115,53 +117,64 @@ describe("mouseMath", () => {
   describe("pageOffset", () => {
     const mockwin = {
     }
-    const mockdoc = {
-      body: {
-      }
-    }
 
     it("should return 0 by default", () => {
-      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
+      const a = mouseMath.pageOffset('left', mockwin)
       expect(a).to.equal(0)
-      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
+      const b = mouseMath.pageOffset('top', mockwin)
       expect(b).to.equal(0)
     })
 
-    it("should return scrollLeft/scrollTop as last resort", () => {
-      mockdoc.body.scrollLeft = 5
-      mockdoc.body.scrollTop = 6
-      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
-      expect(a).to.equal(5)
-      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
-      expect(b).to.equal(6)
-    })
-
     it("should return scrollX/scrollY as 2nd to last resort", () => {
-      mockdoc.body.scrollLeft = 5
-      mockdoc.body.scrollTop = 6
       mockwin.scrollX = 4
       mockwin.scrollY = 3
-      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
+      const a = mouseMath.pageOffset('left', mockwin)
       expect(a).to.equal(4)
-      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
+      const b = mouseMath.pageOffset('top', mockwin)
       expect(b).to.equal(3)
     })
 
     it("should return pageXOffset/pageYOffset as first choice", () => {
-      mockdoc.body.scrollLeft = 5
-      mockdoc.body.scrollTop = 6
       mockwin.scrollX = 4
       mockwin.scrollY = 3
       mockwin.pageXOffset = 2
       mockwin.pageYOffset = 1
-      const a = mouseMath.pageOffset('left', mockwin, mockdoc)
+      const a = mouseMath.pageOffset('left', mockwin)
       expect(a).to.equal(2)
-      const b = mouseMath.pageOffset('top', mockwin, mockdoc)
+      const b = mouseMath.pageOffset('top', mockwin)
       expect(b).to.equal(1)
     })
 
     it("should throw on incorrect direction", () => {
-      (() => mouseMath.pageOffset('foo', mockwin, mockdoc)).should.throw("direction must be one of top or left, was \"foo\"")
+      (() => mouseMath.pageOffset('foo', mockwin)).should.throw("direction must be one of top or left, was \"foo\"")
+    })
+
+    it("should return the correct page offset", () => {
+      if (window.____isjsdom) return
+      class Boohoo extends React.Component {
+        render() {
+          return (
+            <div style={{height: 13000, width: 130000, position: 'relative'}}>
+              <div style={{position: 'absolute', top: 20, left: 20, height: 50, width: 50}}>one</div>
+              <div style={{position: 'absolute', top: 200, left: 20, height: 50, width: 50}}>two</div>
+              <div style={{position: 'absolute', top: 200, left: 75, height: 50, width: 50}}>three</div>
+              <div style={{position: 'absolute', top: 260, left: 0, height: 50, width: 50}}>four</div>
+            </div>
+          )
+        }
+      }
+
+      var div = document.createElement('div');
+      document.body.appendChild(div)
+      var component = render(<Boohoo />, div);
+      window.scroll(20,20)
+
+      const a = mouseMath.pageOffset('left')
+      const b = mouseMath.pageOffset('top')
+
+      expect(a).to.equal(20)
+      expect(b).to.equal(20)
+      unmountComponentAtNode(div)
     })
   })
 
