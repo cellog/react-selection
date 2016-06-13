@@ -125,17 +125,35 @@ const browsers = {
     platform: 'OS X 10.11',
     version: '50'
   },
-  sl_firefox_osx_50: {
+  sl_firefox_osx_46: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'OS X 10.11',
     version: '46.0'
   },
-  sl_iphone6plus_safari: {
+  sl_iphone_92: {
     base: 'SauceLabs',
     browserName: 'iphone',
-    platform: 'OS X 10.9',
-    version: '7.1'
+    platform: 'OS X 10.10',
+    version: '9.2',
+    deviceName: 'iPhone 6 Plus',
+    deviceOrientation: 'portrait'
+  },
+  sl_iphone_84: {
+    base: 'SauceLabs',
+    browserName: 'iphone',
+    platform: 'OS X 10.10',
+    version: '8.4',
+    deviceName: 'iPhone 6',
+    deviceOrientation: 'portrait'
+  },
+  sl_iphone_71: {
+    base: 'SauceLabs',
+    browserName: 'iphone',
+    platform: 'OS X 10.10',
+    version: '7.1',
+    deviceName: 'iPhone 5s',
+    deviceOrientation: 'portrait'
   },
   sl_android_51: {
     base: 'SauceLabs',
@@ -146,7 +164,7 @@ const browsers = {
     deviceType: 'tablet',
     deviceOrientation: 'portrait'
   },
-  sl_android_51: {
+  sl_android_51p: {
     base: 'SauceLabs',
     browserName: 'android',
     platform: 'Linux',
@@ -155,7 +173,7 @@ const browsers = {
     deviceType: 'phone',
     deviceOrientation: 'portrait'
   },
-  sl_android_51: {
+  sl_android_44: {
     base: 'SauceLabs',
     browserName: 'android',
     platform: 'Linux',
@@ -164,7 +182,7 @@ const browsers = {
     deviceType: 'phone',
     deviceOrientation: 'portrait'
   },
-  sl_android_51: {
+  sl_android_43: {
     base: 'SauceLabs',
     browserName: 'android',
     platform: 'Linux',
@@ -173,7 +191,7 @@ const browsers = {
     deviceType: 'phone',
     deviceOrientation: 'portrait'
   },
-  sl_android_51: {
+  sl_android_42: {
     base: 'SauceLabs',
     browserName: 'android',
     platform: 'Linux',
@@ -182,7 +200,7 @@ const browsers = {
     deviceType: 'phone',
     deviceOrientation: 'portrait'
   },
-  sl_android_51: {
+  sl_android_41: {
     base: 'SauceLabs',
     browserName: 'android',
     platform: 'Linux',
