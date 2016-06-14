@@ -1,4 +1,5 @@
-/* eslint no-var: 0, babel/object-shorthand: 0 */
+/* eslint no-var: 0, babel/object-shorthand: 0, vars-on-top: 0 */
+require('babel-register')
 var sauceBrowsers = require('./test/saucebrowsers.js')
 var ieBrowsers = require('./test/onlyie.js')
 var iosBrowsers = require('./test/onlyios.js')
@@ -18,7 +19,6 @@ if (process.env.ONLYIOS) {
   browsers = iosBrowsers
   browserKeys = Object.keys(browsers)
 }
-require('babel-register')
 
 if (isCI) {
   sauceParams.build = process.env.TRAVIS_BUILD_NUMBER

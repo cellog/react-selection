@@ -115,8 +115,7 @@ describe("mouseMath", () => {
   })
 
   describe("pageOffset", () => {
-    const mockwin = {
-    }
+    const mockwin = {}
 
     it("should return 0 by default", () => {
       const a = mouseMath.pageOffset('left', mockwin)
@@ -152,9 +151,11 @@ describe("mouseMath", () => {
     it("should throw on incorrect direction", () => {
       (() => mouseMath.pageOffset('foo', mockwin)).should.throw("direction must be one of top or left, was \"foo\"")
     })
+  })
 
-    it("should return the correct page offset", () => {
-      if (window.____isjsdom) return
+  describe("browser-specific tests for pageOffset", () => {
+    var div = document.createElement('div');
+    before(() => {
       class Boohoo extends React.Component {
         render() {
           return (
@@ -168,17 +169,26 @@ describe("mouseMath", () => {
         }
       }
 
-      var div = document.createElement('div');
       document.body.insertBefore(div, document.body.firstElementChild)
-      var component = render(<Boohoo />, div);
+      render(<Boohoo />, div);
+    })
+
+    after(() => {
+      unmountComponentAtNode(div)
+    })
+
+    it("should return the correct page offset", () => {
+      if (window.____isjsdom) return
       window.scroll(20,20)
+      if (window.parent) window.parent.window.scroll(20,20)
 
       const a = mouseMath.pageOffset('left')
       const b = mouseMath.pageOffset('top')
 
-      expect(b).to.equal(20, "top should be 20")
-      expect(a).to.equal(20, "left should be 20")
-      unmountComponentAtNode(div)
+      setTimeout(() => {
+        expect(b).to.equal(20, "top should be 20")
+        expect(a).to.equal(20, "left should be 20")
+      }, 10)
     })
   })
 
