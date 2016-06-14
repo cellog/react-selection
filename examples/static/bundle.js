@@ -873,6 +873,7 @@
 	}
 
 	exports.default = makeSelectable;
+	module.exports = exports['default'];
 
 /***/ },
 /* 3 */
@@ -907,6 +908,8 @@
 	    throw new TypeError("Cannot call a class as a function");
 	  }
 	}
+
+	var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 	var mouseMath = function () {
 	  function mouseMath() {
@@ -995,16 +998,19 @@
 	  }, {
 	    key: 'pageOffset',
 	    value: function pageOffset(dir) {
-	      var win = arguments.length <= 1 || arguments[1] === undefined ? window : arguments[1];
-	      var doc = arguments.length <= 2 || arguments[2] === undefined ? document : arguments[2];
+	      var useLocal = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+	      var win = arguments.length <= 2 || arguments[2] === undefined ? window : arguments[2];
 
-	      if (dir === 'left') {
-	        return win.pageXOffset || win.scrollX || doc.body.scrollLeft || 0;
+	      if (dir !== 'left' && dir !== 'top') {
+	        throw new Error('direction must be one of top or left, was "' + dir + '"');
 	      }
-	      if (dir === 'top') {
-	        return win.pageYOffset || win.scrollY || doc.body.scrollTop || 0;
+	      var offsetname = dir === 'left' ? 'pageXOffset' : 'pageYOffset';
+	      var offset = win[offsetname] ? win[offsetname] : 0;
+	      var parentoffset = 0;
+	      if (!useLocal && win.parent && win.parent.window) {
+	        parentoffset = win.parent.window[offsetname];
 	      }
-	      throw new Error('direction must be one of top or left, was "' + dir + '"');
+	      return Math.max(offset, parentoffset, 0);
 	    }
 
 	    /**
@@ -1021,8 +1027,8 @@
 	      if (!node.getBoundingClientRect) return node;
 
 	      var rect = node.getBoundingClientRect();
-	      var left = rect.left + pageOffset('left');
-	      var top = rect.top + pageOffset('top');
+	      var left = rect.left + pageOffset('left', iOS);
+	      var top = rect.top + pageOffset('top', iOS);
 
 	      return {
 	        top: top,
@@ -1066,6 +1072,7 @@
 	}();
 
 	exports.default = mouseMath;
+	module.exports = exports['default'];
 
 /***/ },
 /* 4 */
@@ -1185,6 +1192,7 @@
 	  collisions: false
 	};
 	exports.default = Debug;
+	module.exports = exports['default'];
 
 /***/ },
 /* 5 */
@@ -21169,6 +21177,7 @@
 	}
 
 	exports.default = Selectable;
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);
