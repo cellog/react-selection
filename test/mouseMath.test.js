@@ -187,7 +187,7 @@ describe("mouseMath", function() {
 
       document.body.appendChild(div)
       
-      const a = mouseMath.contains(div, 6, 6)
+      const a = mouseMath.contains(div, 25, 25)
       expect(a).to.equal(true)
     })
 
