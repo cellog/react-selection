@@ -5,11 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Debug = exports.Selectable = exports.Selection = undefined;
 
-var _Selection = require('./Selection.js');
+var _Selection = require('./Selection');
 
 var _Selection2 = _interopRequireDefault(_Selection);
 
-var _Selectable = require('./Selectable.js');
+var _Selectable = require('./Selectable');
 
 var _Selectable2 = _interopRequireDefault(_Selectable);
 

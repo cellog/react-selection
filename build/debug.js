@@ -92,3 +92,4 @@ Debug.DEBUGGING = {
   collisions: false
 };
 exports.default = Debug;
+module.exports = exports['default'];

@@ -14,6 +14,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
 var mouseMath = function () {
   function mouseMath() {
     _classCallCheck(this, mouseMath);
@@ -27,6 +29,38 @@ var mouseMath = function () {
       if (!element) return true;
       var point = doc.elementFromPoint(x, y);
       return element.contains(point);
+    }
+  }, {
+    key: 'getCoordinates',
+    value: function getCoordinates(e, id) {
+      var con = arguments.length <= 2 || arguments[2] === undefined ? console : arguments[2];
+
+      if (!e.touches && e.clientX) {
+        return {
+          clientX: e.clientX,
+          clientY: e.clientY,
+          pageX: e.pageX,
+          pageY: e.pageY
+        };
+      }
+      if (e.touches) {
+        var idx = 0;
+        for (; idx < e.touches.length; idx++) {
+          if (e.touches[idx].identifier === id) {
+            break;
+          }
+        }
+        if (idx >= e.touches.length) {
+          con.warn('no touch found with identifier');
+          idx = 0;
+        }
+        return {
+          clientX: e.touches[idx].clientX,
+          clientY: e.touches[idx].clientY,
+          pageX: e.touches[idx].pageX,
+          pageY: e.touches[idx].pageY
+        };
+      }
     }
   }, {
     key: 'objectsCollide',
@@ -69,16 +103,19 @@ var mouseMath = function () {
   }, {
     key: 'pageOffset',
     value: function pageOffset(dir) {
-      var win = arguments.length <= 1 || arguments[1] === undefined ? window : arguments[1];
-      var doc = arguments.length <= 2 || arguments[2] === undefined ? document : arguments[2];
+      var useLocal = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+      var win = arguments.length <= 2 || arguments[2] === undefined ? window : arguments[2];
 
-      if (dir === 'left') {
-        return win.pageXOffset || win.scrollX || doc.body.scrollLeft || 0;
+      if (dir !== 'left' && dir !== 'top') {
+        throw new Error('direction must be one of top or left, was "' + dir + '"');
       }
-      if (dir === 'top') {
-        return win.pageYOffset || win.scrollY || doc.body.scrollTop || 0;
+      var offsetname = dir === 'left' ? 'pageXOffset' : 'pageYOffset';
+      var offset = win[offsetname] ? win[offsetname] : 0;
+      var parentoffset = 0;
+      if (!useLocal && win.parent && win.parent.window) {
+        parentoffset = win.parent.window[offsetname];
       }
-      throw new Error('direction must be one of top or left, was "' + dir + '"');
+      return Math.max(offset, parentoffset, 0);
     }
 
     /**
@@ -95,8 +132,8 @@ var mouseMath = function () {
       if (!node.getBoundingClientRect) return node;
 
       var rect = node.getBoundingClientRect();
-      var left = rect.left + pageOffset('left');
-      var top = rect.top + pageOffset('top');
+      var left = rect.left + pageOffset('left', iOS);
+      var top = rect.top + pageOffset('top', iOS);
 
       return {
         top: top,
@@ -140,3 +177,4 @@ var mouseMath = function () {
 }();
 
 exports.default = mouseMath;
+module.exports = exports['default'];

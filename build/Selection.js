@@ -56,6 +56,11 @@ function makeSelectable(Component) {
 
       var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, props));
 
+      _this.touchStart = _this.touchStart.bind(_this);
+      _this.touchEnd = _this.touchEnd.bind(_this);
+      _this.touchMove = _this.touchMove.bind(_this);
+      _this.touchCancel = _this.touchCancel.bind(_this);
+
       _this.mouseDown = _this.mouseDown.bind(_this);
       _this.mouseUp = _this.mouseUp.bind(_this);
       _this.mouseMove = _this.mouseMove.bind(_this);
@@ -67,6 +72,15 @@ function makeSelectable(Component) {
           return null;
         },
         stopmousemove: function stopmousemove() {
+          return null;
+        },
+        stoptouchend: function stoptouchend() {
+          return null;
+        },
+        stoptouchmove: function stoptouchmove() {
+          return null;
+        },
+        stoptouchcancel: function stoptouchcancel() {
           return null;
         }
       };
@@ -204,60 +218,95 @@ function makeSelectable(Component) {
         if (this.handlers.stopmousemove) {
           this.handlers.stopmousemove();
         }
+        if (this.handlers.stoptouchend) {
+          this.handlers.stoptouchend();
+        }
+        if (this.handlers.stoptouchmove) {
+          this.handlers.stoptouchmove();
+        }
+        if (this.handlers.stoptouchcancel) {
+          this.handlers.stoptouchcancel();
+        }
+      }
+    }, {
+      key: 'touchStart',
+      value: function touchStart(e) {
+        var _this5 = this;
+
+        this.startSelectHandler(e, this.props.onTouchStart, 'touchstart', function () {
+          _this5.addListener(document, 'touchend', _this5.touchEnd);
+          _this5.addListener(document, 'touchmove', _this5.touchMove);
+        });
       }
     }, {
       key: 'mouseDown',
       value: function mouseDown(e) {
-        if (!this.props.selectable) {
-          if (this.props.onMouseDown) {
-            this.props.onMouseDown(e);
+        var _this6 = this;
+
+        this.startSelectHandler(e, this.props.onMouseDown, 'mousedown', function () {
+          _this6.addListener(document, 'mouseup', _this6.mouseUp);
+          _this6.addListener(document, 'mousemove', _this6.mouseMove);
+        });
+      }
+    }, {
+      key: 'startSelectHandler',
+      value: function startSelectHandler(e, priorHandler, eventname, newEvents) {
+        var invalid = e.touches && e.touches.length > 1;
+        if (!this.props.selectable || invalid) {
+          if (priorHandler) {
+            priorHandler(e);
           }
           return;
         }
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-          console.log('mousedown');
+          console.log(eventname);
         }
         if (!this.props.selectable) return;
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-          console.log('mousedown: selectable');
+          console.log(eventname + ': selectable');
         }
         if (!this.node) {
           this.node = (0, _reactDom.findDOMNode)(this.ref);
           this.bounds = _mouseMath2.default.getBoundsForNode(this.node);
         }
-        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, e.clientX, e.clientY)) {
+        var coords = _mouseMath2.default.getCoordinates(e, e.touches[0].identifier);
+        console.log(coords);
+        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, coords.clientX, coords.clientY)) {
+          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
+            console.log(eventname + ': buttons or not contained');
+          }
           return;
         }
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-          console.log('mousedown: left click');
+          console.log(eventname + ': left click');
         }
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-          console.log('mousedown: bounds', this.bounds, e.pageY, e.pageX);
+          console.log(eventname + ': bounds', this.bounds, e.pageY, e.pageX);
         }
         if (!_mouseMath2.default.objectsCollide(this.bounds, {
-          top: e.pageY,
-          left: e.pageX
+          top: coords.pageY,
+          left: coords.pageX
         })) return;
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-          console.log('mousedown: maybe select');
+          console.log(eventname + ': maybe select');
         }
 
         this.mouseDownData = {
-          x: e.pageX,
-          y: e.pageY,
-          clientX: e.clientX,
-          clientY: e.clientY
+          x: coords.pageX,
+          y: coords.pageY,
+          clientX: coords.clientX,
+          clientY: coords.clientY,
+          touchID: e.touches ? e.touches[0].identifier : false
         };
 
         if (this.props.constantSelect) {
-          this._selectRect = _mouseMath2.default.createSelectRect(e, this.mouseDownData);
+          this._selectRect = _mouseMath2.default.createSelectRect(coords, this.mouseDownData);
           this.selectNodes(e);
         }
 
         e.preventDefault();
 
-        this.addListener(document, 'mouseup', this.mouseUp);
-        this.addListener(document, 'mousemove', this.mouseMove);
+        newEvents();
       }
     }, {
       key: 'click',
@@ -276,7 +325,25 @@ function makeSelectable(Component) {
           this.deselectNodes();
           return;
         }
-        this.selectNodes(e);
+        this.selectNodes();
+      }
+    }, {
+      key: 'touchEnd',
+      value: function touchEnd(e) {
+        this.handlers.stoptouchmove();
+        this.handlers.stoptouchend();
+
+        if (!this.mouseDownData) return;
+        this.endSelect(e);
+      }
+    }, {
+      key: 'touchCancel',
+      value: function touchCancel() {
+        this.handlers.stoptouchmove();
+        this.handlers.stoptouchend();
+        this.deselectNodes();
+        this.propagateFinishedSelect();
+        this.setState({ selecting: false });
       }
     }, {
       key: 'mouseUp',
@@ -285,7 +352,11 @@ function makeSelectable(Component) {
         this.handlers.stopmousemove();
 
         if (!this.mouseDownData) return;
-
+        this.endSelect(e);
+      }
+    }, {
+      key: 'endSelect',
+      value: function endSelect(e) {
         if (_mouseMath2.default.isClick(e, this.mouseDownData, this.clickTolerance)) {
           if (this.state.selecting) {
             this.setState({ selecting: false });
@@ -298,34 +369,46 @@ function makeSelectable(Component) {
           this.deselectNodes();
           return;
         }
-        this.selectNodes(e);
+        this.selectNodes();
+      }
+    }, {
+      key: 'touchMove',
+      value: function touchMove(e) {
+        if (!this.mouseDownData) return;
+        this.expandSelect(e);
       }
     }, {
       key: 'mouseMove',
       value: function mouseMove(e) {
         if (!this.mouseDownData) return;
+        this.expandSelect(e);
+      }
+    }, {
+      key: 'expandSelect',
+      value: function expandSelect(e) {
         var old = this.state.selecting;
 
         if (!old) {
           this.setState({ selecting: true });
         }
 
-        if (!_mouseMath2.default.isClick(e, this.mouseDownData, this.clickTolerance)) {
-          this._selectRect = _mouseMath2.default.createSelectRect(e, this.mouseDownData);
+        var coords = _mouseMath2.default.getCoordinates(e, this.mouseDownData.touchID);
+        if (!_mouseMath2.default.isClick(coords, this.mouseDownData, this.clickTolerance)) {
+          this._selectRect = _mouseMath2.default.createSelectRect(coords, this.mouseDownData);
         }
         if (this.props.constantSelect) {
-          this.selectNodes(e);
+          this.selectNodes();
         }
       }
     }, {
       key: 'deselectNodes',
       value: function deselectNodes() {
-        var _this5 = this;
+        var _this7 = this;
 
         var changed = false;
         Object.keys(this.state.selectedNodes).forEach(function (key) {
           changed = true;
-          _this5.selectables[key].callback(false, {}, {});
+          _this7.selectables[key].callback(false, {}, {});
         });
         if (changed) {
           this.updateState(false, {}, {});
@@ -334,7 +417,7 @@ function makeSelectable(Component) {
     }, {
       key: 'selectNodes',
       value: function selectNodes() {
-        var _this6 = this;
+        var _this8 = this;
 
         var nodes = _extends({}, this.state.selectedNodes);
         var values = _extends({}, this.state.selectedValues);
@@ -357,7 +440,7 @@ function makeSelectable(Component) {
           if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
             console.log('node ' + key + ' bounds', bounds);
           }
-          if (!domnode || !_mouseMath2.default.objectsCollide(_this6._selectRect, bounds, _this6.clickTolerance, key)) {
+          if (!domnode || !_mouseMath2.default.objectsCollide(_this8._selectRect, bounds, _this8.clickTolerance, key)) {
             if (nodes[key] === undefined) return;
             if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
               console.log('deselect: ' + key);
@@ -382,7 +465,7 @@ function makeSelectable(Component) {
               return selectedIndices.indexOf(val) === -1;
             });
             diff.forEach(function (idx) {
-              return saveNode(_this6.sortedNodes[idx], _mouseMath2.default.getBoundsForNode((0, _reactDom.findDOMNode)(_this6.sortedNodes[idx].component)));
+              return saveNode(_this8.sortedNodes[idx], _mouseMath2.default.getBoundsForNode((0, _reactDom.findDOMNode)(_this8.sortedNodes[idx].component)));
             });
           })();
         }
@@ -396,18 +479,22 @@ function makeSelectable(Component) {
     }, {
       key: 'render',
       value: function render() {
-        var _this7 = this;
+        var _this9 = this;
 
         if (this.containerDiv) {
           return _react2.default.createElement(
             'div',
             {
               onMouseDown: this.mouseDown,
-              onClick: this.click
+              onClick: this.click,
+              onTouchStart: this.touchStart,
+              onTouchMove: this.touchMove,
+              onTouchEnd: this.touchEnd,
+              onTouchCancel: this.touchCancel
             },
             _react2.default.createElement(Component, _extends({}, this.props, this.state, {
               ref: function ref(_ref) {
-                _this7.ref = _ref;
+                _this9.ref = _ref;
               }
             }))
           );
@@ -415,8 +502,12 @@ function makeSelectable(Component) {
         return _react2.default.createElement(Component, _extends({}, this.props, this.state, {
           onMouseDown: this.mouseDown,
           onClick: this.click,
+          onTouchStart: this.touchStart,
+          onTouchMove: this.touchMove,
+          onTouchEnd: this.touchEnd,
+          onTouchCancel: this.touchCancel,
           ref: function ref(_ref2) {
-            _this7.ref = _ref2;
+            _this9.ref = _ref2;
           }
         }));
       }
@@ -432,6 +523,7 @@ function makeSelectable(Component) {
     onSelectSlot: _react.PropTypes.func,
     onFinishSelect: _react.PropTypes.func,
     onMouseDown: _react.PropTypes.func,
+    onTouchStart: _react.PropTypes.func,
     onClick: _react.PropTypes.func
   }, _class.defaultProps = {
     clickTolerance: 5,
@@ -448,3 +540,4 @@ function makeSelectable(Component) {
 }
 
 exports.default = makeSelectable;
+module.exports = exports['default'];

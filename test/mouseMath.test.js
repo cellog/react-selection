@@ -118,27 +118,27 @@ describe("mouseMath", function() {
     const mockwin = {}
 
     it("should return 0 by default", () => {
-      const a = mouseMath.pageOffset('left', mockwin)
+      const a = mouseMath.pageOffset('left', false, mockwin)
       expect(a).to.equal(0)
-      const b = mouseMath.pageOffset('top', mockwin)
+      const b = mouseMath.pageOffset('top', false, mockwin)
       expect(b).to.equal(0)
     })
 
     it("should return pageXOffset/pageYOffset", () => {
       mockwin.pageXOffset = 4
       mockwin.pageYOffset = 3
-      const a = mouseMath.pageOffset('left', mockwin)
+      const a = mouseMath.pageOffset('left', false, mockwin)
       expect(a).to.equal(4)
-      const b = mouseMath.pageOffset('top', mockwin)
+      const b = mouseMath.pageOffset('top', false, mockwin)
       expect(b).to.equal(3)
     })
 
     it("should return parent pageXOffset/pageYOffset as first choice", () => {
       mockwin.pageXOffset = 2
       mockwin.pageYOffset = 1
-      const a = mouseMath.pageOffset('left', mockwin)
+      const a = mouseMath.pageOffset('left', false, mockwin)
       expect(a).to.equal(2)
-      const b = mouseMath.pageOffset('top', mockwin)
+      const b = mouseMath.pageOffset('top', false, mockwin)
       expect(b).to.equal(1)
     })
 
@@ -148,6 +148,14 @@ describe("mouseMath", function() {
   })
 
   describe("browser-specific tests", function() {
+    beforeEach(() => {
+      if (window.____isjsdom) return
+      window.scroll(0,0)
+      const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+
+      if (iOS) window.parent.window.scroll(0,0)
+    })
+
     it("pageOffset: should return the correct page offset", function() {
       if (window.____isjsdom) return
       var div = document.createElement('div');
@@ -194,6 +202,65 @@ describe("mouseMath", function() {
 
       const a = mouseMath.contains(div, 400, 400)
       expect(a).to.equal(false)
+    })
+
+    it("getBoundsForNode: no scroll", () => {
+      if (window.____isjsdom) return
+      var div = document.createElement('div');
+      div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
+      div.innerText= 'hi'
+      div.id = 'foo'
+
+      document.body.appendChild(div)
+
+      const a = mouseMath.getBoundsForNode(div)
+      a.should.eql({
+        top: 5,
+        left: 5,
+        right: 55,
+        bottom: 55
+      })
+    })
+
+    it("getBoundsForNode: with scroll", () => {
+      if (window.____isjsdom) return
+      var div = document.createElement('div');
+      div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
+      div.innerText= 'hi'
+      div.id = 'foo'
+
+      var div1 = document.createElement('div');
+      div1.style.cssText = 'height: 13000px;width:13000px'
+      div1.innerText= 'hi'
+
+      document.body.insertBefore(div, document.body.firstElementChild)
+      document.body.appendChild(div)
+
+      // console.log('before', div.getBoundingClientRect())
+
+      window.scroll(20,20)
+      const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+
+      if (iOS) window.parent.window.scroll(20,20)
+
+      const aa = mouseMath.pageOffset('left')
+      const bb = mouseMath.pageOffset('top')
+
+      expect(bb).to.equal(20, "top should be 20")
+      expect(aa).to.equal(20, "left should be 20")
+
+      // console.log('y', window.pageYOffset, window.parent.window.pageYOffset, bb)
+      // console.log('x', window.pageXOffset, window.parent.window.pageXOffset, aa)
+      // console.log('after', div.getBoundingClientRect())
+
+      const a = mouseMath.getBoundsForNode(div)
+      // console.log(a)
+      a.should.eql({
+        top: 5,
+        left: 5,
+        right: 55,
+        bottom: 55
+      })
     })
   })
 

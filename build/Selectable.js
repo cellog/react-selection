@@ -77,3 +77,4 @@ function Selectable(Component, options) {
 }
 
 exports.default = Selectable;
+module.exports = exports['default'];
