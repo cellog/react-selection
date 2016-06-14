@@ -1,21 +1,24 @@
 /* eslint no-var: 0, babel/object-shorthand: 0 */
-require('babel-register')
-const sauceBrowsers = require('./test/saucebrowsers.js')
-const ieBrowsers = require('./test/onlyie.js')
-const iosBrowsers = require('./test/onlyios.js')
+var sauceBrowsers = require('./test/saucebrowsers.js')
+var ieBrowsers = require('./test/onlyie.js')
+var iosBrowsers = require('./test/onlyios.js')
 
-const isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
-const reporters = ['mocha', 'saucelabs']
-let browsers = process.env.ONLYIE ? ieBrowsers : sauceBrowsers
-if (process.env.ONLYIOS) browsers = iosBrowsers
-let browserKeys = Object.keys(browsers)
-let singleRun = true
+var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
+var reporters = ['mocha', 'saucelabs']
+var browsers = process.env.ONLYIE ? ieBrowsers : sauceBrowsers
+var browserKeys = Object.keys(browsers)
+var singleRun = true
 
-const sauceParams = {
+var sauceParams = {
   testName: "react-selection-hoc unit tests",
   username: process.env.SAUCEUSER,
   accessKey: process.env.ACCESSSAUCE
 }
+if (process.env.ONLYIOS) {
+  browsers = iosBrowsers
+  browserKeys = Object.keys(browsers)
+}
+require('babel-register')
 
 if (isCI) {
   sauceParams.build = process.env.TRAVIS_BUILD_NUMBER
