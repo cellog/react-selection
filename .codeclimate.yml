@@ -2,3 +2,4 @@ exclude_paths:
 - "build/"
 - "node_modules/"
 - ".storybook/"
+- "test/"
