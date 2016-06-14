@@ -1,7 +1,5 @@
 import Debug from './debug.js'
 
-const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
-
 export default class mouseMath {
   static contains(element, x, y, doc = document) {
     if (!element) return true
