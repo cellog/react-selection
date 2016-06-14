@@ -3,7 +3,7 @@ import React from 'react'
 import { render, unmountComponentAtNode } from 'react-dom'
 import mouseMath from '../src/mouseMath.js'
 
-describe("mouseMath", () => {
+describe("mouseMath", function() {
   const e = {
     pageX: 50,
     pageY: 50
@@ -134,14 +134,8 @@ describe("mouseMath", () => {
     })
 
     it("should return parent pageXOffset/pageYOffset as first choice", () => {
-      mockwin.pageXOffset = 0
-      mockwin.pageYOffset = 0
-      mockwin.parent = {
-        window: {
-          pageXOffset: 2,
-          pageYOffset: 1
-        }
-      }
+      mockwin.pageXOffset = 2
+      mockwin.pageYOffset = 1
       const a = mouseMath.pageOffset('left', mockwin)
       expect(a).to.equal(2)
       const b = mouseMath.pageOffset('top', mockwin)
@@ -153,42 +147,28 @@ describe("mouseMath", () => {
     })
   })
 
-  describe("browser-specific tests for pageOffset", () => {
-    var div = document.createElement('div');
-    before(() => {
-      class Boohoo extends React.Component {
-        render() {
-          return (
-            <div style={{height: 13000, width: 130000, position: 'relative'}}>
-              <div style={{position: 'absolute', top: 20, left: 20, height: 50, width: 50}}>one</div>
-              <div style={{position: 'absolute', top: 200, left: 20, height: 50, width: 50}}>two</div>
-              <div style={{position: 'absolute', top: 200, left: 75, height: 50, width: 50}}>three</div>
-              <div style={{position: 'absolute', top: 260, left: 0, height: 50, width: 50}}>four</div>
-            </div>
-          )
-        }
-      }
+  describe("browser-specific tests for pageOffset", function() {
+    it("should return the correct page offset", function() {
+      if (window.____isjsdom) return
+      var div = document.createElement('div');
+      div.style.cssText = 'height: 13000px;width:13000px'
+      div.innerText= 'hi'
 
       document.body.insertBefore(div, document.body.firstElementChild)
-      render(<Boohoo />, div);
-    })
 
-    after(() => {
-      unmountComponentAtNode(div)
-    })
-
-    it("should return the correct page offset", () => {
-      if (window.____isjsdom) return
       window.scroll(20,20)
-      if (window.parent) window.parent.window.scroll(20,20)
+      const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+
+      if (iOS) window.parent.window.scroll(20,20)
 
       const a = mouseMath.pageOffset('left')
       const b = mouseMath.pageOffset('top')
 
-      setTimeout(() => {
-        expect(b).to.equal(20, "top should be 20")
-        expect(a).to.equal(20, "left should be 20")
-      }, 10)
+      // console.log('y', window.pageYOffset, window.parent.window.pageYOffset, b)
+      // console.log('x', window.pageXOffset, window.parent.window.pageXOffset, a)
+
+      expect(b).to.equal(20, "top should be 20")
+      expect(a).to.equal(20, "left should be 20")
     })
   })
 

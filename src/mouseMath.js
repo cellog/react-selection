@@ -1,5 +1,7 @@
 import Debug from './debug.js'
 
+const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+
 export default class mouseMath {
   static contains(element, x, y, doc = document) {
     if (!element) return true
@@ -65,17 +67,17 @@ export default class mouseMath {
     )
   }
 
-  static pageOffset(dir, win = window) {
+  static pageOffset(dir, win = window, isIOS = iOS) {
     if (dir !== 'left' && dir !== 'top') {
       throw new Error(`direction must be one of top or left, was "${dir}"`)
     }
-    let actual = win
-    if (win.parent) {
-      actual = win.parent.window
+    const offsetname = dir === 'left' ? 'pageXOffset' : 'pageYOffset'
+    const offset = win[offsetname] ? win[offsetname] : 0
+    let parentoffset = 0
+    if (win.parent && win.parent.window) {
+      parentoffset = win.parent.window[offsetname]
     }
-    let offset = dir === 'left' ? 'pageXOffset' : 'pageYOffset'
-    offset = actual[offset] ? actual[offset] : 0
-    return offset || 0
+    return Math.max(offset, parentoffset, 0)
   }
 
   /**
