@@ -65,7 +65,7 @@ export default class mouseMath {
     )
   }
 
-  static pageOffset(dir, win = window, isIOS = iOS) {
+  static pageOffset(dir, win = window) {
     if (dir !== 'left' && dir !== 'top') {
       throw new Error(`direction must be one of top or left, was "${dir}"`)
     }
