@@ -147,8 +147,8 @@ describe("mouseMath", function() {
     })
   })
 
-  describe("browser-specific tests for pageOffset", function() {
-    it("should return the correct page offset", function() {
+  describe("browser-specific tests", function() {
+    it("pageOffset: should return the correct page offset", function() {
       if (window.____isjsdom) return
       var div = document.createElement('div');
       div.style.cssText = 'height: 13000px;width:13000px'
@@ -169,6 +169,31 @@ describe("mouseMath", function() {
 
       expect(b).to.equal(20, "top should be 20")
       expect(a).to.equal(20, "left should be 20")
+    })
+    it("contains: should detect point inside", () => {
+      if (window.____isjsdom) return
+      var div = document.createElement('div');
+      div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
+      div.innerText= 'hi'
+      div.id = 'foo'
+
+      document.body.appendChild(div)
+      
+      const a = mouseMath.contains(div, 6, 6)
+      expect(a).to.equal(true)
+    })
+
+    it("contains: should detect point outside", () => {
+      if (window.____isjsdom) return
+      var div = document.createElement('div');
+      div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
+      div.innerText= 'hi'
+      div.id = 'foo'
+
+      document.body.appendChild(div)
+
+      const a = mouseMath.contains(div, 400, 400)
+      expect(a).to.equal(false)
     })
   })
 
