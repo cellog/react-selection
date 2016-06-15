@@ -782,7 +782,10 @@
 	            _debug2.default.log('node ' + key + ' bounds', bounds);
 	          }
 	          if (!domnode || !_mouseMath2.default.objectsCollide(_this8._selectRect, bounds, _this8.clickTolerance, key)) {
-	            if (nodes[key] === undefined) return;
+	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
+	              _debug2.default.log('reached start of unselected item');
+	            }
+	            if (!nodes.hasOwnProperty(key)) return;
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
 	              _debug2.default.log('deselect: ' + key);
 	            }

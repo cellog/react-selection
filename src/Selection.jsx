@@ -358,7 +358,10 @@ function makeSelectable( Component, options = {}) {
           Debug.log(`node ${key} bounds`, bounds)
         }
         if (!domnode || !mouseMath.objectsCollide(this._selectRect, bounds, this.clickTolerance, key)) {
-          if (nodes[key] === undefined) return
+          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+            Debug.log(`reached start of unselected item`)
+          }
+          if (!nodes.hasOwnProperty(key)) return
           if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
             Debug.log(`deselect: ${key}`)
           }
