@@ -21187,7 +21187,7 @@
 	    }, {
 	      key: 'selectItem',
 	      value: function selectItem(value) {
-	        console.dir('select callback');
+	        console.dir(this);
 	        this.setState({ selected: value });
 	        console.dir('select callback after');
 	      }
