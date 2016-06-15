@@ -381,11 +381,11 @@ function makeSelectable( Component, options = {}) {
       if (changedNodes.length) {
         changedNodes.forEach((item) => {
           if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-            Debug.log(`callback item`, item[0])
+            console.dir(`callback item`, item[0])
           }
           item[1].callback(item[0], nodes, values)
           if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-            Debug.log(`after callback item`, item[0])
+            console.dir(`after callback item`, item[0])
           }
         })
         this.updateState(null, nodes, values)
