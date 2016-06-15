@@ -1123,9 +1123,11 @@
 	  _createClass(Debug, null, [{
 	    key: 'log',
 	    value: function log() {
-	      var _console;
+	      for (var _len = arguments.length, props = Array(_len), _key = 0; _key < _len; _key++) {
+	        props[_key] = arguments[_key];
+	      }
 
-	      (_console = console).log.apply(_console, arguments); /* eslint no-console: 0 */
+	      Function.prototype.bind.call(console.log, console).apply(console, props); /* eslint no-console: 0 */
 	    }
 	  }, {
 	    key: 'debug',
@@ -1142,10 +1144,10 @@
 	      var collisions = _ref$collisions === undefined ? false : _ref$collisions;
 
 	      if (bounds || clicks || selection || registration || collisions) {
-	        var props = { bounds: bounds, clicks: clicks, selection: selection, registration: registration, collisions: collisions };
+	        var _props = { bounds: bounds, clicks: clicks, selection: selection, registration: registration, collisions: collisions };
 	        Debug.DEBUGGING = _extends({
 	          debug: true
-	        }, props);
+	        }, _props);
 	      } else {
 	        Debug.DEBUGGING.debug = false;
 	      }

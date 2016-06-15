@@ -9,7 +9,7 @@ export default class Debug {
   }
 
   static log(...props) {
-    console.log(...props) /* eslint no-console: 0 */
+    Function.prototype.bind.call(console.log, console).apply(console, props) /* eslint no-console: 0 */
   }
 
   static debug({ bounds = false, clicks = false, selection = false, registration = false, collisions = false }) {
