@@ -3,6 +3,7 @@ import React, { PropTypes } from 'react'
 function Selectable(Component, options) {
   const displayName = Component.displayName || Component.name || 'Component'
   let unregister = () => null
+  let IE9this = null
   return class extends React.Component {
     static displayName = `Selectable(${displayName})`
 
@@ -12,6 +13,7 @@ function Selectable(Component, options) {
         selected: false
       }
       this.selectItem = this.selectItem.bind(this)
+      IE9this = this
     }
 
     static contextTypes = {
@@ -32,7 +34,7 @@ function Selectable(Component, options) {
     }
 
     selectItem(value) {
-      this.setState({ selected: value })
+      IE9this.setState({ selected: value })
       alert(value)
     }
 

@@ -21153,6 +21153,7 @@
 	  var unregister = function unregister() {
 	    return null;
 	  };
+	  var IE9this = null;
 	  return _temp = _class = function (_React$Component) {
 	    _inherits(_class, _React$Component);
 
@@ -21165,6 +21166,7 @@
 	        selected: false
 	      };
 	      _this.selectItem = _this.selectItem.bind(_this);
+	      IE9this = _this;
 	      return _this;
 	    }
 
@@ -21187,7 +21189,7 @@
 	    }, {
 	      key: 'selectItem',
 	      value: function selectItem(value) {
-	        this.setState({ selected: value });
+	        IE9this.setState({ selected: value });
 	        alert(value);
 	      }
 	    }, {
