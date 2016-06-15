@@ -611,7 +611,7 @@
 	            _debug2.default.log(eventname + ': got bounds', this.bounds);
 	          }
 	        }
-	        var coords = _mouseMath2.default.getCoordinates(e, e.touches[0].identifier);
+	        var coords = _mouseMath2.default.getCoordinates(e, e.touches && e.touches[0].identifier);
 	        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, coords.clientX, coords.clientY)) {
 	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
 	            _debug2.default.log(eventname + ': buttons or not contained');
@@ -1130,7 +1130,7 @@
 	        props[_key] = arguments[_key];
 	      }
 
-	      Function.prototype.bind.call(console.log, console).apply(console, props); /* eslint no-console: 0 */
+	      Function.prototype.bind.call(console.dir, console).apply(console, props); /* eslint no-console: 0 */
 	    }
 	  }, {
 	    key: 'debug',
