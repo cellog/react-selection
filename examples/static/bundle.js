@@ -21187,8 +21187,9 @@
 	    }, {
 	      key: 'selectItem',
 	      value: function selectItem(value) {
-	        console.dir('select callback', value);
+	        console.dir('select callback');
 	        this.setState({ selected: value });
+	        console.dir('select callback after');
 	      }
 	    }, {
 	      key: 'render',
