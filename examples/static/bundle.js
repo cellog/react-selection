@@ -70,6 +70,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	_reactSelectionHoc.Debug.debug({ bounds: true, clicks: true });
+
 	var Thing = function (_React$Component) {
 	  _inherits(Thing, _React$Component);
 
@@ -441,7 +443,7 @@
 	        var _this2 = this;
 
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	          console.log('updatestate: ', selecting, nodes, values);
+	          _debug2.default.log('updatestate: ', selecting, nodes, values);
 	        }
 	        var newnodes = nodes === null ? this.state.selectedNodes : nodes;
 	        var newvalues = values === null ? this.state.selectedValues : values;
@@ -462,7 +464,7 @@
 	              return newvalues[key];
 	            }).sort(sorter);
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	              console.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, _this2.bounds);
+	              _debug2.default.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, _this2.bounds);
 	            }
 	            if (_this2.props.onSelectSlot) {
 	              _this2.props.onSelectSlot(values, function () {
@@ -489,7 +491,7 @@
 	          return newvalues[key];
 	        }).sort(sorter);
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	          console.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds);
+	          _debug2.default.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds);
 	        }
 	        this.props.onFinishSelect(newvalues, function () {
 	          return newnodes;
@@ -509,7 +511,7 @@
 	              _this3.sortedNodes.push({ component: component, key: key, value: value, callback: callback });
 	            }
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.registration) {
-	              console.log('registered: ' + key, value);
+	              _debug2.default.log('registered: ' + key, value);
 	            }
 	            _this3.selectables[key] = { component: component, value: value, callback: callback };
 	          },
@@ -596,36 +598,35 @@
 	          return;
 	        }
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	          console.log(eventname);
+	          _debug2.default.log(eventname);
 	        }
 	        if (!this.props.selectable) return;
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	          console.log(eventname + ': selectable');
+	          _debug2.default.log(eventname + ': selectable');
 	        }
 	        if (!this.node) {
 	          this.node = (0, _reactDom.findDOMNode)(this.ref);
 	          this.bounds = _mouseMath2.default.getBoundsForNode(this.node);
 	        }
 	        var coords = _mouseMath2.default.getCoordinates(e, e.touches[0].identifier);
-	        console.log(coords);
 	        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, coords.clientX, coords.clientY)) {
 	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	            console.log(eventname + ': buttons or not contained');
+	            _debug2.default.log(eventname + ': buttons or not contained');
 	          }
 	          return;
 	        }
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	          console.log(eventname + ': left click');
+	          _debug2.default.log(eventname + ': left click');
 	        }
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	          console.log(eventname + ': bounds', this.bounds, e.pageY, e.pageX);
+	          _debug2.default.log(eventname + ': bounds', this.bounds, e.pageY, e.pageX);
 	        }
 	        if (!_mouseMath2.default.objectsCollide(this.bounds, {
 	          top: coords.pageY,
 	          left: coords.pageX
 	        })) return;
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	          console.log(eventname + ': maybe select');
+	          _debug2.default.log(eventname + ': maybe select');
 	        }
 
 	        this.mouseDownData = {
@@ -763,7 +764,7 @@
 	        var saveNode = function saveNode(node, bounds) {
 	          if (nodes[node.key] !== undefined) return;
 	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	            console.log('select: ' + node.key);
+	            _debug2.default.log('select: ' + node.key);
 	          }
 	          nodes[node.key] = { node: node.component, bounds: bounds };
 	          values[node.key] = node.value;
@@ -775,12 +776,12 @@
 	          var key = node.key;
 	          var bounds = _mouseMath2.default.getBoundsForNode(domnode);
 	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	            console.log('node ' + key + ' bounds', bounds);
+	            _debug2.default.log('node ' + key + ' bounds', bounds);
 	          }
 	          if (!domnode || !_mouseMath2.default.objectsCollide(_this8._selectRect, bounds, _this8.clickTolerance, key)) {
 	            if (nodes[key] === undefined) return;
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	              console.log('deselect: ' + key);
+	              _debug2.default.log('deselect: ' + key);
 	            }
 	            delete nodes[key];
 	            delete values[key];
@@ -1120,6 +1121,13 @@
 	  }
 
 	  _createClass(Debug, null, [{
+	    key: 'log',
+	    value: function log() {
+	      var _console;
+
+	      (_console = console).log.apply(_console, arguments); /* eslint no-console: 0 */
+	    }
+	  }, {
 	    key: 'debug',
 	    value: function debug(_ref) {
 	      var _ref$bounds = _ref.bounds;
@@ -1164,14 +1172,14 @@
 	        var _getBoundsForNode2$bo = _getBoundsForNode2.bottom;
 	        var bBottom = _getBoundsForNode2$bo === undefined ? bTop : _getBoundsForNode2$bo;
 
-	        console.log('collide ' + key + ': ', getBoundsForNode(nodeA), getBoundsForNode(nodeB));
+	        Debug.log('collide ' + key + ': ', getBoundsForNode(nodeA), getBoundsForNode(nodeB));
 	        if (Debug.DEBUGGING.collisions) {
-	          console.log('a bottom < b top', aBottom - tolerance < bTop);
-	          console.log('a top > b bottom', aTop + tolerance > bBottom);
-	          console.log('a right < b left', aBottom - tolerance < bTop);
-	          console.log('a left > b right', aLeft + tolerance > bRight);
+	          Debug.log('a bottom < b top', aBottom - tolerance < bTop);
+	          Debug.log('a top > b bottom', aTop + tolerance > bBottom);
+	          Debug.log('a right < b left', aBottom - tolerance < bTop);
+	          Debug.log('a left > b right', aLeft + tolerance > bRight);
 	        }
-	        console.log(!(
+	        Debug.log(!(
 	        // 'a' bottom doesn't touch 'b' top
 	        aBottom - tolerance < bTop ||
 	        // 'a' top doesn't touch 'b' bottom

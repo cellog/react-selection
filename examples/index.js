@@ -1,6 +1,8 @@
-import { Selection, Selectable } from 'react-selection-hoc'
+import { Selection, Selectable, Debug } from 'react-selection-hoc'
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
+
+Debug.debug({ bounds: true, clicks: true})
 
 class Thing extends React.Component {
   static propTypes = {

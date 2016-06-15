@@ -199,7 +199,6 @@ function makeSelectable( Component, options = {}) {
         this.bounds = mouseMath.getBoundsForNode(this.node)
       }
       const coords = mouseMath.getCoordinates(e, e.touches[0].identifier)
-      Debug.log(coords)
       if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, coords.clientX, coords.clientY)) {
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
           Debug.log(`${eventname}: buttons or not contained`)
