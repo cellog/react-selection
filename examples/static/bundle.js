@@ -813,11 +813,11 @@
 	        if (changedNodes.length) {
 	          changedNodes.forEach(function (item) {
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	              _debug2.default.log('callback item', item[0]);
+	              console.dir('callback item', item[0]);
 	            }
 	            item[1].callback(item[0], nodes, values);
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	              _debug2.default.log('after callback item', item[0]);
+	              console.dir('after callback item', item[0]);
 	            }
 	          });
 	          this.updateState(null, nodes, values);
@@ -21161,6 +21161,7 @@
 	      _this.state = {
 	        selected: false
 	      };
+	      _this.selectItem = _this.selectItem.bind(_this);
 	      return _this;
 	    }
 
@@ -21169,7 +21170,7 @@
 	      value: function componentDidMount() {
 	        if (!this.context || !this.context.registerSelectable) return;
 	        var key = options.key(this.props);
-	        this.context.registerSelectable(this, key, options.value(this.props), this.selectItem.bind(this));
+	        this.context.registerSelectable(this, key, options.value(this.props), this.selectItem);
 	        unregister = this.context.unregisterSelectable.bind(null, this, key);
 	      }
 	    }, {
