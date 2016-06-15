@@ -782,9 +782,6 @@
 	            _debug2.default.log('node ' + key + ' bounds', bounds);
 	          }
 	          if (!domnode || !_mouseMath2.default.objectsCollide(_this8._selectRect, bounds, _this8.clickTolerance, key)) {
-	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	              _debug2.default.log('reached start of unselected item');
-	            }
 	            if (!nodes.hasOwnProperty(key)) return;
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
 	              _debug2.default.log('deselect: ' + key);
@@ -797,9 +794,6 @@
 	          selectedIndices.push(idx);
 	          saveNode(node, bounds);
 	        });
-	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	          _debug2.default.log('reached end of selection loop');
-	        }
 	        if (this.props.selectIntermediates) {
 	          (function () {
 	            var min = Math.min.apply(Math, selectedIndices);
@@ -820,6 +814,9 @@
 	          changedNodes.forEach(function (item) {
 	            item[1].callback(item[0], nodes, values);
 	          });
+	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
+	            _debug2.default.log('reached updateState');
+	          }
 	          this.updateState(null, nodes, values);
 	        }
 	      }

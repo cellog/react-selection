@@ -358,9 +358,6 @@ function makeSelectable( Component, options = {}) {
           Debug.log(`node ${key} bounds`, bounds)
         }
         if (!domnode || !mouseMath.objectsCollide(this._selectRect, bounds, this.clickTolerance, key)) {
-          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-            Debug.log(`reached start of unselected item`)
-          }
           if (!nodes.hasOwnProperty(key)) return
           if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
             Debug.log(`deselect: ${key}`)
@@ -373,9 +370,6 @@ function makeSelectable( Component, options = {}) {
         selectedIndices.push(idx)
         saveNode(node, bounds)
       })
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-        Debug.log(`reached end of selection loop`)
-      }
       if (this.props.selectIntermediates) {
         const min = Math.min(...selectedIndices)
         const max = Math.max(...selectedIndices)
@@ -388,6 +382,9 @@ function makeSelectable( Component, options = {}) {
         changedNodes.forEach((item) => {
           item[1].callback(item[0], nodes, values)
         })
+        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+          Debug.log(`reached updateState`)
+        }
         this.updateState(null, nodes, values)
       }
     }
