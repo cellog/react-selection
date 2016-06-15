@@ -8,6 +8,10 @@ export default class Debug {
     collisions: false,
   }
 
+  static log(...props) {
+    console.log(...props) /* eslint no-console: 0 */
+  }
+
   static debug({ bounds = false, clicks = false, selection = false, registration = false, collisions = false }) {
     if (bounds || clicks || selection || registration || collisions) {
       const props = { bounds, clicks, selection, registration, collisions }
@@ -34,14 +38,14 @@ export default class Debug {
         right: bRight = bLeft,
         bottom: bBottom = bTop
       } = getBoundsForNode(nodeB)
-      console.log(`collide ${key}: `, getBoundsForNode(nodeA), getBoundsForNode(nodeB))
+      Debug.log(`collide ${key}: `, getBoundsForNode(nodeA), getBoundsForNode(nodeB))
       if (Debug.DEBUGGING.collisions) {
-        console.log('a bottom < b top', ((aBottom - tolerance ) < bTop))
-        console.log('a top > b bottom', (aTop + tolerance) > (bBottom))
-        console.log('a right < b left', ((aBottom - tolerance ) < bTop))
-        console.log('a left > b right', (aLeft + tolerance) > (bRight))
+        Debug.log('a bottom < b top', ((aBottom - tolerance ) < bTop))
+        Debug.log('a top > b bottom', (aTop + tolerance) > (bBottom))
+        Debug.log('a right < b left', ((aBottom - tolerance ) < bTop))
+        Debug.log('a left > b right', (aLeft + tolerance) > (bRight))
       }
-      console.log(!(
+      Debug.log(!(
         // 'a' bottom doesn't touch 'b' top
         ((aBottom - tolerance ) < bTop) ||
         // 'a' top doesn't touch 'b' bottom

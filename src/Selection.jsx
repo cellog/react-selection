@@ -74,7 +74,7 @@ function makeSelectable( Component, options = {}) {
 
     updateState(selecting, nodes, values) {
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        console.log('updatestate: ', selecting, nodes, values)
+        Debug.log('updatestate: ', selecting, nodes, values)
       }
       const newnodes = nodes === null ? this.state.selectedNodes : nodes
       const newvalues = values === null ? this.state.selectedValues : values
@@ -88,7 +88,7 @@ function makeSelectable( Component, options = {}) {
         const nodelist = Object.keys(newnodes).map((key) => newnodes[key]).sort((a, b) => nodevalue(a.node) - nodevalue(b.node))
         const valuelist = Object.keys(newvalues).map((key) => newvalues[key]).sort(sorter)
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-          console.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, this.bounds)
+          Debug.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, this.bounds)
         }
         if (this.props.onSelectSlot) {
           this.props.onSelectSlot(values, () => nodes, valuelist, () => nodelist, this.bounds)
@@ -103,7 +103,7 @@ function makeSelectable( Component, options = {}) {
       const nodelist = Object.keys(newnodes).map((key) => newnodes[key]).sort((a, b) => sorter(nodevalue(a.node), nodevalue(b.node)))
       const valuelist = Object.keys(newvalues).map((key) => newvalues[key]).sort(sorter)
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        console.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds)
+        Debug.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds)
       }
       this.props.onFinishSelect(newvalues, () => newnodes, valuelist, () => nodelist, this.bounds)
     }
@@ -116,7 +116,7 @@ function makeSelectable( Component, options = {}) {
             this.sortedNodes.push({ component, key, value, callback } )
           }
           if (Debug.DEBUGGING.debug && Debug.DEBUGGING.registration) {
-            console.log(`registered: ${key}`, value)
+            Debug.log(`registered: ${key}`, value)
           }
           this.selectables[key] = { component, value, callback }
         },
@@ -188,36 +188,36 @@ function makeSelectable( Component, options = {}) {
         return
       }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log(eventname)
+        Debug.log(eventname)
       }
       if (!this.props.selectable) return
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log(`${eventname}: selectable`)
+        Debug.log(`${eventname}: selectable`)
       }
       if (!this.node) {
         this.node = findDOMNode(this.ref)
         this.bounds = mouseMath.getBoundsForNode(this.node)
       }
       const coords = mouseMath.getCoordinates(e, e.touches[0].identifier)
-      console.log(coords)
+      Debug.log(coords)
       if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, coords.clientX, coords.clientY)) {
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-          console.log(`${eventname}: buttons or not contained`)
+          Debug.log(`${eventname}: buttons or not contained`)
         }
         return
       }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log(`${eventname}: left click`)
+        Debug.log(`${eventname}: left click`)
       }
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-        console.log(`${eventname}: bounds`, this.bounds, e.pageY, e.pageX)
+        Debug.log(`${eventname}: bounds`, this.bounds, e.pageY, e.pageX)
       }
       if (!mouseMath.objectsCollide(this.bounds, {
         top: coords.pageY,
         left: coords.pageX
       })) return
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        console.log(`${eventname}: maybe select`)
+        Debug.log(`${eventname}: maybe select`)
       }
 
       this.mouseDownData = {
@@ -341,7 +341,7 @@ function makeSelectable( Component, options = {}) {
       const saveNode = (node, bounds) => {
         if (nodes[node.key] !== undefined) return
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-          console.log(`select: ${node.key}`)
+          Debug.log(`select: ${node.key}`)
         }
         nodes[node.key] = {node: node.component, bounds: bounds}
         values[node.key] = node.value
@@ -353,12 +353,12 @@ function makeSelectable( Component, options = {}) {
         const key = node.key
         const bounds = mouseMath.getBoundsForNode(domnode)
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-          console.log(`node ${key} bounds`, bounds)
+          Debug.log(`node ${key} bounds`, bounds)
         }
         if (!domnode || !mouseMath.objectsCollide(this._selectRect, bounds, this.clickTolerance, key)) {
           if (nodes[key] === undefined) return
           if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-            console.log(`deselect: ${key}`)
+            Debug.log(`deselect: ${key}`)
           }
           delete nodes[key]
           delete values[key]
