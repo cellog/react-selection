@@ -72,12 +72,15 @@ export default class mouseMath {
       throw new Error(`direction must be one of top or left, was "${dir}"`)
     }
     const offsetname = dir === 'left' ? 'pageXOffset' : 'pageYOffset'
-    const offset = win[offsetname] ? win[offsetname] : 0
+    const backup = dir === 'left' ? win.document.body.scrollLeft : win.document.body.scrollTop
+    let offset = win[offsetname] ? win[offsetname] : 0
+    if (!offset) offset = 0
     let parentoffset = 0
     if (!useLocal && win.parent && win.parent.window) {
       parentoffset = win.parent.window[offsetname]
     }
-    return Math.max(offset, parentoffset, 0)
+    if (!parentoffset) parentoffset = 0
+    return Math.max(backup, offset, parentoffset, 0)
   }
 
   /**
@@ -85,12 +88,12 @@ export default class mouseMath {
    * @param  {HTMLElement} node
    * @return {Object}
    */
-  static getBoundsForNode(node, pageOffset = mouseMath.pageOffset) {
+  static getBoundsForNode(node, win = window, pageOffset = mouseMath.pageOffset) {
     if (!node.getBoundingClientRect) return node
 
     const rect = node.getBoundingClientRect()
-    const left = rect.left + pageOffset('left', iOS)
-    const top = rect.top + pageOffset('top', iOS)
+    const left = rect.left + pageOffset('left', iOS, win)
+    const top = rect.top + pageOffset('top', iOS, win)
 
     return {
       top,
