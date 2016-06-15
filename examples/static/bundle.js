@@ -794,6 +794,9 @@
 	          selectedIndices.push(idx);
 	          saveNode(node, bounds);
 	        });
+	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
+	          _debug2.default.log('reached end of selection loop');
+	        }
 	        if (this.props.selectIntermediates) {
 	          (function () {
 	            var min = Math.min.apply(Math, selectedIndices);

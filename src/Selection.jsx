@@ -370,6 +370,9 @@ function makeSelectable( Component, options = {}) {
         selectedIndices.push(idx)
         saveNode(node, bounds)
       })
+      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+        Debug.log(`reached end of selection loop`)
+      }
       if (this.props.selectIntermediates) {
         const min = Math.min(...selectedIndices)
         const max = Math.max(...selectedIndices)
