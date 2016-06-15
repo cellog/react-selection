@@ -607,6 +607,9 @@
 	        if (!this.node) {
 	          this.node = (0, _reactDom.findDOMNode)(this.ref);
 	          this.bounds = _mouseMath2.default.getBoundsForNode(this.node);
+	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
+	            _debug2.default.log(eventname + ': got bounds', this.bounds);
+	          }
 	        }
 	        var coords = _mouseMath2.default.getCoordinates(e, e.touches[0].identifier);
 	        if (e.which === 3 || e.button === 2 || !_mouseMath2.default.contains(this.node, coords.clientX, coords.clientY)) {

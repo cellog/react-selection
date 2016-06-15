@@ -197,6 +197,9 @@ function makeSelectable( Component, options = {}) {
       if (!this.node) {
         this.node = findDOMNode(this.ref)
         this.bounds = mouseMath.getBoundsForNode(this.node)
+        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+          Debug.log(`${eventname}: got bounds`, this.bounds)
+        }
       }
       const coords = mouseMath.getCoordinates(e, e.touches[0].identifier)
       if (e.which === 3 || e.button === 2 || !mouseMath.contains(this.node, coords.clientX, coords.clientY)) {
