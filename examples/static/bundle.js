@@ -813,9 +813,12 @@
 	        if (changedNodes.length) {
 	          changedNodes.forEach(function (item) {
 	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	              _debug2.default.log('callback item', item);
+	              _debug2.default.log('callback item', item[0]);
 	            }
 	            item[1].callback(item[0], nodes, values);
+	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
+	              _debug2.default.log('after callback item', item[0]);
+	            }
 	          });
 	          this.updateState(null, nodes, values);
 	        }
