@@ -11,6 +11,7 @@ function Selectable(Component, options) {
       this.state = {
         selected: false
       }
+      this.selectItem = this.selectItem.bind(this)
     }
 
     static contextTypes = {
@@ -21,7 +22,7 @@ function Selectable(Component, options) {
     componentDidMount() {
       if (!this.context || !this.context.registerSelectable) return
       const key = options.key(this.props)
-      this.context.registerSelectable(this, key, options.value(this.props), this.selectItem.bind(this))
+      this.context.registerSelectable(this, key, options.value(this.props), this.selectItem)
       unregister = this.context.unregisterSelectable.bind(null, this, key)
     }
 
