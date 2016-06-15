@@ -32,6 +32,7 @@ function Selectable(Component, options) {
     }
 
     selectItem(value) {
+      console.dir('select callback', value)
       this.setState({ selected: value })
     }
 
