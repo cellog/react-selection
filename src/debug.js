@@ -12,6 +12,19 @@ export default class Debug {
     Function.prototype.bind.call(console.dir, console).apply(console, props) /* eslint no-console: 0 */
   }
 
+  static DOMFlush(id) {
+    let tmp = 0
+    // flush the DOM in IE
+    // (http://stackoverflow.com/questions/1397478/forcing-a-dom-refresh-in-internet-explorer-after-javascript-dom-manipulation)
+    const elementOnShow = document.getElementById(id)
+    if (navigator.appName === 'Microsoft Internet Explorer') {
+      tmp = `${elementOnShow.parentNode.offsetTop}px`
+    } else {
+      tmp = elementOnShow.offsetTop
+    }
+    return tmp // dummy value, only here to fool eslint
+  }
+
   static debug({ bounds = false, clicks = false, selection = false, registration = false, collisions = false }) {
     if (bounds || clicks || selection || registration || collisions) {
       const props = { bounds, clicks, selection, registration, collisions }
