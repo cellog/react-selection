@@ -101,6 +101,8 @@ export default class SelectionManager {
       this.selectables[key].callback(false, {}, {})
     })
     if (changed) {
+      this.selectedNodes = {}
+      this.selectedValues = {}
       this.notify.updateState(false, {}, {})
     }
   }

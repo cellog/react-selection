@@ -360,4 +360,36 @@ describe("SelectionManager", function() {
       expect(notify.updateState.called).to.be.true
     })
   })
+
+  describe("deselect", () => {
+    let manager
+    const notify = {
+      updateState: sinon.spy()
+    }
+    const props = {
+      clickTolerance: 5
+    }
+    manager = new SelectionManager(notify, props)
+    it("should remove all selected items and update state", () => {
+      manager.selectedNodes = {
+        'hi': {}
+      }
+      manager.selectedValues = {
+        'hi': {}
+      }
+      manager.selectables.hi = {
+        callback: sinon.spy()
+      }
+      manager.deselect({
+        selectedNodes: {
+          'hi': {}
+        }
+      })
+
+      manager.selectedNodes.should.eql({})
+      manager.selectedValues.should.eql({})
+      expect(manager.selectables.hi.callback.called).to.be.true
+      expect(notify.updateState.called).to.be.true
+    })
+  })
 })
