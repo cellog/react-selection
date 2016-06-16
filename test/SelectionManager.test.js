@@ -207,4 +207,66 @@ describe("SelectionManager", function() {
       changedNodes.should.have.length(1)
     })
   })
+
+  describe("walkNodes", () => {
+    let manager
+    const notify = {
+
+    }
+    const props = {
+      clickTolerance: 5
+    }
+    const mouse = {
+      getBoundsForNode(node) {
+        return node
+      },
+      objectsCollide(rect, bounds, tol, key) {
+        console.log(bounds, rect)
+        return rect.indexOf(bounds) !== -1
+      }
+    }
+    const findit = (i) => i
+    beforeEach(() => {
+      manager = new SelectionManager(notify, props)
+    })
+
+    it("should find nodes within the rect", () => {
+      const indices = []
+      const changedNodes = []
+      const node = {
+        component: 2,
+        key: 2,
+        bounds: false
+      }
+      manager.walkNodes([1,2,4], indices, changedNodes, node, 1, findit, mouse)
+
+      indices.should.have.length(1)
+      indices[0].should.equal(1)
+
+      changedNodes.should.have.length(1)
+      changedNodes[0].should.eql([true, node])
+    })
+
+    it("should remove nodes not within the rect", () => {
+      const indices = []
+      const changedNodes = []
+      const node = {
+        component: 1,
+        key: 2,
+        bounds: {}
+      }
+      manager.selectedNodes[2] = {}
+      manager.selectedValues[2] = {}
+      manager.walkNodes([1,2,4], indices, changedNodes, node, 3, findit, mouse)
+      manager.walkNodes([1,2,4], indices, changedNodes, node, 5, findit, mouse) // test that it ignores non-selected values
+
+      indices.should.have.length(0)
+
+      changedNodes.should.have.length(1)
+      changedNodes[0].should.eql([false, node])
+
+      manager.selectedNodes.should.not.have.property(2)
+      manager.selectedValues.should.not.have.property(2)
+    })
+  })
 })

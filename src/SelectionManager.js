@@ -48,14 +48,14 @@ export default class SelectionManager {
     changedNodes.push([true, node])
   }
 
-  sortNodes(selectionRectangle, selectedIndices, changedNodes, node, idx) {
-    const domnode = findDOMNode(node.component)
+  walkNodes(selectionRectangle, selectedIndices, changedNodes, node, idx, findit = findDOMNode, mouse = mouseMath) {
+    const domnode = findit(node.component)
     const key = node.key
-    const bounds = node.bounds ? node.bounds : mouseMath.getBoundsForNode(domnode)
+    const bounds = node.bounds ? node.bounds : mouse.getBoundsForNode(domnode)
     if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
       Debug.log(`node ${key} bounds`, bounds)
     }
-    if (!domnode || !mouseMath.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
+    if (!domnode || !mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
       if (!this.selectedNodes.hasOwnProperty(key)) return
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
         Debug.log(`deselect: ${key}`)
@@ -75,7 +75,7 @@ export default class SelectionManager {
     const changedNodes = []
     const selectedIndices = []
 
-    this.sortedNodes.forEach(this.sortNodes.bind(this, selectionRectangle, selectedIndices, changedNodes), this)
+    this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes), this)
     if (props.selectIntermediates) {
       const min = Math.min(...selectedIndices)
       const max = Math.max(...selectedIndices)
