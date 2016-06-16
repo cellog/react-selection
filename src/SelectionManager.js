@@ -37,58 +37,59 @@ export default class SelectionManager {
     }
   }
 
+  saveNode(changedNodes, node, bounds) {
+    if (this.selectedNodes[node.key] !== undefined) return
+    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
+      Debug.log(`select: ${node.key}`)
+    }
+    this.selectedNodes[node.key] = {node: node.component, bounds: bounds}
+    this.selectedValues[node.key] = node.value
+    changedNodes.push([true, node])
+  }
+
+  sortNodes(selectionRectangle, selectedIndices, changedNodes, node, idx) {
+    const domnode = findDOMNode(node.component)
+    const key = node.key
+    const bounds = node.bounds ? node.bounds : mouseMath.getBoundsForNode(domnode)
+    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+      Debug.log(`node ${key} bounds`, bounds)
+    }
+    if (!domnode || !mouseMath.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
+      if (!this.selectedNodes.hasOwnProperty(key)) return
+      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
+        Debug.log(`deselect: ${key}`)
+      }
+      delete this.selectedNodes[key]
+      delete this.selectedValues[key]
+      changedNodes.push([false, node])
+      return
+    }
+    selectedIndices.push(idx)
+    this.saveNode(changedNodes, node, bounds)
+  }
+
   select(selectionRectangle, currentState, props) {
-    const {
-      selectedNodes: nodes,
-      selectedValues: values
-    } = currentState
+    this.selectedNodes = currentState.selectedNodes
+    this.selectedValues = currentState.selectedValues
     const changedNodes = []
     const selectedIndices = []
-    const saveNode = (node, bounds) => {
-      if (nodes[node.key] !== undefined) return
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log(`select: ${node.key}`)
-      }
-      nodes[node.key] = {node: node.component, bounds: bounds}
-      values[node.key] = node.value
-      changedNodes.push([true, node])
-    }
 
-    this.sortedNodes.forEach((node, idx) => {
-      const domnode = findDOMNode(node.component)
-      const key = node.key
-      const bounds = node.bounds ? node.bounds : mouseMath.getBoundsForNode(domnode)
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-        Debug.log(`node ${key} bounds`, bounds)
-      }
-      if (!domnode || !mouseMath.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
-        if (!nodes.hasOwnProperty(key)) return
-        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-          Debug.log(`deselect: ${key}`)
-        }
-        delete nodes[key]
-        delete values[key]
-        changedNodes.push([false, node])
-        return
-      }
-      selectedIndices.push(idx)
-      saveNode(node, bounds)
-    })
+    this.sortedNodes.forEach(this.sortNodes.bind(this, selectionRectangle, selectedIndices, changedNodes), this)
     if (props.selectIntermediates) {
       const min = Math.min(...selectedIndices)
       const max = Math.max(...selectedIndices)
       const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
       filled.unshift(min)
-      const diff = filled.filter(val => selectedIndices.indexOf(val) === -1)
-      diff.forEach(idx => saveNode(this.sortedNodes[idx], mouseMath.getBoundsForNode(findDOMNode(this.sortedNodes[idx].component))))
+      const diff = filled.filter(val => this.selectedIndices.indexOf(val) === -1)
+      diff.forEach(idx => this.saveNode(this.sortedNodes[idx],
+        this.sortedNodes[idx].bounds ? this.sortedNodes[idx].bounds :
+        mouseMath.getBoundsForNode(findDOMNode(this.sortedNodes[idx].component))))
     }
     if (changedNodes.length) {
       changedNodes.forEach((item) => {
-        item[1].callback(item[0], nodes, values)
+        item[1].callback(item[0], this.selectedNodes, this.selectedValues)
       })
-      this.selectedNodes = nodes
-      this.selectedValues = values
-      this.notify.updateState(null, nodes, values)
+      this.notify.updateState(null, this.selectedNodes, this.selectedValues)
     }
   }
 
