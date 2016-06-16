@@ -48,7 +48,7 @@ export default class SelectionManager {
     changedNodes.push([true, node])
   }
 
-  walkNodes(selectionRectangle, selectedIndices, changedNodes, node, idx, findit = findDOMNode, mouse = mouseMath) {
+  walkNodes(selectionRectangle, selectedIndices, changedNodes, findit, mouse, node, idx) {
     const domnode = findit(node.component)
     const key = node.key
     const bounds = node.bounds ? node.bounds : mouse.getBoundsForNode(domnode)
@@ -69,22 +69,22 @@ export default class SelectionManager {
     this.saveNode(changedNodes, node, bounds)
   }
 
-  select(selectionRectangle, currentState, props) {
+  select(selectionRectangle, currentState, props, findit = findDOMNode, mouse = mouseMath) {
     this.selectedNodes = currentState.selectedNodes
     this.selectedValues = currentState.selectedValues
     const changedNodes = []
     const selectedIndices = []
 
-    this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes), this)
+    this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes, findit, mouse), this)
     if (props.selectIntermediates) {
       const min = Math.min(...selectedIndices)
       const max = Math.max(...selectedIndices)
       const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
       filled.unshift(min)
-      const diff = filled.filter(val => this.selectedIndices.indexOf(val) === -1)
-      diff.forEach(idx => this.saveNode(this.sortedNodes[idx],
+      const diff = filled.filter(val => selectedIndices.indexOf(val) === -1)
+      diff.forEach(idx => this.saveNode(changedNodes, this.sortedNodes[idx],
         this.sortedNodes[idx].bounds ? this.sortedNodes[idx].bounds :
-        mouseMath.getBoundsForNode(findDOMNode(this.sortedNodes[idx].component))))
+        mouse.getBoundsForNode(findit(this.sortedNodes[idx].component))))
     }
     if (changedNodes.length) {
       changedNodes.forEach((item) => {

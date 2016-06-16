@@ -238,7 +238,7 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: false
       }
-      manager.walkNodes([1,2,4], indices, changedNodes, node, 1, findit, mouse)
+      manager.walkNodes([1,2,4], indices, changedNodes, findit, mouse, node, 1)
 
       indices.should.have.length(1)
       indices[0].should.equal(1)
@@ -257,8 +257,8 @@ describe("SelectionManager", function() {
       }
       manager.selectedNodes[2] = {}
       manager.selectedValues[2] = {}
-      manager.walkNodes([1,2,4], indices, changedNodes, node, 3, findit, mouse)
-      manager.walkNodes([1,2,4], indices, changedNodes, node, 5, findit, mouse) // test that it ignores non-selected values
+      manager.walkNodes([1,2,4], indices, changedNodes, findit, mouse, node, 3)
+      manager.walkNodes([1,2,4], indices, changedNodes, findit, mouse, node, 5) // test that it ignores non-selected values
 
       indices.should.have.length(0)
 
@@ -267,6 +267,97 @@ describe("SelectionManager", function() {
 
       manager.selectedNodes.should.not.have.property(2)
       manager.selectedValues.should.not.have.property(2)
+    })
+  })
+
+  describe("select", () => {
+    let manager
+    const notify = {
+      updateState: sinon.spy()
+    }
+
+    let props
+    const mouse = {
+      getBoundsForNode(node) {
+        return node
+      },
+      objectsCollide(rect, bounds, tol, key) {
+        return rect.indexOf(bounds) !== -1
+      }
+    }
+    const findit = (i) => i
+    let node1, node2, node3, node4
+    beforeEach(() => {
+      props = {
+        clickTolerance: 5
+      }
+      manager = new SelectionManager(notify, props)
+      node1 = {
+        component: 1,
+        key: 1,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node2 = {
+        component: 2,
+        key: 2,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node3 = {
+        component: 3,
+        key: 3,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node4 = {
+        component: 4,
+        key: 4,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      manager.sortedNodes = [node1, node2, node3, node4]
+    })
+
+    it("should select 3 values when within the rectangle", () => {
+      manager.select([1,2,4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.have.property(4)
+
+      manager.selectedNodes[1].should.eql({bounds: 1, node: 1})
+      manager.selectedNodes[2].should.eql({bounds: 2, node: 2})
+      manager.selectedNodes[2].should.eql({bounds: 2, node: 2})
+
+      expect(node1.callback.called).to.be.true
+      expect(node2.callback.called).to.be.true
+      expect(node3.callback.called).to.be.false
+      expect(node4.callback.called).to.be.true
+
+      expect(notify.updateState.called).to.be.true
+    })
+
+    it("should select 4 values with selectIntermediates", () => {
+      props.selectIntermediates = true
+
+      manager.select([1,2,4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.have.property(4)
+
+      manager.selectedNodes[1].should.eql({bounds: 1, node: 1})
+      manager.selectedNodes[2].should.eql({bounds: 2, node: 2})
+      manager.selectedNodes[3].should.eql({bounds: 3, node: 3})
+      manager.selectedNodes[4].should.eql({bounds: 4, node: 4})
+
+      expect(node1.callback.called).to.be.true
+      expect(node2.callback.called).to.be.true
+      expect(node3.callback.called).to.be.true
+      expect(node4.callback.called).to.be.true
+
+      expect(notify.updateState.called).to.be.true
     })
   })
 })
