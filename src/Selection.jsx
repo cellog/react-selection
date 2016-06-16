@@ -1,6 +1,7 @@
 import mouseMath from './mouseMath.js'
 import Debug from './debug.js'
 import InputManager from './InputManager.js'
+import SelectionManager from './SelectionManager.js'
 
 import React, { PropTypes } from 'react'
 import { findDOMNode } from 'react-dom'
@@ -14,11 +15,6 @@ function makeSelectable( Component, options = {}) {
     static displayName = `Selection(${displayName})`
     constructor(props) {
       super(props)
-      this.mouseDownData = null
-      this.clickTolerance = 2
-      this.selectables = {}
-      this.selectableKeys = []
-      this.sortedNodes = []
       this.containerDiv = containerDiv
       this.state = {
         selecting: false,
@@ -27,6 +23,7 @@ function makeSelectable( Component, options = {}) {
         selectedValues: {},
         selectedValueList: []
       }
+      this.selectionManager = new SelectionManager(this, props)
     }
 
     static propTypes = {
@@ -50,8 +47,7 @@ function makeSelectable( Component, options = {}) {
     }
 
     static childContextTypes = {
-      registerSelectable: PropTypes.func,
-      unregisterSelectable: PropTypes.func,
+      selectionManager: PropTypes.object,
       selectedNodes: PropTypes.object,
       selectedValues: PropTypes.object
     }
@@ -94,27 +90,7 @@ function makeSelectable( Component, options = {}) {
 
     getChildContext() {
       return {
-        registerSelectable: (component, key, value, callback) => {
-          if (!this.selectables.hasOwnProperty(key)) {
-            this.selectableKeys.push(key)
-            this.sortedNodes.push({ component, key, value, callback } )
-          }
-          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.registration) {
-            Debug.log(`registered: ${key}`, value)
-          }
-          this.selectables[key] = { component, value, callback }
-        },
-        unregisterSelectable: (component, key) => {
-          delete this.selectables[key]
-          this.selectableKeys = this.selectableKeys.filter((itemKey) => itemKey !== key)
-          if (this.state.selectedNodes[key]) {
-            const nodes = this.state.selectedNodes
-            const values = this.state.selectedValues
-            delete nodes[key]
-            delete values[key]
-            this.updateState(null, nodes, values)
-          }
-        },
+        selectionManager: this.selectionManager,
         selectedNodes: this.state.selectedNodes,
         selectedValues: this.state.selectedValues
       }
@@ -141,26 +117,24 @@ function makeSelectable( Component, options = {}) {
     start(bounds, mouseDownData, selectionRectangle) {
       this.bounds = bounds
       this.mouseDownData = mouseDownData
-      this._selectRect = selectionRectangle
       if (this.props.constantSelect) {
-        this.selectNodes()
+        this.selectionManager.select(selectionRectangle, this.state, this.props)
       }
     }
 
     cancel() {
-      this.deselectNodes()
+      this.selectionManager.deselect(this.state)
       this.propagateFinishedSelect()
       this.setState({ selecting: false })
     }
 
     end(e, mouseDownData, selectionRectangle) {
-      this._selectRect = selectionRectangle
       if (this.props.constantSelect && !this.props.preserveSelection) {
         this.propagateFinishedSelect()
-        this.deselectNodes()
+        this.selectionManager.deselect(this.state)
         return
       }
-      this.selectNodes()
+      this.selectionManager.select(selectionRectangle, this.state, this.props)
     }
 
     change(selectionRectangle) {
@@ -170,80 +144,8 @@ function makeSelectable( Component, options = {}) {
         this.setState({selecting: true})
       }
 
-      this._selectRect = selectionRectangle
       if (this.props.constantSelect) {
-        this.selectNodes()
-      }
-    }
-
-    deselectNodes() {
-      let changed = false
-      Object.keys(this.state.selectedNodes).forEach((key) => {
-        changed = true
-        this.selectables[key].callback(false, {}, {})
-      })
-      if (changed) {
-        this.updateState(false, {}, {})
-      }
-    }
-
-    selectNodes() {
-      const nodes = {...this.state.selectedNodes}
-      const values = {...this.state.selectedValues}
-      const changedNodes = []
-      const selectedIndices = []
-      const saveNode = (node, bounds) => {
-        if (nodes[node.key] !== undefined) return
-        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-          Debug.log(`select: ${node.key}`)
-        }
-        nodes[node.key] = {node: node.component, bounds: bounds}
-        values[node.key] = node.value
-        changedNodes.push([true, node])
-      }
-
-      this.sortedNodes.forEach((node, idx) => {
-        const domnode = findDOMNode(node.component)
-        const key = node.key
-        const bounds = mouseMath.getBoundsForNode(domnode)
-        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-          Debug.log(`node ${key} bounds`, bounds)
-        }
-        if (!domnode || !mouseMath.objectsCollide(this._selectRect, bounds, this.clickTolerance, key)) {
-          if (!nodes.hasOwnProperty(key)) return
-          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-            Debug.log(`deselect: ${key}`)
-          }
-          delete nodes[key]
-          delete values[key]
-          changedNodes.push([false, node])
-          return
-        }
-        selectedIndices.push(idx)
-        saveNode(node, bounds)
-      })
-      if (this.props.selectIntermediates) {
-        const min = Math.min(...selectedIndices)
-        const max = Math.max(...selectedIndices)
-        const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
-        filled.unshift(min)
-        const diff = filled.filter(val => selectedIndices.indexOf(val) === -1)
-        diff.forEach(idx => saveNode(this.sortedNodes[idx], mouseMath.getBoundsForNode(findDOMNode(this.sortedNodes[idx].component))))
-      }
-      if (changedNodes.length) {
-        changedNodes.forEach((item) => {
-          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-            Debug.log('start callback')
-          }
-          item[1].callback(item[0], nodes, values)
-          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-            Debug.log('end callback')
-          }
-        })
-        this.updateState(null, nodes, values)
-      }
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-        Debug.log('end of selectNodes')
+        this.selectionManager.select(selectionRectangle, this.state, this.props)
       }
     }
 
