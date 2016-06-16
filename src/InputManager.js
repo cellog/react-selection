@@ -7,44 +7,38 @@ export default class InputManager {
   constructor(ref, notify, component) {
     this.node = findDOMNode(ref)
     this.notify = notify
-    this.handlers = {
-      stopmouseup: () => null,
-      stopmousemove: () => null,
-      stoptouchend: () => null,
-      stoptouchmove: () => null,
-      stoptouchcancel: () => null
-    }
 
     this.cancel = this.cancel.bind(this)
     this.end = this.end.bind(this)
     this.move = this.move.bind(this)
     this.mouseDown = this.mouseDown.bind(this)
     this.touchStart = this.touchStart.bind(this)
-    this.addListener(this.node, 'touchstart', this.touchStart)
+
+    this.handlers = {
+      stopmouseup: () => null,
+      stopmousemove: () => null,
+      stoptouchend: () => null,
+      stoptouchmove: () => null,
+      stoptouchcancel: () => null,
+      stopmousedown: () => null,
+      stoptouchstart: () => null
+    }
+
     this.addListener(this.node, 'mousedown', this.mouseDown)
+    this.addListener(this.node, 'touchstart', this.touchStart)
+
     this.bounds = mouseMath.getBoundsForNode(this.node)
     this.component = component
   }
 
   unmount() {
-    if (this.handlers.stopmousedown) {
-      this.handlers.stopmousedown()
-    }
-    if (this.handlers.stopmouseup) {
-      this.handlers.stopmouseup()
-    }
-    if (this.handlers.stopmousemove) {
-      this.handlers.stopmousemove()
-    }
-    if (this.handlers.stoptouchend) {
-      this.handlers.stoptouchend()
-    }
-    if (this.handlers.stoptouchmove) {
-      this.handlers.stoptouchmove()
-    }
-    if (this.handlers.stoptouchcancel) {
-      this.handlers.stoptouchcancel()
-    }
+    this.handlers.stopmousedown()
+    this.handlers.stopmouseup()
+    this.handlers.stopmousemove()
+    this.handlers.stoptouchstart()
+    this.handlers.stoptouchend()
+    this.handlers.stoptouchmove()
+    this.handlers.stoptouchcancel()
   }
 
   validSelectStart(e) {
@@ -144,6 +138,7 @@ export default class InputManager {
 
     if (mouseMath.isClick(e, this.mouseDownData, this.clickTolerance)) {
       this.notify.click(e, this.mouseDownData, this._selectRect)
+      return
     }
     this.notify.end(e, this.mouseDownData, this._selectRect)
   }

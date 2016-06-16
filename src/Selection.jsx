@@ -64,7 +64,7 @@ function makeSelectable( Component, options = {}) {
         selectedValues: newvalues,
         containerBounds: this.bounds
       })
-      if (this.props.onSelectSlot || this.props.onFinishSelect) {
+      if (this.props.onSelectSlot && this.props.constantSelect) {
         const nodelist = Object.keys(newnodes).map((key) => newnodes[key]).sort((a, b) => nodevalue(a.node) - nodevalue(b.node))
         const valuelist = Object.keys(newvalues).map((key) => newvalues[key]).sort(sorter)
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
@@ -119,6 +119,8 @@ function makeSelectable( Component, options = {}) {
       this.mouseDownData = mouseDownData
       if (this.props.constantSelect) {
         this.selectionManager.select(selectionRectangle, this.state, this.props)
+      } else {
+        this.selectionManager.deselect(this.state)
       }
     }
 
@@ -135,6 +137,7 @@ function makeSelectable( Component, options = {}) {
         return
       }
       this.selectionManager.select(selectionRectangle, this.state, this.props)
+      this.propagateFinishedSelect()
     }
 
     change(selectionRectangle) {
@@ -151,6 +154,9 @@ function makeSelectable( Component, options = {}) {
 
     makeInputManager(ref) {
       if (!ref) return
+      if (this.ref === ref) return
+      if (this.inputManager) this.inputManager.unmount()
+      this.ref = ref
       this.inputManager = new InputManager(ref, this, this)
     }
 
