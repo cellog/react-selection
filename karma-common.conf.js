@@ -1,13 +1,8 @@
 /* eslint no-var: 0, babel/object-shorthand: 0, vars-on-top: 0 */
 require('babel-register')
-var sauceBrowsers = require('./test/saucebrowsers.js')
-var ieBrowsers = require('./test/onlyie.js')
-var iosBrowsers = require('./test/onlyios.js')
 
 var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
 var reporters = ['mocha', 'saucelabs']
-var browsers = process.env.ONLYIE ? ieBrowsers : sauceBrowsers
-var browserKeys = Object.keys(browsers)
 var singleRun = true
 
 var sauceParams = {
@@ -15,24 +10,15 @@ var sauceParams = {
   username: process.env.SAUCEUSER,
   accessKey: process.env.ACCESSSAUCE
 }
-if (process.env.ONLYIOS) {
-  browsers = iosBrowsers
-  browserKeys = Object.keys(browsers)
-}
 
 if (isCI) {
   sauceParams.build = process.env.TRAVIS_BUILD_NUMBER
 } else {
+  sauceParams.build = `Local Testing ${process.env.CURRENTTIME}`
   sauceParams.startConnect = false
 }
 
-if (process.env.QUICKTEST) {
-  browsers = {}
-  browserKeys = ['Chrome']
-  singleRun = false
-}
-
-module.exports = function(config) {
+module.exports = function(config, extraoptions) {
   config.set({
 
     basePath: '',
@@ -73,12 +59,11 @@ module.exports = function(config) {
 
     sauceLabs: sauceParams,
 
-    customLaunchers: browsers,
-    browsers: browserKeys,
-
     captureTimeout: 1200000,
     browserNoActivityTimeout: 45000,
 
-    singleRun
+    singleRun,
+
+    ...extraoptions
   })
 }

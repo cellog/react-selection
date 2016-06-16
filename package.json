@@ -12,7 +12,7 @@
   "scripts": {
     "clean": "rimraf build",
     "clean:examples": "rimraf examples/static",
-    "test": "karma start --single-run",
+    "test": "karma start karma.noie.conf.js && karma start karma.ie.conf.js",
     "local-test": "./local-test.env",
     "test-cov": "babel-node isparta cover --report html --report text node_modules/.bin/_mocha",
     "build": "npm run clean && babel src --out-dir build",
