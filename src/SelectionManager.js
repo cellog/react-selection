@@ -13,8 +13,8 @@ export default class SelectionManager {
     this.notify = notify
   }
 
-  registerSelectable(component, key, value, callback, cacheBounds) {
-    const bounds = cacheBounds ? mouseMath.getBoundsForNode(findDOMNode(component)) : null
+  registerSelectable(component, key, value, callback, cacheBounds, mouse = mouseMath, findit = findDOMNode) {
+    const bounds = cacheBounds ? mouse.getBoundsForNode(findit(component)) : null
     if (!this.selectables.hasOwnProperty(key)) {
       this.selectableKeys.push(key)
       this.sortedNodes.push({ component, key, value, callback, bounds } )
@@ -28,6 +28,7 @@ export default class SelectionManager {
   unregisterSelectable(component, key) {
     delete this.selectables[key]
     this.selectableKeys = this.selectableKeys.filter((itemKey) => itemKey !== key)
+    this.sortedNodes = this.sortedNodes.filter((item) => item.key !== key)
     if (this.selectedNodes[key]) {
       const nodes = this.selectedNodes
       const values = this.selectedValues
