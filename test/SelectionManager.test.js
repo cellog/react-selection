@@ -167,4 +167,44 @@ describe("SelectionManager", function() {
       expect(notify.updateState.called).to.equal(true)
     })
   })
+
+  describe("saveNode", () => {
+    let manager
+    const notify = {
+
+    }
+    const props = {
+      clickTolerance: 5
+    }
+    beforeEach(() => {
+      manager = new SelectionManager(notify, props)
+    })
+
+    it("should add it to the selection trackers", () => {
+      const changedNodes = []
+      const thing = {key: 'hi', component: {}, value: 5}
+      const bounds = {}
+      manager.saveNode(changedNodes, thing, bounds)
+
+      changedNodes.should.have.length(1)
+      changedNodes[0].should.eql([
+        true, thing
+      ])
+      manager.selectedNodes.hi.should.eql({
+        node: thing.component,
+        bounds
+      })
+      manager.selectedValues.hi.should.eql(5)
+    })
+
+    it("should skip an existing item", () => {
+      const changedNodes = []
+      const thing = {key: 'hi', component: {}, value: 5}
+      const bounds = {}
+      manager.saveNode(changedNodes, thing, bounds)
+      manager.saveNode(changedNodes, thing, bounds)
+
+      changedNodes.should.have.length(1)
+    })
+  })
 })
