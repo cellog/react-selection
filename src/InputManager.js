@@ -4,8 +4,8 @@ import mouseMath from './mouseMath.js'
 import Debug from './debug.js'
 
 export default class InputManager {
-  constructor(ref, notify, component) {
-    this.node = findDOMNode(ref)
+  constructor(ref, notify, component, findit = findDOMNode, mouse = mouseMath) {
+    this.node = findit(ref)
     this.notify = notify
 
     this.cancel = this.cancel.bind(this)
@@ -27,7 +27,7 @@ export default class InputManager {
     this.addListener(this.node, 'mousedown', this.mouseDown)
     this.addListener(this.node, 'touchstart', this.touchStart)
 
-    this.bounds = mouseMath.getBoundsForNode(this.node)
+    this.bounds = mouse.getBoundsForNode(this.node)
     this.component = component
   }
 
