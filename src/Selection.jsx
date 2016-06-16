@@ -16,13 +16,6 @@ function makeSelectable( Component, options = {}) {
       super(props)
       this.mouseDownData = null
       this.clickTolerance = 2
-      this.handlers = {
-        stopmouseup: () => null,
-        stopmousemove: () => null,
-        stoptouchend: () => null,
-        stoptouchmove: () => null,
-        stoptouchcancel: () => null
-      }
       this.selectables = {}
       this.selectableKeys = []
       this.sortedNodes = []
@@ -45,12 +38,11 @@ function makeSelectable( Component, options = {}) {
       onSelectSlot: PropTypes.func,
       onFinishSelect: PropTypes.func,
       onMouseDown: PropTypes.func,
-      onTouchStart: PropTypes.func,
-      onClick: PropTypes.func
+      onTouchStart: PropTypes.func
     }
 
     static defaultProps = {
-      clickTolerance: 5,
+      clickTolerance: 2,
       constantSelect: false,
       selectable: false,
       preserveSelection: false,
