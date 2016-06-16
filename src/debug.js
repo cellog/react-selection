@@ -9,7 +9,7 @@ export default class Debug {
   }
 
   static log(...props) {
-    Function.prototype.bind.call(console.dir, console).apply(console, props) /* eslint no-console: 0 */
+    Function.prototype.bind.call(console.log, console).apply(console, props) /* eslint no-console: 0 */
   }
 
   static DOMFlush(id) {
