@@ -1,6 +1,5 @@
 import mouseMath from './mouseMath.js'
 import Debug from './debug.js'
-import SelectionManager from './SelectionManager.js'
 
 import React, { PropTypes } from 'react'
 import { findDOMNode } from 'react-dom'
@@ -24,7 +23,6 @@ function makeSelectable( Component, options = {}) {
       this.mouseMove = this.mouseMove.bind(this)
       this.click = this.click.bind(this)
       this.mouseDownData = null
-      this.selectionManager = new SelectionManager(this, 2)
       this.clickTolerance = 2
       this.handlers = {
         stopmouseup: () => null,
@@ -112,8 +110,27 @@ function makeSelectable( Component, options = {}) {
 
     getChildContext() {
       return {
-        registerSelectable: this.selectionManager.registerSelectable,
-        unregisterSelectable: this.selectionManager.unregisterSelectable,
+        registerSelectable: (component, key, value, callback) => {
+          if (!this.selectables.hasOwnProperty(key)) {
+            this.selectableKeys.push(key)
+            this.sortedNodes.push({ component, key, value, callback } )
+          }
+          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.registration) {
+            Debug.log(`registered: ${key}`, value)
+          }
+          this.selectables[key] = { component, value, callback }
+        },
+        unregisterSelectable: (component, key) => {
+          delete this.selectables[key]
+          this.selectableKeys = this.selectableKeys.filter((itemKey) => itemKey !== key)
+          if (this.state.selectedNodes[key]) {
+            const nodes = this.state.selectedNodes
+            const values = this.state.selectedValues
+            delete nodes[key]
+            delete values[key]
+            this.updateState(null, nodes, values)
+          }
+        },
         selectedNodes: this.state.selectedNodes,
         selectedValues: this.state.selectedValues
       }
@@ -214,12 +231,8 @@ function makeSelectable( Component, options = {}) {
       }
 
       if (this.props.constantSelect) {
-        this.selectionManager.setSelectionRectangle(mouseMath.createSelectRect(coords, this.mouseDownData))
-        this.selectionManager.selectNodes({
-          selectedNodes: this.state.selectedNodes,
-          selectedValues: this.state.selectedValues,
-          selectIntermediates: this.props.selectIntermediates
-        })
+        this._selectRect = mouseMath.createSelectRect(coords, this.mouseDownData)
+        this.selectNodes(e)
       }
 
       e.preventDefault()
@@ -237,16 +250,12 @@ function makeSelectable( Component, options = {}) {
       if (!this.mouseDownData) return
       this.handlers.stopmouseup()
       this.handlers.stopmousemove()
-      this.selectionManager.setSelectionRectangle(mouseMath.createSelectRect(e, this.mouseDownData))
+      this._selectRect = mouseMath.createSelectRect(e, this.mouseDownData)
       if (this.props.constantSelect && !this.props.preserveSelection) {
-        this.selectionManager.deselectNodes(this.state.selectedNodes)
+        this.deselectNodes()
         return
       }
-      this.selectionManager.selectNodes({
-        selectedNodes: this.state.selectedNodes,
-        selectedValues: this.state.selectedValues,
-        selectIntermediates: this.props.selectIntermediates
-      })
+      this.selectNodes()
     }
 
     touchEnd(e) {
@@ -260,7 +269,7 @@ function makeSelectable( Component, options = {}) {
     touchCancel() {
       this.handlers.stoptouchmove()
       this.handlers.stoptouchend()
-      this.selectionManager.deselectNodes(this.state.selectedNodes)
+      this.deselectNodes()
       this.propagateFinishedSelect()
       this.setState({ selecting: false })
     }
@@ -283,14 +292,10 @@ function makeSelectable( Component, options = {}) {
 
       if (this.props.constantSelect && !this.props.preserveSelection) {
         this.propagateFinishedSelect()
-        this.selectionManager.deselectNodes(this.state.selectedNodes)
+        this.deselectNodes()
         return
       }
-      this.selectionManager.selectNodes({
-        selectedNodes: this.state.selectedNodes,
-        selectedValues: this.state.selectedValues,
-        selectIntermediates: this.props.selectIntermediates
-      })
+      this.selectNodes()
     }
 
     touchMove(e) {
@@ -312,14 +317,81 @@ function makeSelectable( Component, options = {}) {
 
       const coords = mouseMath.getCoordinates(e, this.mouseDownData.touchID)
       if (!mouseMath.isClick(coords, this.mouseDownData, this.clickTolerance)) {
-        this.selectionManager.setSelectionRectangle(mouseMath.createSelectRect(coords, this.mouseDownData))
+        this._selectRect = mouseMath.createSelectRect(coords, this.mouseDownData)
       }
       if (this.props.constantSelect) {
-        this.selectionManager.selectNodes({
-          selectedNodes: this.state.selectedNodes,
-          selectedValues: this.state.selectedValues,
-          selectIntermediates: this.props.selectIntermediates
+        this.selectNodes()
+      }
+    }
+
+    deselectNodes() {
+      let changed = false
+      Object.keys(this.state.selectedNodes).forEach((key) => {
+        changed = true
+        this.selectables[key].callback(false, {}, {})
+      })
+      if (changed) {
+        this.updateState(false, {}, {})
+      }
+    }
+
+    selectNodes() {
+      const nodes = {...this.state.selectedNodes}
+      const values = {...this.state.selectedValues}
+      const changedNodes = []
+      const selectedIndices = []
+      const saveNode = (node, bounds) => {
+        if (nodes[node.key] !== undefined) return
+        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
+          Debug.log(`select: ${node.key}`)
+        }
+        nodes[node.key] = {node: node.component, bounds: bounds}
+        values[node.key] = node.value
+        changedNodes.push([true, node])
+      }
+
+      this.sortedNodes.forEach((node, idx) => {
+        const domnode = findDOMNode(node.component)
+        const key = node.key
+        const bounds = mouseMath.getBoundsForNode(domnode)
+        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+          Debug.log(`node ${key} bounds`, bounds)
+        }
+        if (!domnode || !mouseMath.objectsCollide(this._selectRect, bounds, this.clickTolerance, key)) {
+          if (!nodes.hasOwnProperty(key)) return
+          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
+            Debug.log(`deselect: ${key}`)
+          }
+          delete nodes[key]
+          delete values[key]
+          changedNodes.push([false, node])
+          return
+        }
+        selectedIndices.push(idx)
+        saveNode(node, bounds)
+      })
+      if (this.props.selectIntermediates) {
+        const min = Math.min(...selectedIndices)
+        const max = Math.max(...selectedIndices)
+        const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
+        filled.unshift(min)
+        const diff = filled.filter(val => selectedIndices.indexOf(val) === -1)
+        diff.forEach(idx => saveNode(this.sortedNodes[idx], mouseMath.getBoundsForNode(findDOMNode(this.sortedNodes[idx].component))))
+      }
+      if (changedNodes.length) {
+        changedNodes.forEach((item) => {
+          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+            Debug.log('start callback')
+          }
+          item[1].callback(item[0], nodes, values)
+          if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+            Debug.log('end callback')
+          }
         })
+        this.updateState(null, nodes, values)
+      }
+      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
+        Debug.log('end of selectNodes')
       }
     }
 
