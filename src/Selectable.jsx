@@ -15,15 +15,18 @@ function Selectable(Component, options) {
     }
 
     static contextTypes = {
-      registerSelectable: PropTypes.func,
-      unregisterSelectable: PropTypes.func
+      selectionManager: PropTypes.object
     }
 
     componentDidMount() {
-      if (!this.context || !this.context.registerSelectable) return
+      if (!this.context || !this.context.selectionManager) return
       const key = options.key(this.props)
-      this.context.registerSelectable(this, key, options.value(this.props), this.selectItem)
-      unregister = this.context.unregisterSelectable.bind(null, this, key)
+      this.context.selectionManager.registerSelectable(this,
+        key,
+        options.value(this.props),
+        this.selectItem,
+        options.cacheBounds)
+      unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key)
     }
 
     componentWillUnmount() {

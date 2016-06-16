@@ -20,7 +20,43 @@ class Thing extends React.Component {
   }
 }
 
+class Thing2 extends React.Component {
+  static propTypes = {
+    index: React.PropTypes.number.isRequired,
+    thing: React.PropTypes.string.isRequired
+  }
+  render() {
+    return <div style={{
+      width: 5,
+      height: 2,
+      backgroundColor: (this.props.selected ? 'green' : 'red'),
+      margin: 3}}
+    >
+    </div>
+  }
+}
+
 const SelectableThing = Selectable(Thing, {
+  key: (props) => {
+    return props.index
+  },
+  value: (props) => {
+    return props.thing
+  },
+  cacheBounds: true
+})
+
+const SelectableThing2 = Selectable(Thing2, {
+  key: (props) => {
+    return props.index
+  },
+  value: (props) => {
+    return props.thing
+  },
+  cacheBounds: true
+})
+
+const SelectableThing3 = Selectable(Thing2, {
   key: (props) => {
     return props.index
   },
@@ -39,7 +75,10 @@ storiesOf('module.Selectable', module)
   .add('selectable, constant select', () => {
     const Sel = Selection(Test)
     return (
-      <Sel constantSelect selectable onFinishSelect={action("finish select")}>
+      <Sel constantSelect selectable
+           onFinishSelect={(...props) => console.log('finish', props)}
+           onSelectSlot={(...props) => console.log('slot', props)}
+      >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
         <SelectableThing thing="foo" index={3} />
@@ -50,7 +89,10 @@ storiesOf('module.Selectable', module)
   .add('selectable, not constant select', () => {
     const Sel = Selection(Test)
     return (
-      <Sel selectable onFinishSelect={action("finish select")}>
+      <Sel selectable
+           onFinishSelect={(...props) => console.log('finish', props)}
+           onSelectSlot={(...props) => console.log('slot', props)}
+      >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
         <SelectableThing thing="foo" index={3} />
@@ -61,7 +103,10 @@ storiesOf('module.Selectable', module)
   .add('not selectable', () => {
     const Sel = Selection(Test)
     return (
-      <Sel onFinishSelect={action("finish select")}>
+      <Sel
+        onFinishSelect={(...props) => console.log('finish', props)}
+        onSelectSlot={(...props) => console.log('slot', props)}
+      >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
         <SelectableThing thing="foo" index={3} />
@@ -72,7 +117,10 @@ storiesOf('module.Selectable', module)
   .add('selectable, constant select, preserve selection', () => {
     const Sel = Selection(Test)
     return (
-      <Sel constantSelect selectable preserveSelection onFinishSelect={action("finish select")}>
+      <Sel constantSelect selectable preserveSelection
+           onFinishSelect={(...props) => console.log('finish', props)}
+           onSelectSlot={(...props) => console.log('slot', props)}
+      >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
         <SelectableThing thing="foo" index={3} />
@@ -83,7 +131,10 @@ storiesOf('module.Selectable', module)
   .add('selectable, not constant select, preserve selection', () => {
     const Sel = Selection(Test)
     return (
-      <Sel selectable preserveSelection onFinishSelect={action("finish select")}>
+      <Sel selectable preserveSelection
+           onFinishSelect={(...props) => console.log('finish', props)}
+           onSelectSlot={(...props) => console.log('slot', props)}
+      >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
         <SelectableThing thing="foo" index={3} />
@@ -98,7 +149,37 @@ storiesOf('module.Selectable', module)
     const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
     return (
       <Sel selectable constantSelect selectIntermediates
-           onFinishSelect={action("finish select")}
+           onFinishSelect={(...props) => console.log('finish', props)}
+           onSelectSlot={(...props) => console.log('slot', props)}
+           style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+        {things}
+      </Sel>
+    )
+  })
+
+  .add('selectable, constant select, 1000 nodes, not cached', () => {
+    const generateThing = (...i) => <SelectableThing3 thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
+    const things = Array(1000).fill(0).map(generateThing)
+
+    const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
+    return (
+      <Sel selectable constantSelect
+           onFinishSelect={(...props) => console.log('finish', props)}
+           style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+        {things}
+      </Sel>
+    )
+  })
+
+
+  .add('selectable, constant select, 1000 nodes', () => {
+    const generateThing = (...i) => <SelectableThing2 thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
+    const things = Array(1000).fill(0).map(generateThing)
+
+    const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
+    return (
+      <Sel selectable constantSelect
+           onFinishSelect={(...props) => console.log('finish', props)}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
         {things}
       </Sel>
