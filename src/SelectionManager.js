@@ -13,14 +13,27 @@ export default class SelectionManager {
     this.notify = notify
   }
 
-  deselect(currentState) {
-    let changed = false
-    Object.keys(currentState.selectedNodes).forEach((key) => {
-      changed = true
-      this.selectables[key].callback(false, {}, {})
-    })
-    if (changed) {
-      this.notify.updateState(false, {}, {})
+  registerSelectable(component, key, value, callback, cacheBounds) {
+    const bounds = cacheBounds ? mouseMath.getBoundsForNode(findDOMNode(component)) : null
+    if (!this.selectables.hasOwnProperty(key)) {
+      this.selectableKeys.push(key)
+      this.sortedNodes.push({ component, key, value, callback, bounds } )
+    }
+    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.registration) {
+      Debug.log(`registered: ${key}`, value)
+    }
+    this.selectables[key] = { component, value, callback, bounds }
+  }
+
+  unregisterSelectable(component, key) {
+    delete this.selectables[key]
+    this.selectableKeys = this.selectableKeys.filter((itemKey) => itemKey !== key)
+    if (this.selectedNodes[key]) {
+      const nodes = this.selectedNodes
+      const values = this.selectedValues
+      delete nodes[key]
+      delete values[key]
+      this.notify.updateState(null, nodes, values)
     }
   }
 
@@ -44,7 +57,7 @@ export default class SelectionManager {
     this.sortedNodes.forEach((node, idx) => {
       const domnode = findDOMNode(node.component)
       const key = node.key
-      const bounds = mouseMath.getBoundsForNode(domnode)
+      const bounds = node.bounds ? node.bounds : mouseMath.getBoundsForNode(domnode)
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
         Debug.log(`node ${key} bounds`, bounds)
       }
@@ -79,26 +92,14 @@ export default class SelectionManager {
     }
   }
 
-  registerSelectable(component, key, value, callback) {
-    if (!this.selectables.hasOwnProperty(key)) {
-      this.selectableKeys.push(key)
-      this.sortedNodes.push({ component, key, value, callback } )
-    }
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.registration) {
-      Debug.log(`registered: ${key}`, value)
-    }
-    this.selectables[key] = { component, value, callback }
-  }
-
-  unregisterSelectable(component, key) {
-    delete this.selectables[key]
-    this.selectableKeys = this.selectableKeys.filter((itemKey) => itemKey !== key)
-    if (this.selectedNodes[key]) {
-      const nodes = this.selectedNodes
-      const values = this.selectedValues
-      delete nodes[key]
-      delete values[key]
-      this.notify.updateState(null, nodes, values)
+  deselect(currentState) {
+    let changed = false
+    Object.keys(currentState.selectedNodes).forEach((key) => {
+      changed = true
+      this.selectables[key].callback(false, {}, {})
+    })
+    if (changed) {
+      this.notify.updateState(false, {}, {})
     }
   }
 }

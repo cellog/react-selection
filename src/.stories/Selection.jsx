@@ -20,7 +20,43 @@ class Thing extends React.Component {
   }
 }
 
+class Thing2 extends React.Component {
+  static propTypes = {
+    index: React.PropTypes.number.isRequired,
+    thing: React.PropTypes.string.isRequired
+  }
+  render() {
+    return <div style={{
+      width: 5,
+      height: 2,
+      backgroundColor: (this.props.selected ? 'green' : 'red'),
+      margin: 3}}
+    >
+    </div>
+  }
+}
+
 const SelectableThing = Selectable(Thing, {
+  key: (props) => {
+    return props.index
+  },
+  value: (props) => {
+    return props.thing
+  },
+  cacheBounds: true
+})
+
+const SelectableThing2 = Selectable(Thing2, {
+  key: (props) => {
+    return props.index
+  },
+  value: (props) => {
+    return props.thing
+  },
+  cacheBounds: true
+})
+
+const SelectableThing3 = Selectable(Thing2, {
   key: (props) => {
     return props.index
   },
@@ -115,6 +151,35 @@ storiesOf('module.Selectable', module)
       <Sel selectable constantSelect selectIntermediates
            onFinishSelect={(...props) => console.log('finish', props)}
            onSelectSlot={(...props) => console.log('slot', props)}
+           style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+        {things}
+      </Sel>
+    )
+  })
+
+  .add('selectable, constant select, 1000 nodes, not cached', () => {
+    const generateThing = (...i) => <SelectableThing3 thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
+    const things = Array(1000).fill(0).map(generateThing)
+
+    const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
+    return (
+      <Sel selectable constantSelect
+           onFinishSelect={(...props) => console.log('finish', props)}
+           style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+        {things}
+      </Sel>
+    )
+  })
+
+
+  .add('selectable, constant select, 1000 nodes', () => {
+    const generateThing = (...i) => <SelectableThing2 thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
+    const things = Array(1000).fill(0).map(generateThing)
+
+    const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
+    return (
+      <Sel selectable constantSelect
+           onFinishSelect={(...props) => console.log('finish', props)}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
         {things}
       </Sel>
