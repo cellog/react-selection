@@ -129,7 +129,6 @@ export default class InputManager {
     this.handlers.stoptouchend()
     this.handlers.stoptouchmove()
 
-    console.log(this.component.props)
     if (mouse.isClick(e, this.mouseDownData, this.component.props.clickTolerance)) {
       this.notify.click(e, this.mouseDownData, this._selectRect)
       return

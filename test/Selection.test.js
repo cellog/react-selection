@@ -33,4 +33,20 @@ describe("Selection", () => {
       nextstuff.find('p').text().should.eql('hi Greg')
     })
   })
+
+  describe("updateState", () => {
+    const Thing = Selection(Blah)
+    let stuff
+    beforeEach(() => {
+      stuff = $(<Thing></Thing>).render()
+    })
+    afterEach(() => {
+      stuff.unmount()
+    })
+
+    it("should keep state the same if passed null")
+    it("should set values if passed")
+    it("should call onSelectSlot if constantSelection is enabled")
+    it("should not call onSelectSlot if constantSelection is disabled")
+  })
 })
