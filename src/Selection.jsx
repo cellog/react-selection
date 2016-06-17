@@ -1,10 +1,8 @@
-import mouseMath from './mouseMath.js'
 import Debug from './debug.js'
 import InputManager from './InputManager.js'
 import SelectionManager from './SelectionManager.js'
 
 import React, { PropTypes } from 'react'
-import { findDOMNode } from 'react-dom'
 
 function makeSelectable( Component, options = {}) {
   const { containerDiv = true, sorter = (a, b) => a - b, nodevalue = (node) => node.props.value } = options
