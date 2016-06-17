@@ -1,8 +1,10 @@
 import 'should'
 import React from 'react'
 import { render, unmountComponentAtNode } from 'react-dom'
+
 import InputManager from '../src/InputManager.js'
 import Debug from '../src/debug.js'
+import { dispatchEvent, mouseEvent } from './simulateMouseEvents.js'
 
 describe("InputManager", function() {
   describe("construction", () => {
@@ -546,6 +548,56 @@ describe("InputManager", function() {
       manager.cancel()
 
       expect(notify.cancel.called).is.true
+    })
+  })
+
+  describe("real browser usage", () => {
+    it.only("should attach to an actual DOM node and grab its bounds", () => {
+      if (window.____isjsdom) return
+      let manager
+      const notify = {
+        start: sinon.spy()
+      }
+      const Test = class extends React.Component {
+        render() {
+          return (
+            <div style={{height: 50, width: 50}}
+                 ref={(ref) => { if (ref) manager = new InputManager(ref, notify, this)}} >
+              hi
+            </div>
+          )
+        }
+      }
+      const div = document.createElement('div')
+      document.body.insertBefore(div, document.body.firstElementChild)
+
+      render(<Test selectable />, div)
+
+      manager.should.be.instanceOf(InputManager)
+
+      manager.node.tagName.toUpperCase().should.equal('DIV')
+      manager.bounds.should.eql({
+        top: 0,
+        left: 0,
+        right: 50,
+        bottom: 50
+      })
+      expect(manager.mouseDownData).is.undefined
+
+      const fakemousedown = mouseEvent('mousedown', 25, 25, 25, 25)
+
+      dispatchEvent(div.firstElementChild, fakemousedown)
+
+      manager.mouseDownData.should.eql({
+        x: 25,
+        y: 25,
+        clientX: 25,
+        clientY: 25,
+        touchID: false
+      })
+
+      unmountComponentAtNode(div)
+      document.body.removeChild(div)
     })
   })
 })
