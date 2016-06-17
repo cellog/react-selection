@@ -378,5 +378,71 @@ describe("InputManager", function() {
       expect(notify.start.called).is.true
       expect(e.preventDefault.called).to.be.true
     })
+
+    it("should capture the touch ID if available", () => {
+      mouse.contains = () => true
+      mouse.objectsCollide = () => true
+      notify.start = sinon.spy()
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+      const e = { preventDefault: sinon.spy(), touches: [{ identifier: 'foo' }] }
+
+      manager.start(e, 'boohoo', findit, mouse)
+
+      expect(manager.mouseDownData).is.eql({
+        x: coords.pageX,
+        y: coords.pageY,
+        clientX: coords.clientX,
+        clientY: coords.clientY,
+        touchID: 'foo'
+      })
+      expect(manager._selectRect).is.equal(rect)
+      expect(notify.start.called).is.true
+      expect(e.preventDefault.called).to.be.true
+    })
+  })
+
+  describe("move", () => {
+    const findit = (i) => i
+    const notify = {
+      change: sinon.spy()
+    }
+    const rect = {
+      hi: 'hi'
+    }
+    const mouse = {
+      getBoundsForNode(node) {
+        return 'hi'
+      },
+      getCoordinates: sinon.spy(),
+      createSelectRect() {
+        return rect
+      }
+    }
+
+    it("should notify a change in selection rectangle", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+      
+      manager.mouseDownData = {
+        touchId: false
+      }
+      
+      manager.move({}, mouse)
+      
+      expect(mouse.getCoordinates.called).is.true
+      expect(notify.change.called).is.true
+      manager._selectRect.should.equal(rect)
+    })
   })
 })

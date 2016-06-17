@@ -123,9 +123,9 @@ export default class InputManager {
     e.preventDefault()
   }
 
-  move(e) {
-    const coords = mouseMath.getCoordinates(e, this.mouseDownData.touchID)
-    this._selectRect = mouseMath.createSelectRect(coords, this.mouseDownData)
+  move(e, mouse = mouseMath) {
+    const coords = mouse.getCoordinates(e, this.mouseDownData.touchID)
+    this._selectRect = mouse.createSelectRect(coords, this.mouseDownData)
     this.notify.change(this._selectRect)
   }
 
