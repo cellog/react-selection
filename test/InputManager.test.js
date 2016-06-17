@@ -37,6 +37,7 @@ describe("InputManager", function() {
 
       me.events = []
       manager.handlers.stopmousedown()
+      manager.handlers.stopmousedown()
       manager.handlers.stoptouchstart()
       me.events.should.have.length(2)
       me.events[0][0].should.equal('mousedown')
@@ -83,6 +84,88 @@ describe("InputManager", function() {
       expect(manager.handlers.stoptouchcancel.called).to.be.true
       expect(manager.handlers.stopmousedown.called).to.be.true
       expect(manager.handlers.stoptouchstart.called).to.be.true
+    })
+  })
+
+  describe("validSelectStart", () => {
+    const findit = (i) => i
+    const notify = {}
+    const mouse = {
+      getBoundsForNode(node) {
+        return 'hi'
+      }
+    }
+    it("should fail on multi-touch", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        },
+        removeEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      expect(manager.validSelectStart({
+        touches: [1,2]
+      })).to.be.false
+    })
+
+    it("should fail on right-click", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        },
+        removeEventListener(...args) {
+          this.events.push(args)
+        },
+        props: { selectable: true }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      expect(manager.validSelectStart({
+        which: 3
+      })).to.be.false
+
+      expect(manager.validSelectStart({
+        button: 2
+      })).to.be.false
+    })
+
+    it("should fail on non-selectable", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        },
+        removeEventListener(...args) {
+          this.events.push(args)
+        },
+        props: { selectable: false }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      expect(manager.validSelectStart({
+      })).to.be.false
+    })
+
+    it("should succeed on selectable", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        },
+        removeEventListener(...args) {
+          this.events.push(args)
+        },
+        props: { selectable: true }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      expect(manager.validSelectStart({
+      })).to.be.true
     })
   })
 })

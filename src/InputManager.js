@@ -42,7 +42,7 @@ export default class InputManager {
   }
 
   validSelectStart(e) {
-    const invalid = e.touches && e.touches.length > 1
+    const invalid = e && e.touches && e.touches.length > 1
       || e.which === 3
       || e.button === 2
       || !this.component.props.selectable
