@@ -74,7 +74,34 @@ describe("Selection", () => {
         containerBounds: component.bounds
       })
     })
-    it("should set values if passed")
+    it("should set values if passed", () => {
+      component.setState({
+        selecting: false,
+        selectedNodes: [1,2,3],
+        selectedValues: [4,5,6],
+        containerBounds: component.bounds
+      })
+
+      component.state.should.eql({
+        selecting: false,
+        selectedNodes: [1,2,3],
+        selectedNodeList: [],
+        selectedValues: [4,5,6],
+        selectedValueList: [],
+        containerBounds: component.bounds
+      })
+
+      component.updateState(true, ['hi'], ['there'])
+
+      component.state.should.eql({
+        selecting: true,
+        selectedNodes: ['hi'],
+        selectedNodeList: [],
+        selectedValues: ['there'],
+        selectedValueList: [],
+        containerBounds: component.bounds
+      })
+    })
     it("should call onSelectSlot if constantSelection is enabled")
     it("should not call onSelectSlot if constantSelection is disabled")
   })
