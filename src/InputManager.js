@@ -19,23 +19,16 @@ export default class InputManager {
       stopmousemove: () => null,
       stoptouchend: () => null,
       stoptouchmove: () => null,
-      stoptouchcancel: () => null,
-      stopmousedown: () => null,
-      stoptouchstart: () => null
+      stoptouchcancel: () => null
     }
-
-    this.addListener(this.node, 'mousedown', this.mouseDown)
-    this.addListener(this.node, 'touchstart', this.touchStart)
 
     this.bounds = mouse.getBoundsForNode(this.node)
     this.component = component
   }
 
   unmount() {
-    this.handlers.stopmousedown()
     this.handlers.stopmouseup()
     this.handlers.stopmousemove()
-    this.handlers.stoptouchstart()
     this.handlers.stoptouchend()
     this.handlers.stoptouchmove()
     this.handlers.stoptouchcancel()
@@ -136,7 +129,8 @@ export default class InputManager {
     this.handlers.stoptouchend()
     this.handlers.stoptouchmove()
 
-    if (mouse.isClick(e, this.mouseDownData, this.clickTolerance)) {
+    console.log(this.component.props)
+    if (mouse.isClick(e, this.mouseDownData, this.component.props.clickTolerance)) {
       this.notify.click(e, this.mouseDownData, this._selectRect)
       return
     }

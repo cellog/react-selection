@@ -24,6 +24,9 @@ function makeSelectable( Component, options = {}) {
         selectedValueList: []
       }
       this.selectionManager = new SelectionManager(this, props)
+      this.onMouseDown = this.onMouseDown.bind(this)
+      this.onTouchStart = this.onTouchStart.bind(this)
+      this.makeInputManager = this.makeInputManager.bind(this)
     }
 
     static propTypes = {
@@ -160,11 +163,21 @@ function makeSelectable( Component, options = {}) {
       this.inputManager = new InputManager(ref, this, this)
     }
 
+    onMouseDown(e) {
+      if (this.inputManager) this.inputManager.mouseDown(e)
+    }
+
+    onTouchStart(e) {
+      if (this.inputManager) this.inputManager.touchStart(e)
+    }
+
     render() {
       if (this.containerDiv) {
         return (
           <div
-            ref={(ref) => this.makeInputManager(ref)}
+            ref={this.makeInputManager}
+            onMouseDown={this.onMouseDown}
+            onTouchStart={this.onTouchStart}
           >
             <Component
               {...this.props}
@@ -177,7 +190,9 @@ function makeSelectable( Component, options = {}) {
         <Component
           {...this.props}
           {...this.state}
-          ref={(ref) => this.makeInputManager(ref)}
+          onMouseDown={this.onMouseDown}
+          onTouchStart={this.onTouchStart}
+          ref={this.makeInputManager}
         />
       )
     }

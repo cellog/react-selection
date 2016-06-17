@@ -1,6 +1,6 @@
 function mouseEvent(type, sx, sy, cx, cy) {
-  var evt;
-  var e = {
+  let evt
+  const e = {
     bubbles: true,
     cancelable: (type != "mousemove"),
     view: window,
@@ -15,7 +15,7 @@ function mouseEvent(type, sx, sy, cx, cy) {
     metaKey: false,
     button: 0,
     relatedTarget: undefined
-  };
+  }
   if (typeof( document.createEvent ) == "function") {
     evt = document.createEvent("MouseEvents");
     evt.initMouseEvent(type,
@@ -30,13 +30,13 @@ function mouseEvent(type, sx, sy, cx, cy) {
     }
     evt.button = { 0:1, 1:4, 2:2 }[evt.button] || evt.button;
   }
-  return evt;
+  return evt
 }
 function dispatchEvent (el, evt) {
   if (el.dispatchEvent) {
-    el.dispatchEvent(evt);
+    el.dispatchEvent(evt)
   } else if (el.fireEvent) {
-    el.fireEvent('on' + type, evt);
+    el.fireEvent('on' + type, evt)
   }
   return evt;
 }

@@ -1,10 +1,11 @@
 import 'should'
 import React from 'react'
+import $ from 'teaspoon'
 import { render, unmountComponentAtNode } from 'react-dom'
 
 import InputManager from '../src/InputManager.js'
 import Debug from '../src/debug.js'
-import { dispatchEvent, mouseEvent } from './simulateMouseEvents.js'
+import { mouseEvent, dispatchEvent } from './simulateMouseEvents.js'
 
 describe("InputManager", function() {
   describe("construction", () => {
@@ -16,7 +17,7 @@ describe("InputManager", function() {
       }
     }
 
-    it("should set up bounds and register 2 listeners", () => {
+    it("should set up bounds", () => {
       const me = {
         events: [],
         addEventListener(...args) {
@@ -24,26 +25,16 @@ describe("InputManager", function() {
         },
         removeEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
 
       manager.component.should.equal(me)
       manager.notify.should.equal(notify)
-
-      me.events.should.have.length(2)
-      me.events.should.eql([
-        ['mousedown', manager.mouseDown],
-        ['touchstart', manager.touchStart],
-      ])
-
-      me.events = []
-      manager.handlers.stopmousedown()
-      manager.handlers.stopmousedown()
-      manager.handlers.stoptouchstart()
-      me.events.should.have.length(2)
-      me.events[0][0].should.equal('mousedown')
-      me.events[1][0].should.equal('touchstart')
     })
   })
 
@@ -63,6 +54,10 @@ describe("InputManager", function() {
         },
         removeEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -73,8 +68,6 @@ describe("InputManager", function() {
         stoptouchend: sinon.spy(),
         stoptouchmove: sinon.spy(),
         stoptouchcancel: sinon.spy(),
-        stopmousedown: sinon.spy(),
-        stoptouchstart: sinon.spy()
       }
 
       manager.unmount()
@@ -84,8 +77,6 @@ describe("InputManager", function() {
       expect(manager.handlers.stoptouchend.called).to.be.true
       expect(manager.handlers.stoptouchmove.called).to.be.true
       expect(manager.handlers.stoptouchcancel.called).to.be.true
-      expect(manager.handlers.stopmousedown.called).to.be.true
-      expect(manager.handlers.stoptouchstart.called).to.be.true
     })
   })
 
@@ -105,6 +96,10 @@ describe("InputManager", function() {
         },
         removeEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -123,7 +118,10 @@ describe("InputManager", function() {
         removeEventListener(...args) {
           this.events.push(args)
         },
-        props: { selectable: true }
+        props: {
+          clickTolerance: 2,
+          selectable: true
+        }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
 
@@ -145,7 +143,10 @@ describe("InputManager", function() {
         removeEventListener(...args) {
           this.events.push(args)
         },
-        props: { selectable: false }
+        props: {
+          clickTolerance: 2,
+          selectable: false
+        }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
 
@@ -162,7 +163,10 @@ describe("InputManager", function() {
         removeEventListener(...args) {
           this.events.push(args)
         },
-        props: { selectable: true }
+        props: {
+          clickTolerance: 2,
+          selectable: true
+        }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
 
@@ -193,6 +197,10 @@ describe("InputManager", function() {
         },
         removeEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -216,7 +224,10 @@ describe("InputManager", function() {
         removeEventListener(...args) {
           this.events.push(args)
         },
-        props: { selectable: true }
+        props: {
+          clickTolerance: 2,
+          selectable: true
+        }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
       
@@ -255,6 +266,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -275,7 +290,10 @@ describe("InputManager", function() {
         addEventListener(...args) {
           this.events.push(args)
         },
-        props: { selectable: true }
+        props: {
+          clickTolerance: 2,
+          selectable: true
+        }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
 
@@ -325,6 +343,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -343,6 +365,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -362,6 +388,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -389,6 +419,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -432,6 +466,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -474,6 +512,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -498,6 +540,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -514,6 +560,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -541,6 +591,10 @@ describe("InputManager", function() {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
+        },
+        props: {
+          clickTolerance: 2,
+          selectable: true
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -552,26 +606,45 @@ describe("InputManager", function() {
   })
 
   describe("real browser usage", () => {
-    it.only("should attach to an actual DOM node and grab its bounds", () => {
-      if (window.____isjsdom) return
-      let manager
-      const notify = {
-        start: sinon.spy()
+    let manager
+    let notify
+    const Test = class extends React.Component {
+      onMouseDown(e) {
+        manager.mouseDown(e)
       }
-      const Test = class extends React.Component {
-        render() {
-          return (
-            <div style={{height: 50, width: 50}}
-                 ref={(ref) => { if (ref) manager = new InputManager(ref, notify, this)}} >
-              hi
-            </div>
-          )
-        }
+      onTouchStart(e) {
+        manager.touchStart(e)
       }
-      const div = document.createElement('div')
-      document.body.insertBefore(div, document.body.firstElementChild)
+      render() {
+        return (
+          <div style={{height: 50, width: 50}}
+               ref={(ref) => { if (ref) manager = new InputManager(ref,
+                  notify, {props:{clickTolerance: 2, selectable: true}}); this.ref = ref}}
+               onMouseDown={this.onMouseDown}
+               onTouchStart={this.onTouchStart}
+          >
+            hi
+          </div>
+        )
+      }
+    }
+    let thing
+    beforeEach(() => {
+      notify = {
+        start: sinon.spy(),
+        change: sinon.spy(),
+        end: sinon.spy(),
+        click: sinon.spy()
+      }
+      thing = $(<Test selectable />).render(true)
+    })
 
-      render(<Test selectable />, div)
+    afterEach(() => {
+      thing.unmount()
+    })
+
+    it("should attach to an actual DOM node and grab its bounds", () => {
+      if (window.____isjsdom) return
 
       manager.should.be.instanceOf(InputManager)
 
@@ -582,11 +655,13 @@ describe("InputManager", function() {
         right: 50,
         bottom: 50
       })
+    })
+
+    it("should trigger mouseDown when prompted", () => {
+      if (window.____isjsdom) return
       expect(manager.mouseDownData).is.undefined
 
-      const fakemousedown = mouseEvent('mousedown', 25, 25, 25, 25)
-
-      dispatchEvent(div.firstElementChild, fakemousedown)
+      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
 
       manager.mouseDownData.should.eql({
         x: 25,
@@ -595,9 +670,168 @@ describe("InputManager", function() {
         clientY: 25,
         touchID: false
       })
+    })
 
-      unmountComponentAtNode(div)
-      document.body.removeChild(div)
+    it("should trigger touchStart when prompted", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      thing.trigger('touchStart', {touches: [{pageX: 26, pageY: 25, clientX: 25, clientY: 25, identifier: 1}]})
+
+      manager.mouseDownData.should.eql({
+        x: 26,
+        y: 25,
+        clientX: 25,
+        clientY: 25,
+        touchID: 1
+      })
+    })
+
+    it("should update selection rectangle when mouse is moved", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 25,
+        y: 25,
+        right: 25,
+        bottom: 25
+      })
+
+      const mousemove = mouseEvent('mousemove', 27, 27, 27, 27)
+
+      dispatchEvent(thing[0].ref, mousemove)
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 27,
+        y: 27,
+        right: 27,
+        bottom: 27
+      })
+
+      const mousemove2 = mouseEvent('mousemove', 23, 23, 23, 23)
+
+      dispatchEvent(thing[0].ref, mousemove2)
+
+      manager._selectRect.should.eql({
+        top: 23,
+        left: 23,
+        x: 23,
+        y: 23,
+        right: 25,
+        bottom: 25
+      })
+    })
+
+    it("should release handlers", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 25,
+        y: 25,
+        right: 25,
+        bottom: 25
+      })
+
+      const mousemove = mouseEvent('mousemove', 26, 26, 26, 26)
+
+      dispatchEvent(thing[0].ref, mousemove)
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 26,
+        y: 26,
+        right: 26,
+        bottom: 26
+      })
+
+      const smm = sinon.spy()
+      const oldsmm = manager.handlers.stopmousemove
+      manager.handlers.stopmousemove = () => {
+        smm()
+        oldsmm()
+      }
+      const smu = sinon.spy()
+      const oldsmu = manager.handlers.stopmouseup
+      manager.handlers.stopmouseup = () => {
+        smu()
+        oldsmu()
+      }
+      const stm = sinon.spy()
+      const oldstm = manager.handlers.stoptouchmove
+      manager.handlers.stoptouchmove = () => {
+        stm()
+        oldstm()
+      }
+      const stc = sinon.spy()
+      const oldstc = manager.handlers.stoptouchcancel
+      manager.handlers.stoptouchcancel = () => {
+        stc()
+        oldstc()
+      }
+      const ste = sinon.spy()
+      const oldste = manager.handlers.stoptouchend
+      manager.handlers.stoptouchend = () => {
+        ste()
+        oldste()
+      }
+
+      const mousemove2 = mouseEvent('mouseup', 26, 26, 26, 26)
+
+      dispatchEvent(thing[0].ref, mousemove2)
+      expect(smm.called).to.be.true
+      expect(smu.called).to.be.true
+      expect(stm.called).to.be.true
+      expect(stc.called).to.be.true
+      expect(ste.called).to.be.true
+    })
+
+    it("should call end for a mouse drag", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+
+      const mousemove = mouseEvent('mousemove', 29, 29, 29, 29)
+
+      dispatchEvent(thing[0].ref, mousemove)
+
+      const mouseup = mouseEvent('mouseup', 29, 29, 29, 29)
+
+      dispatchEvent(thing[0].ref, mouseup)
+
+      expect(notify.end.called, 'end called').to.be.true
+      expect(notify.click.called, 'click called').to.be.false
+    })
+
+    it("should call click for a mouse click", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+
+      const mousemove = mouseEvent('mousemove', 26, 26, 26, 26)
+
+      dispatchEvent(thing[0].ref, mousemove)
+
+      const mouseup = mouseEvent('mouseup', 26, 26, 26, 26)
+
+      dispatchEvent(thing[0].ref, mouseup)
+
+      expect(notify.end.called, 'end called').to.be.false
+      expect(notify.click.called, 'click called').to.be.true
     })
   })
 })
