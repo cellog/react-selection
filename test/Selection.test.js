@@ -37,14 +37,43 @@ describe("Selection", () => {
   describe("updateState", () => {
     const Thing = Selection(Blah)
     let stuff
+    let component
     beforeEach(() => {
       stuff = $(<Thing></Thing>).render()
+      component = stuff[0]
     })
     afterEach(() => {
       stuff.unmount()
     })
 
-    it("should keep state the same if passed null")
+    it("should keep state the same if passed null", () => {
+      component.setState({
+        selecting: false,
+        selectedNodes: [1,2,3],
+        selectedValues: [4,5,6],
+        containerBounds: component.bounds
+      })
+
+      component.state.should.eql({
+        selecting: false,
+        selectedNodes: [1,2,3],
+        selectedNodeList: [],
+        selectedValues: [4,5,6],
+        selectedValueList: [],
+        containerBounds: component.bounds
+      })
+
+      component.updateState(null, null, null)
+
+      component.state.should.eql({
+        selecting: false,
+        selectedNodes: [1,2,3],
+        selectedNodeList: [],
+        selectedValues: [4,5,6],
+        selectedValueList: [],
+        containerBounds: component.bounds
+      })
+    })
     it("should set values if passed")
     it("should call onSelectSlot if constantSelection is enabled")
     it("should not call onSelectSlot if constantSelection is disabled")
