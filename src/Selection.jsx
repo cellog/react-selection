@@ -1,26 +1,13 @@
 import Debug from './debug.js'
 import InputManager from './InputManager.js'
 import SelectionManager from './SelectionManager.js'
+import verifyComponent from './verifyComponent.js'
 
 import React, { PropTypes } from 'react'
 
 function makeSelectable( Component, options = {}) {
   const { containerDiv = true, sorter = (a, b) => a - b, nodevalue = (node) => node.props.value } = options
-  if (!Component instanceof Function) {
-    throw new Error('Component must be a stateful React Class')
-  }
-  let test
-  if (!(Component instanceof Function)) {
-    throw new Error('Component is not a class, must be a stateful React Component class')
-  }
-  try {
-    test = new Component
-  } catch (e) {
-    throw new Error('Component must be a stateful React Component class')
-  }
-  if (!(test.render instanceof Function)) {
-    throw new Error('Component cannot be a stateless functional component, must be a stateful React Component class')
-  }
+  verifyComponent(Component)
   const displayName = Component.displayName || Component.name || 'Component'
 
   return class extends React.Component {

@@ -1,6 +1,9 @@
 import React, { PropTypes } from 'react'
 
+import verifyComponent from './verifyComponent.js'
+
 function Selectable(Component, options) {
+  verifyComponent(Component)
   const displayName = Component.displayName || Component.name || 'Component'
   let unregister = () => null
   return class extends React.Component {
