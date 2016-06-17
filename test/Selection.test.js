@@ -167,6 +167,33 @@ describe("Selection", () => {
       ])
       expect(spy.args[0][4]).to.eql({hi: 'hi'})
     })
-    it("should not call onSelectSlot if constantSelection is disabled")
+    it("should not call onSelectSlot if constantSelection is disabled", () => {
+      const spy = sinon.spy()
+      stuff = $((
+        <Thing selectable onSelectSlot={spy}>
+          <SelectableChild value="hi" key={1} />
+          <SelectableChild value="hi2" key={2} />
+          <SelectableChild value="hi3" key={3} />
+        </Thing>
+      )).render()
+      const children = stuff.find(SelectableChild)
+      component = stuff[0]
+      component.bounds = {hi:'hi'}
+      const selectable1 = children[0]
+      const selectable2 = children[1]
+      const selectable3 = children[2]
+
+      component.updateState(null, {
+        3: {node: selectable3},
+        1: {node: selectable1},
+        2: {node: selectable2}
+      }, {
+        3: 'hi3',
+        1: 'hi',
+        2: 'hi2'
+      })
+
+      expect(spy.called).to.be.false
+    })
   })
 })
