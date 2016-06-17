@@ -433,16 +433,119 @@ describe("InputManager", function() {
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
-      
+
       manager.mouseDownData = {
         touchId: false
       }
-      
+
       manager.move({}, mouse)
-      
+
       expect(mouse.getCoordinates.called).is.true
       expect(notify.change.called).is.true
       manager._selectRect.should.equal(rect)
+    })
+  })
+
+  describe("end", () => {
+    const findit = (i) => i
+    const notify = {
+      end: () => null,
+      click: () => null
+    }
+    const rect = {
+      hi: 'hi'
+    }
+    const mouse = {
+      getBoundsForNode(node) {
+        return 'hi'
+      }
+    }
+
+    beforeEach(() => {
+      notify.end = sinon.spy()
+      notify.click = sinon.spy()
+      mouse.isClick = () => false
+    })
+
+    it ("should call all handler listener removers", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      manager.handlers.stopmousemove = sinon.spy()
+      manager.handlers.stopmouseup = sinon.spy()
+      manager.handlers.stoptouchcancel = sinon.spy()
+      manager.handlers.stoptouchend = sinon.spy()
+      manager.handlers.stoptouchmove = sinon.spy()
+
+      manager.end({}, mouse)
+
+      expect(manager.handlers.stopmousemove.called).is.true
+      expect(manager.handlers.stopmouseup.called).is.true
+      expect(manager.handlers.stoptouchcancel.called).is.true
+      expect(manager.handlers.stoptouchend.called).is.true
+      expect(manager.handlers.stoptouchmove.called).is.true
+    })
+
+    it("should notify end of select for non-click", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      manager.end({}, mouse)
+
+      expect(notify.end.called).is.true
+      expect(notify.click.called).is.false
+    })
+
+    it("should notify end of select for non-click", () => {
+      mouse.isClick = () => true
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      manager.end({}, mouse)
+
+      expect(notify.end.called).is.false
+      expect(notify.click.called).is.true
+    })
+  })
+
+  describe("cancel", () => {
+    const findit = (i) => i
+    const notify = {
+      cancel: sinon.spy(),
+    }
+    const mouse = {
+      getBoundsForNode(node) {
+        return 'hi'
+      }
+    }
+
+    it ("should notify cancel", () => {
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+      
+      manager.cancel()
+
+      expect(notify.cancel.called).is.true
     })
   })
 })

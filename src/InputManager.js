@@ -129,14 +129,14 @@ export default class InputManager {
     this.notify.change(this._selectRect)
   }
 
-  end(e) {
+  end(e, mouse = mouseMath) {
     this.handlers.stopmousemove()
     this.handlers.stopmouseup()
     this.handlers.stoptouchcancel()
     this.handlers.stoptouchend()
     this.handlers.stoptouchmove()
 
-    if (mouseMath.isClick(e, this.mouseDownData, this.clickTolerance)) {
+    if (mouse.isClick(e, this.mouseDownData, this.clickTolerance)) {
       this.notify.click(e, this.mouseDownData, this._selectRect)
       return
     }
