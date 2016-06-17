@@ -57,38 +57,38 @@ export default class InputManager {
     }
   }
 
-  touchStart(e) {
+  touchStart(e, win = window) {
     if (!this.validSelectStart(e)) {
       this.notify.invalid(e, 'touchstart')
       return
     }
-    this.addListener(window, 'touchcancel', this.cancel)
-    this.addListener(window, 'touchend', this.end)
-    this.addListener(window, 'touchmove', this.move)
+    this.addListener(win, 'touchcancel', this.cancel)
+    this.addListener(win, 'touchend', this.end)
+    this.addListener(win, 'touchmove', this.move)
     this.start(e, 'touchstart')
   }
 
-  mouseDown(e) {
+  mouseDown(e, win = window) {
     if (!this.validSelectStart(e)) {
       this.notify.invalid(e, 'mousedown')
       return
     }
-    this.addListener(window, 'mousemove', this.move)
-    this.addListener(window, 'mouseup', this.end)
+    this.addListener(win, 'mousemove', this.move)
+    this.addListener(win, 'mouseup', this.end)
     this.start(e, 'mousedown')
   }
 
-  start(e, eventname) {
+  start(e, eventname, findit = findDOMNode, mouse = mouseMath) {
     if (!this.node) {
-      this.node = findDOMNode(this.ref)
-      this.bounds = mouseMath.getBoundsForNode(this.node)
+      this.node = findit(this.ref)
+      this.bounds = mouse.getBoundsForNode(this.node)
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
         Debug.log(`${eventname}: got bounds`, this.bounds)
       }
     }
 
-    const coords = mouseMath.getCoordinates(e, e.touches && e.touches[0].identifier)
-    if (!mouseMath.contains(this.node, coords.clientX, coords.clientY)) {
+    const coords = mouse.getCoordinates(e, e.touches && e.touches[0].identifier)
+    if (!mouse.contains(this.node, coords.clientX, coords.clientY)) {
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
         Debug.log(`${eventname}: not contained`)
       }
@@ -101,7 +101,7 @@ export default class InputManager {
       Debug.log(`${eventname}: bounds`, this.bounds, e.pageY, e.pageX)
     }
 
-    if (!mouseMath.objectsCollide(this.bounds, {
+    if (!mouse.objectsCollide(this.bounds, {
       top: coords.pageY,
       left: coords.pageX
     })) return
@@ -118,7 +118,7 @@ export default class InputManager {
       touchID: e.touches ? e.touches[0].identifier : false
     }
 
-    this._selectRect = mouseMath.createSelectRect(coords, this.mouseDownData)
+    this._selectRect = mouse.createSelectRect(coords, this.mouseDownData)
     this.notify.start(this.bounds, this.mouseDownData, this._selectRect)
     e.preventDefault()
   }

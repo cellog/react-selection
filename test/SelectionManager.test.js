@@ -221,7 +221,6 @@ describe("SelectionManager", function() {
         return node
       },
       objectsCollide(rect, bounds, tol, key) {
-        console.log(bounds, rect)
         return rect.indexOf(bounds) !== -1
       }
     }
