@@ -69,7 +69,6 @@ export default class InputManager {
   }
 
   mouseDown(e, win = window) {
-    console.trace()
     if (!this.validSelectStart(e)) {
       this.notify.invalid(e, 'mousedown')
       return
