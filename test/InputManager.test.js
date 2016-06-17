@@ -290,4 +290,93 @@ describe("InputManager", function() {
       me.events[1][0].should.equal('mouseup')
     })
   })
+
+  describe("start", () => {
+    const findit = (i) => i
+    const notify = {
+      start: sinon.spy()
+    }
+    const rect = {
+      hi: 'hi'
+    }
+    const coords = {
+      clientX: 20,
+      clientY: 25,
+      pageX: 30,
+      pageY: 35
+    }
+    const mouse = {
+      getBoundsForNode(node) {
+        return 'hi'
+      },
+      getCoordinates(e, id) {
+        return coords
+      },
+      createSelectRect() {
+        return rect
+      }
+    }
+
+    it("should return silently if the mousedown is not within our bounds", () => {
+      mouse.contains = () => false
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      manager.start({}, 'boohoo', findit, mouse)
+
+      expect(manager.mouseDownData).is.undefined
+      expect(manager._selectRect).is.undefined
+      expect(notify.start.called).is.false
+    })
+
+    it("should return silently if the mousedown is outside our tolerance", () => {
+      mouse.contains = () => true
+      mouse.objectsCollide = () => false
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+
+      manager.start({}, 'boohoo', findit, mouse)
+
+      expect(manager.mouseDownData).is.undefined
+      expect(manager._selectRect).is.undefined
+      expect(notify.start.called).is.false
+    })
+
+    it("should setup data structures and call start notify", () => {
+      mouse.contains = () => true
+      mouse.objectsCollide = () => true
+      notify.start = sinon.spy()
+      const me = {
+        events: [],
+        addEventListener(...args) {
+          this.events.push(args)
+        }
+      }
+      const manager = new InputManager(me, notify, me, findit, mouse)
+      const e = { preventDefault: sinon.spy() }
+
+      manager.start(e, 'boohoo', findit, mouse)
+
+      expect(manager.mouseDownData).is.eql({
+        x: coords.pageX,
+        y: coords.pageY,
+        clientX: coords.clientX,
+        clientY: coords.clientY,
+        touchID: false
+      })
+      expect(manager._selectRect).is.equal(rect)
+      expect(notify.start.called).is.true
+      expect(e.preventDefault.called).to.be.true
+    })
+  })
 })
