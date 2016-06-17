@@ -6,7 +6,21 @@ import React, { PropTypes } from 'react'
 
 function makeSelectable( Component, options = {}) {
   const { containerDiv = true, sorter = (a, b) => a - b, nodevalue = (node) => node.props.value } = options
-  if (!Component) throw new Error("Component is undefined")
+  if (!Component instanceof Function) {
+    throw new Error('Component must be a stateful React Class')
+  }
+  let test
+  if (!(Component instanceof Function)) {
+    throw new Error('Component is not a class, must be a stateful React Component class')
+  }
+  try {
+    test = new Component
+  } catch (e) {
+    throw new Error('Component must be a stateful React Component class')
+  }
+  if (!(test.render instanceof Function)) {
+    throw new Error('Component cannot be a stateless functional component, must be a stateful React Component class')
+  }
   const displayName = Component.displayName || Component.name || 'Component'
 
   return class extends React.Component {

@@ -49,10 +49,39 @@ describe("Selection", () => {
 
       nextstuff.find('p').text().should.eql('hi Greg')
     })
+
+    it("should error if a non-component is passed in", () => {
+      expect(() => {
+        Selection(false)
+      }).to.throw('Component is not a class, must be a stateful React Component class')
+    })
+
+    it("should error if a non-React class is passed in", () => {
+      expect(() => {
+        Selection(() => null)
+      }).to.throw('Component cannot be a stateless functional component, must be a stateful React Component class')
+    })
+
+    it("should pull displayname from displayName", () => {
+      const Thing = Selection(class {
+        static displayName = 'Hi'
+        render() {}
+      })
+      Thing.displayName.should.equal('Selection(Hi)')
+    })
+
+    it("should pull displayname from name if displayName is not present", () => {
+      const Thing = Selection(class Hi {
+        render() {}
+      })
+      Thing.displayName.should.equal('Selection(Hi)')
+    })
   })
 
   describe("updateState", () => {
-    const Thing = Selection(Blah)
+    const Thing = Selection(Blah, {
+      sorter: (a, b) => a > b ? 1 : (a < b ? -1 : 0)
+    })
     let stuff
     let component
     beforeEach(() => {
@@ -66,16 +95,16 @@ describe("Selection", () => {
     it("should keep state the same if passed null", () => {
       component.setState({
         selecting: false,
-        selectedNodes: [1,2,3],
-        selectedValues: [4,5,6],
+        selectedNodes: {1:1,2:2,3:3},
+        selectedValues: {4:4,5:5,6:6},
         containerBounds: component.bounds
       })
 
       component.state.should.eql({
         selecting: false,
-        selectedNodes: [1,2,3],
+        selectedNodes: {1:1,2:2,3:3},
         selectedNodeList: [],
-        selectedValues: [4,5,6],
+        selectedValues: {4:4,5:5,6:6},
         selectedValueList: [],
         containerBounds: component.bounds
       })
@@ -84,9 +113,9 @@ describe("Selection", () => {
 
       component.state.should.eql({
         selecting: false,
-        selectedNodes: [1,2,3],
+        selectedNodes: {1:1,2:2,3:3},
         selectedNodeList: [],
-        selectedValues: [4,5,6],
+        selectedValues: {4:4,5:5,6:6},
         selectedValueList: [],
         containerBounds: component.bounds
       })
@@ -94,27 +123,27 @@ describe("Selection", () => {
     it("should set values if passed", () => {
       component.setState({
         selecting: false,
-        selectedNodes: [1,2,3],
-        selectedValues: [4,5,6],
+        selectedNodes: {1:1,2:2,3:3},
+        selectedValues: {4:4,5:5,6:6},
         containerBounds: component.bounds
       })
 
       component.state.should.eql({
         selecting: false,
-        selectedNodes: [1,2,3],
+        selectedNodes: {1:1,2:2,3:3},
         selectedNodeList: [],
-        selectedValues: [4,5,6],
+        selectedValues: {4:4,5:5,6:6},
         selectedValueList: [],
         containerBounds: component.bounds
       })
 
-      component.updateState(true, ['hi'], ['there'])
+      component.updateState(true, {hi:'hi'}, {there:'there'})
 
       component.state.should.eql({
         selecting: true,
-        selectedNodes: ['hi'],
+        selectedNodes: {hi:'hi'},
         selectedNodeList: [],
-        selectedValues: ['there'],
+        selectedValues: {there:'there'},
         selectedValueList: [],
         containerBounds: component.bounds
       })
@@ -194,6 +223,82 @@ describe("Selection", () => {
       })
 
       expect(spy.called).to.be.false
+    })
+  })
+
+  describe("propagateFinishedSelect", () => {
+    const Thing = Selection(Blah, {
+      sorter: (a, b) => a > b ? 1 : (a < b ? -1 : 0)
+    })
+    let spy
+    let stuff
+    let component, selectable1, selectable2, selectable3
+    let nodes, values
+
+    beforeEach(() => {
+      spy = sinon.spy()
+    })
+    afterEach(() => {
+      stuff.unmount()
+    })
+
+    it("should return our info", () => {
+      stuff = $((
+        <Thing selectable constantSelect onFinishSelect={spy}>
+          <SelectableChild value="hi" key={1}/>
+          <SelectableChild value="hi2" key={2}/>
+          <SelectableChild value="hi3" key={3}/>
+        </Thing>
+      )).render()
+      component = stuff[0]
+      const children = stuff.find(SelectableChild)
+      component = stuff[0]
+      component.bounds = {hi: 'hi'}
+      selectable1 = children[0]
+      selectable2 = children[1]
+      selectable3 = children[2]
+      nodes = {
+        3: {node: selectable3},
+        1: {node: selectable1},
+        2: {node: selectable2}
+      }
+      values = {
+        3: 'hi3',
+        1: 'hi',
+        2: 'hi2'
+      }
+      component.updateState(null, {
+        3: {node: selectable3},
+        1: {node: selectable1},
+        2: {node: selectable2}
+      }, {
+        3: 'hi3',
+        1: 'hi',
+        2: 'hi2'
+      })
+
+      component.propagateFinishedSelect()
+
+      expect(spy.called).to.be.true
+
+      spy.args[0].should.have.length(5)
+      spy.args[0][0].should.be.eql({
+        3: 'hi3',
+        1: 'hi',
+        2: 'hi2'
+      })
+      expect(spy.args[0][1]()).to.eql({
+        3: {node: selectable3},
+        1: {node: selectable1},
+        2: {node: selectable2}
+      })
+      expect(spy.args[0][2]).to.eql(['hi', 'hi2', 'hi3'])
+      expect(spy.args[0][3]()).to.eql([
+        {node: selectable1},
+        {node: selectable2},
+        {node: selectable3}
+      ])
+      expect(spy.args[0][4]).to.eql({hi: 'hi'})
     })
   })
 })
