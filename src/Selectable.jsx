@@ -1,13 +1,35 @@
+/* eslint react/no-multi-comp:0 */
 import React, { PropTypes } from 'react'
 
 import verifyComponent from './verifyComponent.js'
 
 function Selectable(Component, options) {
-  verifyComponent(Component)
-  const displayName = Component.displayName || Component.name || 'Component'
+  const useContainer = verifyComponent(Component)
+  const componentDisplayName = Component.displayName || Component.name || 'Component'
+  let displayName
+  let ReferenceableContainer
+  if (useContainer) {
+    displayName = `Selectable(ReferenceableContainer(${componentDisplayName}))`
+    ReferenceableContainer = class extends React.Component {
+      static displayName = `ReferenceableContainer(${componentDisplayName})`
+      static propTypes = {
+        children: PropTypes.element
+      }
+      render() {
+        const {children, ...props} = this.props
+        return (
+          <Component {...props}>
+            {children}
+          </Component>
+        )
+      }
+    }
+  } else {
+    displayName = `Selectable(${componentDisplayName})`
+  }
   let unregister = () => null
   return class extends React.Component {
-    static displayName = `Selectable(${displayName})`
+    static displayName = displayName
 
     constructor(props, context) {
       super(props, context)
@@ -42,6 +64,9 @@ function Selectable(Component, options) {
     }
 
     render() {
+      if (useContainer) {
+        return <ReferenceableContainer {...this.props} selected={this.state.selected} />
+      }
       return <Component {...this.props} selected={this.state.selected} />
     }
   }

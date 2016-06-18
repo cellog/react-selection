@@ -11,6 +11,6 @@ export default function verifyComponent(Component) {
     if (test.render instanceof Function) return false
     return true
   } catch (e) {
-    throw new Error('Component must be a React Component class ')
+    return true
   }
 }

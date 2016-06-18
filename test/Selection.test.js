@@ -57,7 +57,7 @@ describe("Selection", () => {
       }).to.throw('Component is not a class, must be a stateful React Component class')
     })
 
-    it("should force a container div for ", () => {
+    it("should force a container div for a stateless functional component", () => {
       const Thing = Selection(() => null, { containerDiv: false })
 
       const stuff = $(<Thing />).render()
