@@ -361,9 +361,40 @@ describe("Selection", () => {
   })
 
   describe("cancel", () => {
-    it("should call deselect")
-    it("should call propageFinishedSelect")
-    it("should turn off selection")
+    const Thing = Selection(Blah)
+    let spy
+    let stuff
+    let component
+
+    beforeEach(() => {
+      spy = sinon.spy()
+      stuff = $(<Thing />).render()
+      component = stuff[0]
+    })
+
+    it("should call deselect", () => {
+      component.selectionManager.deselect = spy
+
+      component.cancel()
+
+      expect(spy.called).to.be.true
+    })
+
+    it("should call propageFinishedSelect", () => {
+      component.propagateFinishedSelect = spy
+      component.cancel()
+
+      expect(spy.called).to.be.true
+    })
+
+    it("should turn off selection", () => {
+      component.setState = spy
+      component.cancel()
+
+      expect(spy.called).to.be.true
+
+      spy.args[0][0].should.be.false
+    })
   })
 
   describe("end", () => {
