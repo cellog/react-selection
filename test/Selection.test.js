@@ -393,7 +393,7 @@ describe("Selection", () => {
 
       expect(spy.called).to.be.true
 
-      spy.args[0][0].should.be.false
+      spy.args[0][0].should.eql({ selecting: false })
     })
   })
 
