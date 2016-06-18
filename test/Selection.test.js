@@ -1,8 +1,10 @@
 import 'should'
 import $ from 'teaspoon'
+import React, { Component, PropTypes } from 'react'
+
 import Selection from '../src/Selection.jsx'
 import Selectable from '../src/Selectable.jsx'
-import React, { Component, PropTypes } from 'react'
+import InputManager from '../src/InputManager.js'
 
 describe("Selection", () => {
   const Blah = class A extends Component {
@@ -398,23 +400,135 @@ describe("Selection", () => {
   })
 
   describe("end", () => {
-    it("should call propagateFinishedSelect and deselect if constantSelect is on")
-    it("should select any items in the selection rectangle, and propagateFinishedSelect")
+    const Thing = Selection(Blah)
+
+    it("should call propagateFinishedSelect and deselect if constantSelect is on", () => {
+      const stuff = $(<Thing selectable constantSelect />).render()
+      const component = stuff[0]
+      component.propagateFinishedSelect = sinon.spy()
+      component.selectionManager.deselect = sinon.spy()
+      component.end(1, 2, 3)
+
+      expect(component.propagateFinishedSelect.called).to.be.true
+      expect(component.selectionManager.deselect.called).to.be.true
+    })
+    it("should select any items in the selection rectangle, and propagateFinishedSelect", () => {
+      const stuff = $(<Thing selectable />).render()
+      const component = stuff[0]
+      component.propagateFinishedSelect = sinon.spy()
+      component.selectionManager.select = sinon.spy()
+      component.end(1, 2, 3)
+
+      expect(component.propagateFinishedSelect.called).to.be.true
+      expect(component.selectionManager.select.called).to.be.true
+    })
   })
 
   describe("change", () => {
-    it("should enable selection")
-    it("should call select if constantSelect is enabled")
+    const Thing = Selection(Blah)
+
+    it("should enable selection", () => {
+      const stuff = $(<Thing />).render()
+      const component = stuff[0]
+      component.setState = sinon.spy()
+
+      component.change(1)
+
+      expect(component.setState.called).to.be.true
+      component.setState.args[0][0].should.eql({
+        selecting: true
+      })
+    })
+    it("should call select if constantSelect is enabled", () => {
+      const stuff = $(<Thing constantSelect />).render()
+      const component = stuff[0]
+      component.selectionManager.select = sinon.spy()
+
+      component.change(1)
+
+      expect(component.selectionManager.select.called).to.be.true
+    })
   })
 
   describe("makeInputManager", () => {
-    it("should do nothing if ref is null")
-    it("should set up inputManager and ref on first valid call")
-    it("should do nothing if ref is the same as a previous call")
-    it("should umount inputManager and re-set if ref changes")
+    const Thing = Selection(Blah)
+
+    it("should do nothing if ref is null", () => {
+      const spy = sinon.spy()
+      
+      const im = function(...args) {
+        spy(...args)
+      }
+
+      const stuff = $(<Thing />).render()
+      stuff[0].makeInputManager(null, im)
+
+      expect(spy.called).to.be.false
+    })
+    it("should set up inputManager and ref on first valid call", () => {
+      const spy = sinon.spy()
+      let watch = null
+
+      const im = function(...args) {
+        spy(...args)
+        watch = this
+      }
+
+      const stuff = $(<Thing />).render()
+      const component = stuff[0]
+      component.makeInputManager('hi', im)
+
+      expect(spy.called).to.be.true
+      watch.should.equal(component.inputManager)
+      component.ref.should.equal('hi')
+    })
+    it("should do nothing if ref is the same as a previous call", () => {
+      const spy = sinon.spy()
+
+      const im = function(...args) {
+        spy(...args)
+      }
+
+      const stuff = $(<Thing />).render()
+      const component = stuff[0]
+      component.makeInputManager('hi', im)
+      component.makeInputManager('hi', im)
+
+      expect(spy.calledOnce).to.be.true
+    })
+    it("should umount inputManager and re-set if ref changes", () => {
+      const spy = sinon.spy()
+      const spy2 = sinon.spy()
+
+      class im {
+        constructor(...args) {
+          spy(...args)
+        }
+        unmount(...args) {
+          spy2(...args)
+        }
+      }
+
+      const stuff = $(<Thing />).render()
+      const component = stuff[0]
+      component.makeInputManager('hi', im)
+      component.makeInputManager('hi2', im)
+
+      expect(spy.calledTwice).to.be.true
+      expect(spy2.called).to.be.true
+    })
   })
 
   describe("render", () => {
-    it("should create a container div if ")
+    it("should create a container div if containerDiv is specified")
+    it("should pass in all props")
+    describe("container div", () => {
+      it("should capture mousedown")
+      it("should capture touchstart")
+    })
+    describe("raw component", () => {
+      it("should capture mousedown")
+      it("should capture touchstart")
+    })
   })
 })
