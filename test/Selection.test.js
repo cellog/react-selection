@@ -4,7 +4,6 @@ import React, { Component, PropTypes } from 'react'
 
 import Selection from '../src/Selection.jsx'
 import Selectable from '../src/Selectable.jsx'
-import InputManager from '../src/InputManager.js'
 
 describe("Selection", () => {
   const Blah = class A extends Component {
@@ -455,7 +454,7 @@ describe("Selection", () => {
 
     it("should do nothing if ref is null", () => {
       const spy = sinon.spy()
-      
+
       const im = function(...args) {
         spy(...args)
       }
