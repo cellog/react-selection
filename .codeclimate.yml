@@ -6,10 +6,20 @@ engines:
       - javascript
   eslint:
     enabled: true
+    channel: "eslint-2"
+    config:
+      config: ".eslintrc"
+      extensions:
+      - ".js"
+      - ".jsx"
     exclude_paths:
+    - "browserstack.svg"
     - "node_modules/"
     - "test/"
     - "build/"
+    checks:
+      complexity:
+        enabled: true
   fixme:
     enabled: true
 ratings:
