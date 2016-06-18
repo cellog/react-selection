@@ -45,7 +45,7 @@ describe("Selectable", () => {
         value: (props) => props.value,
         cacheBounds: true
       })
-      Thing.displayName.should.be.eql('Selectable(Blah)')
+      Thing.displayName.should.match(/Selectable\((Blah|Component)\)/)
 
       const stuff = $(<Thing value="me"><div className="foo">hi</div></Thing>).render(true)
 
