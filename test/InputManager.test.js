@@ -1,21 +1,20 @@
 import 'should'
 import React from 'react'
 import $ from 'teaspoon'
-import { render, unmountComponentAtNode } from 'react-dom'
 
 import InputManager from '../src/InputManager.js'
-import Debug from '../src/debug.js'
+// import Debug from '../src/debug.js'
 import { mouseEvent, dispatchEvent } from './simulateMouseEvents.js'
 
 describe("InputManager", function() {
+  const mouse = {
+    getBoundsForNode() {
+      return 'hi'
+    }
+  }
   describe("construction", () => {
     const findit = (i) => i
     const notify = {}
-    const mouse = {
-      getBoundsForNode(node) {
-        return 'hi'
-      }
-    }
 
     it("should set up bounds", () => {
       const me = {
@@ -41,11 +40,6 @@ describe("InputManager", function() {
   describe("unmount", () => {
     const findit = (i) => i
     const notify = {}
-    const mouse = {
-      getBoundsForNode(node) {
-        return 'hi'
-      }
-    }
     it("should call all event unhandlers", () => {
       const me = {
         events: [],
@@ -83,11 +77,6 @@ describe("InputManager", function() {
   describe("validSelectStart", () => {
     const findit = (i) => i
     const notify = {}
-    const mouse = {
-      getBoundsForNode(node) {
-        return 'hi'
-      }
-    }
     it("should fail on multi-touch", () => {
       const me = {
         events: [],
@@ -105,7 +94,7 @@ describe("InputManager", function() {
       const manager = new InputManager(me, notify, me, findit, mouse)
 
       expect(manager.validSelectStart({
-        touches: [1,2]
+        touches: [1, 2]
       })).to.be.false
     })
 
@@ -177,20 +166,14 @@ describe("InputManager", function() {
 
   describe("touchStart", () => {
     const findit = (i) => i
-    const notify = {
-      invalid: sinon.spy()
-    }
-    const mouse = {
-      getBoundsForNode(node) {
-        return 'hi'
-      }
-    }
+    let notify
+    let me
 
-    it("should notify on fail", () => {
-      const notify = {
+    beforeEach(() => {
+      notify = {
         invalid: sinon.spy()
       }
-      const me = {
+      me = {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
@@ -203,34 +186,21 @@ describe("InputManager", function() {
           selectable: true
         }
       }
+    })
+
+    it("should notify on fail", () => {
       const manager = new InputManager(me, notify, me, findit, mouse)
 
       manager.touchStart({
-        touches: [1,2,3]
+        touches: [1, 2, 3]
       })
 
       expect(notify.invalid.called).to.be.true
     })
 
     it("should start 3 event listeners", () => {
-      const notify = {
-        invalid: sinon.spy()
-      }
-      const me = {
-        events: [],
-        addEventListener(...args) {
-          this.events.push(args)
-        },
-        removeEventListener(...args) {
-          this.events.push(args)
-        },
-        props: {
-          clickTolerance: 2,
-          selectable: true
-        }
-      }
       const manager = new InputManager(me, notify, me, findit, mouse)
-      
+
       me.events = []
       manager.start = () => null
 
@@ -239,7 +209,7 @@ describe("InputManager", function() {
       }, me)
 
       expect(notify.invalid.called).to.be.false
-      
+
       me.events.should.have.length(3)
       me.events[0][0].should.equal('touchcancel')
       me.events[1][0].should.equal('touchend')
@@ -249,20 +219,13 @@ describe("InputManager", function() {
 
   describe("mousedown", () => {
     const findit = (i) => i
-    const notify = {
-      invalid: sinon.spy()
-    }
-    const mouse = {
-      getBoundsForNode(node) {
-        return 'hi'
-      }
-    }
-
-    it("should notify on fail", () => {
-      const notify = {
+    let notify
+    let me
+    beforeEach(() => {
+      notify = {
         invalid: sinon.spy()
       }
-      const me = {
+      me = {
         events: [],
         addEventListener(...args) {
           this.events.push(args)
@@ -272,6 +235,9 @@ describe("InputManager", function() {
           selectable: true
         }
       }
+    })
+
+    it("should notify on fail", () => {
       const manager = new InputManager(me, notify, me, findit, mouse)
 
       manager.mouseDown({
@@ -282,19 +248,6 @@ describe("InputManager", function() {
     })
 
     it("should start 2 event listeners", () => {
-      const notify = {
-        invalid: sinon.spy()
-      }
-      const me = {
-        events: [],
-        addEventListener(...args) {
-          this.events.push(args)
-        },
-        props: {
-          clickTolerance: 2,
-          selectable: true
-        }
-      }
       const manager = new InputManager(me, notify, me, findit, mouse)
 
       me.events = []
@@ -326,10 +279,10 @@ describe("InputManager", function() {
       pageY: 35
     }
     const mouse = {
-      getBoundsForNode(node) {
+      getBoundsForNode() {
         return 'hi'
       },
-      getCoordinates(e, id) {
+      getCoordinates() {
         return coords
       },
       createSelectRect() {
@@ -452,7 +405,7 @@ describe("InputManager", function() {
       hi: 'hi'
     }
     const mouse = {
-      getBoundsForNode(node) {
+      getBoundsForNode() {
         return 'hi'
       },
       getCoordinates: sinon.spy(),
@@ -492,11 +445,8 @@ describe("InputManager", function() {
       end: () => null,
       click: () => null
     }
-    const rect = {
-      hi: 'hi'
-    }
     const mouse = {
-      getBoundsForNode(node) {
+      getBoundsForNode() {
         return 'hi'
       }
     }
@@ -507,7 +457,7 @@ describe("InputManager", function() {
       mouse.isClick = () => false
     })
 
-    it ("should call all handler listener removers", () => {
+    it("should call all handler listener removers", () => {
       const me = {
         events: [],
         addEventListener(...args) {
@@ -581,12 +531,12 @@ describe("InputManager", function() {
       cancel: sinon.spy(),
     }
     const mouse = {
-      getBoundsForNode(node) {
+      getBoundsForNode() {
         return 'hi'
       }
     }
 
-    it ("should notify cancel", () => {
+    it("should notify cancel", () => {
       const me = {
         events: [],
         addEventListener(...args) {
@@ -598,7 +548,7 @@ describe("InputManager", function() {
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
-      
+
       manager.cancel()
 
       expect(notify.cancel.called).is.true
@@ -618,8 +568,13 @@ describe("InputManager", function() {
       render() {
         return (
           <div style={{height: 50, width: 50}}
-               ref={(ref) => { if (ref) manager = new InputManager(ref,
-                  notify, {props:{clickTolerance: 2, selectable: true}}); this.ref = ref}}
+               ref={(ref) => {
+                 if (ref) {
+                   manager = new InputManager(ref,
+                    notify, {props: { clickTolerance: 2, selectable: true } })
+                 }
+                 this.ref = ref
+               }}
                onMouseDown={this.onMouseDown}
                onTouchStart={this.onTouchStart}
           >

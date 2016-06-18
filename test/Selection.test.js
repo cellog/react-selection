@@ -58,13 +58,13 @@ describe("Selection", () => {
 
     it("should force a container div for ", () => {
       const Thing = Selection(() => null, { containerDiv: false })
-      
+
       const stuff = $(<Thing />).render()
       expect(stuff[0].containerDiv).to.be.true
     })
 
     it("should pull displayname from displayName", () => {
-      const Thing = Selection(class {
+      const Thing = Selection( class {
         static displayName = 'Hi'
         render() {}
       })
@@ -72,7 +72,7 @@ describe("Selection", () => {
     })
 
     it("should pull displayname from name if displayName is not present", () => {
-      const Thing = Selection(class Hi {
+      const Thing = Selection( class Hi {
         render() {}
       })
       Thing.displayName.should.match(/^Selection\((Hi|Component)\)$/) // IE 10/11
@@ -86,7 +86,7 @@ describe("Selection", () => {
     let stuff
     let component
     beforeEach(() => {
-      stuff = $(<Thing></Thing>).render()
+      stuff = $(<Thing />).render()
       component = stuff[0]
     })
     afterEach(() => {
@@ -96,16 +96,16 @@ describe("Selection", () => {
     it("should keep state the same if passed null", () => {
       component.setState({
         selecting: false,
-        selectedNodes: {1:1,2:2,3:3},
-        selectedValues: {4:4,5:5,6:6},
+        selectedNodes: { 1: 1, 2: 2, 3: 3 },
+        selectedValues: { 4: 4, 5: 5, 6: 6 },
         containerBounds: component.bounds
       })
 
       component.state.should.eql({
         selecting: false,
-        selectedNodes: {1:1,2:2,3:3},
+        selectedNodes: { 1: 1, 2: 2, 3: 3},
         selectedNodeList: [],
-        selectedValues: {4:4,5:5,6:6},
+        selectedValues: { 4: 4, 5: 5, 6: 6},
         selectedValueList: [],
         containerBounds: component.bounds
       })
@@ -114,9 +114,9 @@ describe("Selection", () => {
 
       component.state.should.eql({
         selecting: false,
-        selectedNodes: {1:1,2:2,3:3},
+        selectedNodes: { 1: 1, 2: 2, 3: 3},
         selectedNodeList: [],
-        selectedValues: {4:4,5:5,6:6},
+        selectedValues: { 4: 4, 5: 5, 6: 6},
         selectedValueList: [],
         containerBounds: component.bounds
       })
@@ -124,27 +124,27 @@ describe("Selection", () => {
     it("should set values if passed", () => {
       component.setState({
         selecting: false,
-        selectedNodes: {1:1,2:2,3:3},
-        selectedValues: {4:4,5:5,6:6},
+        selectedNodes: { 1: 1, 2: 2, 3: 3},
+        selectedValues: { 4: 4, 5: 5, 6: 6},
         containerBounds: component.bounds
       })
 
       component.state.should.eql({
         selecting: false,
-        selectedNodes: {1:1,2:2,3:3},
+        selectedNodes: { 1: 1, 2: 2, 3: 3},
         selectedNodeList: [],
-        selectedValues: {4:4,5:5,6:6},
+        selectedValues: { 4: 4, 5: 5, 6: 6},
         selectedValueList: [],
         containerBounds: component.bounds
       })
 
-      component.updateState(true, {hi:'hi'}, {there:'there'})
+      component.updateState(true, { hi: 'hi' }, { there: 'there' })
 
       component.state.should.eql({
         selecting: true,
-        selectedNodes: {hi:'hi'},
+        selectedNodes: { hi: 'hi' },
         selectedNodeList: [],
-        selectedValues: {there:'there'},
+        selectedValues: { there: 'there' },
         selectedValueList: [],
         containerBounds: component.bounds
       })
@@ -161,7 +161,7 @@ describe("Selection", () => {
           )).render()
       const children = stuff.find(SelectableChild)
       component = stuff[0]
-      component.bounds = {hi:'hi'}
+      component.bounds = { hi: 'hi' }
       const selectable1 = children[0]
       const selectable2 = children[1]
       const selectable3 = children[2]
@@ -208,7 +208,7 @@ describe("Selection", () => {
       )).render()
       const children = stuff.find(SelectableChild)
       component = stuff[0]
-      component.bounds = {hi:'hi'}
+      component.bounds = { hi: 'hi' }
       const selectable1 = children[0]
       const selectable2 = children[1]
       const selectable3 = children[2]
@@ -233,22 +233,18 @@ describe("Selection", () => {
     })
     let spy
     let stuff
-    let component, selectable1, selectable2, selectable3
-    let nodes, values
+    let component
+    let selectable1
+    let selectable2
+    let selectable3
 
     beforeEach(() => {
       spy = sinon.spy()
-    })
-    afterEach(() => {
-      stuff.unmount()
-    })
-
-    it("should return our info", () => {
       stuff = $((
         <Thing selectable constantSelect onFinishSelect={spy}>
-          <SelectableChild value="hi" key={1}/>
-          <SelectableChild value="hi2" key={2}/>
-          <SelectableChild value="hi3" key={3}/>
+        <SelectableChild value="hi" key={1}/>
+        <SelectableChild value="hi2" key={2}/>
+        <SelectableChild value="hi3" key={3}/>
         </Thing>
       )).render()
       component = stuff[0]
@@ -258,16 +254,13 @@ describe("Selection", () => {
       selectable1 = children[0]
       selectable2 = children[1]
       selectable3 = children[2]
-      nodes = {
-        3: {node: selectable3},
-        1: {node: selectable1},
-        2: {node: selectable2}
-      }
-      values = {
-        3: 'hi3',
-        1: 'hi',
-        2: 'hi2'
-      }
+    })
+
+    afterEach(() => {
+      stuff.unmount()
+    })
+
+    it("should return our info", () => {
       component.updateState(null, {
         3: {node: selectable3},
         1: {node: selectable1},
@@ -304,21 +297,75 @@ describe("Selection", () => {
   })
 
   describe("invalid", () => {
-    it("should call onTouchStart if defined and event is a touch event")
-    it("should call onMouseDown if defined and event is a mouse event")
+    const Thing = Selection(Blah)
+    let spy
+    let stuff
+    let component
+
+    beforeEach(() => {
+      spy = sinon.spy()
+    })
+    afterEach(() => {
+      stuff.unmount()
+    })
+
+    it("should call onTouchStart if defined and event is a touch event", () => {
+      stuff = $(<Thing onTouchStart={spy}/>).render(true)
+
+      component = stuff[0]
+      component.invalid('hi', 'touchstart')
+
+      expect(spy.called).to.be.true
+    })
+    it("should call onMouseDown if defined and event is a mouse event", () => {
+      stuff = $(<Thing onMouseDown={spy}/>).render(true)
+
+      component = stuff[0]
+      component.invalid('hi', 'mousedown')
+
+      expect(spy.called).to.be.true
+    })
   })
 
   describe("start", () => {
-    it("should call select if constantSelect is active")
-    it("should call deselect if constantSelect is not active")
+    const Thing = Selection(Blah)
+    let spy
+    let stuff
+    let component
+
+    beforeEach(() => {
+      spy = sinon.spy()
+    })
+
+    it("should call select if constantSelect is active", () => {
+      stuff = $(<Thing constantSelect />).render()
+
+      component = stuff[0]
+
+      component.selectionManager.select = spy
+      component.start(1, 2, 3)
+
+      expect(spy.called).to.be.true
+    })
+
+    it("should call deselect if constantSelect is not active", () => {
+      stuff = $(<Thing />).render()
+
+      component = stuff[0]
+
+      component.selectionManager.deselect = spy
+      component.start(1, 2, 3)
+
+      expect(spy.called).to.be.true
+    })
   })
 
   describe("cancel", () => {
     it("should call deselect")
-    it("should call propageFinishedSelect if present")
+    it("should call propageFinishedSelect")
     it("should turn off selection")
   })
-  
+
   describe("end", () => {
     it("should call propagateFinishedSelect and deselect if constantSelect is on")
     it("should select any items in the selection rectangle, and propagateFinishedSelect")

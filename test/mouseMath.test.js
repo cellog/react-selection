@@ -1,6 +1,4 @@
 import 'should'
-import React from 'react'
-import { render, unmountComponentAtNode } from 'react-dom'
 import mouseMath from '../src/mouseMath.js'
 import Debug from '../src/debug.js'
 
@@ -160,7 +158,7 @@ describe("mouseMath", function() {
     before(() => {
       if (window.____isjsdom) return
       div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
-      div.innerText= 'hi'
+      div.innerText = 'hi'
       div.id = 'foo'
       document.body.appendChild(div, document.body.firstElementChild)
       Debug.DOMFlush('foo')
@@ -206,23 +204,23 @@ describe("mouseMath", function() {
     before(() => {
       if (window.____isjsdom) return
       div1.style.cssText = 'height: 13000px;width:13000px'
-      div1.innerText= 'hi'
+      div1.innerText = 'hi'
 
       div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;background-color:red;'
-      div.innerText= 'hi'
+      div.innerText = 'hi'
       div.id = 'foo'
       div1.appendChild(div)
       document.body.insertBefore(div1, document.body.firstElementChild)
 
-      window.scroll(20,20)
-      if (iOS) window.parent.window.scroll(20,20)
+      window.scroll(20, 20)
+      if (iOS) window.parent.window.scroll(20, 20)
     })
 
     after(() => {
       if (window.____isjsdom) return
       document.body.removeChild(div1)
-      window.scroll(0,0)
-      if (iOS) window.parent.window.scroll(0,0)
+      window.scroll(0, 0)
+      if (iOS) window.parent.window.scroll(0, 0)
     })
 
     it("pageOffset: should return the correct page offset", function() {

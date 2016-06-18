@@ -1,8 +1,5 @@
 import 'should'
-import React from 'react'
-import { render, unmountComponentAtNode } from 'react-dom'
 import SelectionManager from '../src/SelectionManager.js'
-import Debug from '../src/debug.js'
 
 describe("SelectionManager", function() {
   describe("construction", () => {
@@ -83,7 +80,7 @@ describe("SelectionManager", function() {
         getBoundsForNode() { return 'foobar' }
       }
       const findit = () => null
-      
+
       manager.registerSelectable(thing, 'hi', 4, callback, true, math, findit)
       manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
@@ -131,7 +128,7 @@ describe("SelectionManager", function() {
       ])
     })
   })
-  
+
   describe("unregisterSelectable", () => {
     let manager
     const notify = {
@@ -220,7 +217,7 @@ describe("SelectionManager", function() {
       getBoundsForNode(node) {
         return node
       },
-      objectsCollide(rect, bounds, tol, key) {
+      objectsCollide(rect, bounds) {
         return rect.indexOf(bounds) !== -1
       }
     }
@@ -237,7 +234,7 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: false
       }
-      manager.walkNodes([1,2,4], indices, changedNodes, findit, mouse, node, 1)
+      manager.walkNodes([1, 2, 4], indices, changedNodes, findit, mouse, node, 1)
 
       indices.should.have.length(1)
       indices[0].should.equal(1)
@@ -256,8 +253,8 @@ describe("SelectionManager", function() {
       }
       manager.selectedNodes[2] = {}
       manager.selectedValues[2] = {}
-      manager.walkNodes([1,2,4], indices, changedNodes, findit, mouse, node, 3)
-      manager.walkNodes([1,2,4], indices, changedNodes, findit, mouse, node, 5) // test that it ignores non-selected values
+      manager.walkNodes([1, 2, 4], indices, changedNodes, findit, mouse, node, 3)
+      manager.walkNodes([1, 2, 4], indices, changedNodes, findit, mouse, node, 5) // test that it ignores non-selected values
 
       indices.should.have.length(0)
 
@@ -280,12 +277,15 @@ describe("SelectionManager", function() {
       getBoundsForNode(node) {
         return node
       },
-      objectsCollide(rect, bounds, tol, key) {
+      objectsCollide(rect, bounds) {
         return rect.indexOf(bounds) !== -1
       }
     }
     const findit = (i) => i
-    let node1, node2, node3, node4
+    let node1
+    let node2
+    let node3
+    let node4
     beforeEach(() => {
       props = {
         clickTolerance: 5
@@ -319,7 +319,7 @@ describe("SelectionManager", function() {
     })
 
     it("should select 3 values when within the rectangle", () => {
-      manager.select([1,2,4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
+      manager.select([1, 2, 4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(2)
@@ -340,7 +340,7 @@ describe("SelectionManager", function() {
     it("should select 4 values with selectIntermediates", () => {
       props.selectIntermediates = true
 
-      manager.select([1,2,4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
+      manager.select([1, 2, 4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(2)
