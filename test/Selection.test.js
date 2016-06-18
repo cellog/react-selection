@@ -14,7 +14,7 @@ describe("Selection", () => {
     }
     render() {
       return (
-        <div>
+        <div {...this.props}>
           <p>hi {this.props.name}</p>
           {this.props.children}
         </div>
@@ -519,15 +519,87 @@ describe("Selection", () => {
   })
 
   describe("render", () => {
-    it("should create a container div if containerDiv is specified")
-    it("should pass in all props")
+    it("should create a container div if containerDiv is specified", () => {
+      const Thing = Selection(Blah, {
+        containerDiv: true
+      })
+      const Thing2 = Selection(Blah, {
+        containerDiv: false
+      })
+
+      const a = $(<Thing />).render()
+      a.find('div').should.have.length(2)
+      const b = $(<Thing2 />).render()
+      b.find('div').should.have.length(1)
+      a.unmount()
+      b.unmount()
+    })
+    it("should pass in all props", () => {
+      const Thing = Selection(Blah)
+
+      const component = $(<Thing another="hi" />).render(true).find(Blah)[0]
+
+      component.props.should.eql({
+        clickTolerance: 2,
+        constantSelect: false,
+        preserveSelection: false,
+        selectIntermediates: false,
+        selectable: false,
+        selectedNodeList: [],
+        selectedNodes: {},
+        selectedValueList: [],
+        selectedValues: {},
+        selecting: false,
+        another: "hi"
+      })
+    })
     describe("container div", () => {
-      it("should capture mousedown")
-      it("should capture touchstart")
+      const Thing = Selection(Blah, {
+        containerDiv: true
+      })
+      let stuff
+      let component
+      beforeEach(() => {
+        stuff = $(<Thing />).render(true)
+        component = stuff[0]
+      })
+      afterEach(() => {
+        stuff.unmount()
+      })
+      it("should capture mousedown", () => {
+        component.inputManager.mouseDown = sinon.spy()
+        stuff.trigger('mouseDown', 5, 5, 5, 5)
+        expect(component.inputManager.mouseDown.called).to.be.true
+      })
+      it("should capture touchstart", () => {
+        component.inputManager.touchStart = sinon.spy()
+        stuff.trigger('touchStart', 5, 5, 5, 5)
+        expect(component.inputManager.touchStart.called).to.be.true
+      })
     })
     describe("raw component", () => {
-      it("should capture mousedown")
-      it("should capture touchstart")
+      const Thing = Selection(Blah, {
+        containerDiv: false
+      })
+      let stuff
+      let component
+      beforeEach(() => {
+        stuff = $(<Thing />).render(true)
+        component = stuff[0]
+      })
+      afterEach(() => {
+        stuff.unmount()
+      })
+      it("should capture mousedown", () => {
+        component.inputManager.mouseDown = sinon.spy()
+        stuff.trigger('mouseDown', 5, 5, 5, 5)
+        expect(component.inputManager.mouseDown.called).to.be.true
+      })
+      it("should capture touchstart", () => {
+        component.inputManager.touchStart = sinon.spy()
+        stuff.trigger('touchStart', 5, 5, 5, 5)
+        expect(component.inputManager.touchStart.called).to.be.true
+      })
     })
   })
 })

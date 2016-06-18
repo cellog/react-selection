@@ -567,7 +567,7 @@ describe("InputManager", function() {
       }
       render() {
         return (
-          <div style={{height: 50, width: 50}}
+          <div style={{height: 50, width: 50, position: 'absolute', top: 0}}
                ref={(ref) => {
                  if (ref) {
                    manager = new InputManager(ref,
