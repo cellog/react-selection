@@ -56,10 +56,11 @@ describe("Selection", () => {
       }).to.throw('Component is not a class, must be a stateful React Component class')
     })
 
-    it("should error if a non-React class is passed in", () => {
-      expect(() => {
-        Selection(() => null)
-      }).to.throw('Component cannot be a stateless functional component, must be a stateful React Component class')
+    it("should force a container div for ", () => {
+      const Thing = Selection(() => null, { containerDiv: false })
+      
+      const stuff = $(<Thing />).render()
+      expect(stuff[0].containerDiv).to.be.true
     })
 
     it("should pull displayname from displayName", () => {
@@ -74,7 +75,7 @@ describe("Selection", () => {
       const Thing = Selection(class Hi {
         render() {}
       })
-      Thing.displayName.should.equal('Selection(Hi)')
+      Thing.displayName.should.match(/^Selection\((Hi|Component)\)$/) // IE 10/11
     })
   })
 
@@ -300,5 +301,42 @@ describe("Selection", () => {
       ])
       expect(spy.args[0][4]).to.eql({hi: 'hi'})
     })
+  })
+
+  describe("invalid", () => {
+    it("should call onTouchStart if defined and event is a touch event")
+    it("should call onMouseDown if defined and event is a mouse event")
+  })
+
+  describe("start", () => {
+    it("should call select if constantSelect is active")
+    it("should call deselect if constantSelect is not active")
+  })
+
+  describe("cancel", () => {
+    it("should call deselect")
+    it("should call propageFinishedSelect if present")
+    it("should turn off selection")
+  })
+  
+  describe("end", () => {
+    it("should call propagateFinishedSelect and deselect if constantSelect is on")
+    it("should select any items in the selection rectangle, and propagateFinishedSelect")
+  })
+
+  describe("change", () => {
+    it("should enable selection")
+    it("should call select if constantSelect is enabled")
+  })
+
+  describe("makeInputManager", () => {
+    it("should do nothing if ref is null")
+    it("should set up inputManager and ref on first valid call")
+    it("should do nothing if ref is the same as a previous call")
+    it("should umount inputManager and re-set if ref changes")
+  })
+
+  describe("render", () => {
+    it("should create a container div if ")
   })
 })

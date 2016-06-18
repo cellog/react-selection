@@ -8,10 +8,9 @@ export default function verifyComponent(Component) {
   }
   try {
     test = new Component
+    if (test.render instanceof Function) return false
+    return true
   } catch (e) {
-    throw new Error('Component must be a stateful React Component class')
-  }
-  if (!(test.render instanceof Function)) {
-    throw new Error('Component cannot be a stateless functional component, must be a stateful React Component class')
+    throw new Error('Component must be a React Component class ')
   }
 }

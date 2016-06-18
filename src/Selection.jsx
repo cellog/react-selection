@@ -7,14 +7,15 @@ import React, { PropTypes } from 'react'
 
 function makeSelectable( Component, options = {}) {
   const { containerDiv = true, sorter = (a, b) => a - b, nodevalue = (node) => node.props.value } = options
-  verifyComponent(Component)
+  // always force a containerDiv if a stateless functional component is passed in
+  const useContainerDiv = verifyComponent(Component) || containerDiv
   const displayName = Component.displayName || Component.name || 'Component'
 
   return class extends React.Component {
     static displayName = `Selection(${displayName})`
     constructor(props) {
       super(props)
-      this.containerDiv = containerDiv
+      this.containerDiv = useContainerDiv
       this.state = {
         selecting: false,
         selectedNodes: {},
@@ -154,12 +155,12 @@ function makeSelectable( Component, options = {}) {
       }
     }
 
-    makeInputManager(ref) {
+    makeInputManager(ref, inputManager = InputManager) {
       if (!ref) return
       if (this.ref === ref) return
       if (this.inputManager) this.inputManager.unmount()
       this.ref = ref
-      this.inputManager = new InputManager(ref, this, this)
+      this.inputManager = new inputManager(ref, this, this)
     }
 
     onMouseDown(e) {
