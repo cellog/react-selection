@@ -57,7 +57,7 @@ describe("Selectable", () => {
       stuff.unmount()
     })
 
-    it.only("should make a reffable component from a stateless functional component", () => {
+    it("should make a reffable component from a stateless functional component", () => {
       const Thing = Selectable(Blah2, {
         key: (props) => props.id,
         value: (props) => props.value,
