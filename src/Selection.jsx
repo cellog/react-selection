@@ -7,8 +7,8 @@ import makeReferenceableContainer from './ReferenceableContainer.jsx'
 import React, { PropTypes } from 'react'
 
 function makeSelectable( Component, options = {}) {
-  const { sorter = (a, b) => a - b, nodevalue = (node) => node.props.value } = options
-  // always force a containerDiv if a stateless functional component is passed in
+  const { sorter = false, nodevalue = (node) => node.props.value } = options
+  // always force a ReferenceableContainer if a stateless functional component is passed in
   const useContainer = verifyComponent(Component)
   const componentDisplayName = Component.displayName || Component.name || 'Component'
   let displayName
@@ -58,24 +58,40 @@ function makeSelectable( Component, options = {}) {
     static childContextTypes = {
       selectionManager: PropTypes.object,
       selectedNodes: PropTypes.object,
-      selectedValues: PropTypes.object
+      selectedNodeList: PropTypes.array,
+      selectedValues: PropTypes.object,
+      selectedValueList: PropTypes.array
     }
 
-    updateState(selecting, nodes, values) {
+    updateState(selecting, nodes, values, nodearray, valuearray) {
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
         Debug.log('updatestate: ', selecting, nodes, values)
       }
       const newnodes = nodes === null ? this.state.selectedNodes : nodes
       const newvalues = values === null ? this.state.selectedValues : values
+      let nodelist
+      if (nodearray === null) {
+        nodelist = this.state.selectedNodeList
+      } else {
+        nodelist = sorter ? Object.keys(newnodes).map((key) => newnodes[key]).sort((a, b) => nodevalue(a.node) - nodevalue(b.node))
+          : nodearray
+      }
+      let valuelist
+      if (valuearray === null) {
+        valuelist = this.state.selectedValueList
+      } else {
+        valuelist = sorter ? Object.keys(newvalues).map((key) => newvalues[key]).sort(sorter)
+          : valuearray
+      }
       this.setState({
         selecting: selecting === null ? this.state.selecting : selecting,
         selectedNodes: newnodes,
+        selectedNodeList: nodelist,
         selectedValues: newvalues,
+        selectedValueList: valuelist,
         containerBounds: this.bounds
       })
       if (this.props.onSelectSlot && this.props.constantSelect) {
-        const nodelist = Object.keys(newnodes).map((key) => newnodes[key]).sort((a, b) => nodevalue(a.node) - nodevalue(b.node))
-        const valuelist = Object.keys(newvalues).map((key) => newvalues[key]).sort(sorter)
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
           Debug.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, this.bounds)
         }
@@ -89,8 +105,8 @@ function makeSelectable( Component, options = {}) {
       if (!this.props.onFinishSelect) return
       const newnodes = this.state.selectedNodes
       const newvalues = this.state.selectedValues
-      const nodelist = Object.keys(newnodes).map((key) => newnodes[key]).sort((a, b) => sorter(nodevalue(a.node), nodevalue(b.node)))
-      const valuelist = Object.keys(newvalues).map((key) => newvalues[key]).sort(sorter)
+      const nodelist = this.state.selectedNodeList
+      const valuelist = this.state.selectedValueList
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
         Debug.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds)
       }
@@ -101,7 +117,9 @@ function makeSelectable( Component, options = {}) {
       return {
         selectionManager: this.selectionManager,
         selectedNodes: this.state.selectedNodes,
-        selectedValues: this.state.selectedValues
+        selectedValues: this.state.selectedValues,
+        selectedNodeList: this.state.selectedNodeList,
+        selectedValueList: this.state.selectedValueList
       }
     }
 

@@ -97,44 +97,53 @@ describe("Selection", () => {
   })
 
   describe("updateState", () => {
-    const Thing = Selection(Blah, {
-      sorter: (a, b) => a > b ? 1 : (a < b ? -1 : 0)
+    const Thing = Selection(Blah)
+    const Thing2 = Selection(Blah, {
+      sorter: (a, b) => a < b ? 1 : (a > b ? -1 : 0),
+      nodevalue: (node) => node
     })
     let stuff
+    let stuff2
     let component
+    let component2
     beforeEach(() => {
       stuff = $(<Thing />).render()
+      stuff2 = $(<Thing2 />).render()
       component = stuff[0]
+      component2 = stuff2[0]
     })
     afterEach(() => {
       stuff.unmount()
+      stuff2.unmount()
     })
 
     it("should keep state the same if passed null", () => {
       component.setState({
         selecting: false,
         selectedNodes: { 1: 1, 2: 2, 3: 3 },
+        selectedNodeList: [1, 2, 3],
         selectedValues: { 4: 4, 5: 5, 6: 6 },
+        selectedValueList: [4, 5, 6],
         containerBounds: component.bounds
       })
 
       component.state.should.eql({
         selecting: false,
         selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [],
+        selectedNodeList: [1, 2, 3],
         selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [],
+        selectedValueList: [4, 5, 6],
         containerBounds: component.bounds
       })
 
-      component.updateState(null, null, null)
+      component.updateState(null, null, null, null, null)
 
       component.state.should.eql({
         selecting: false,
         selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [],
+        selectedNodeList: [1, 2, 3],
         selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [],
+        selectedValueList: [4, 5, 6],
         containerBounds: component.bounds
       })
     })
@@ -142,27 +151,51 @@ describe("Selection", () => {
       component.setState({
         selecting: false,
         selectedNodes: { 1: 1, 2: 2, 3: 3},
+        selectedNodeList: [1, 2, 3],
         selectedValues: { 4: 4, 5: 5, 6: 6},
+        selectedValueList: [4, 5, 6],
         containerBounds: component.bounds
       })
 
       component.state.should.eql({
         selecting: false,
         selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [],
+        selectedNodeList: [1, 2, 3],
         selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [],
+        selectedValueList: [4, 5, 6],
         containerBounds: component.bounds
       })
 
-      component.updateState(true, { hi: 'hi' }, { there: 'there' })
+      component.updateState(true, { hi: 'hi' }, { there: 'there' }, ['hi'], ['there'])
 
       component.state.should.eql({
         selecting: true,
         selectedNodes: { hi: 'hi' },
-        selectedNodeList: [],
+        selectedNodeList: ['hi'],
         selectedValues: { there: 'there' },
-        selectedValueList: [],
+        selectedValueList: ['there'],
+        containerBounds: component.bounds
+      })
+    })
+
+    it("should sort by user sorter if passed into to HOC creator", () => {
+      component2.setState({
+        selecting: false,
+        selectedNodes: { 1: 1, 2: 2, 3: 3},
+        selectedNodeList: [1, 2, 3],
+        selectedValues: { 4: 4, 5: 5, 6: 6},
+        selectedValueList: [4, 5, 6],
+        containerBounds: component.bounds
+      })
+
+      component2.updateState(true, { hi: 'hi', bye: 'bye' }, { there: 'there', ziggy: 'ziggy' }, ['bye', 'hi'], ['there', 'ziggy'])
+
+      component2.state.should.eql({
+        selecting: true,
+        selectedNodes: { hi: 'hi', bye: 'bye' },
+        selectedNodeList: ['hi', 'bye'],
+        selectedValues: { there: 'there', ziggy: 'ziggy' },
+        selectedValueList: ['ziggy', 'there'],
         containerBounds: component.bounds
       })
     })
@@ -191,7 +224,15 @@ describe("Selection", () => {
         3: 'hi3',
         1: 'hi',
         2: 'hi2'
-      })
+      }, [
+        {node: selectable1},
+        {node: selectable2},
+        {node: selectable3}
+      ], [
+        'hi',
+        'hi2',
+        'hi3'
+      ])
 
       expect(spy.called).to.be.true
 
@@ -245,9 +286,7 @@ describe("Selection", () => {
   })
 
   describe("propagateFinishedSelect", () => {
-    const Thing = Selection(Blah, {
-      sorter: (a, b) => a > b ? 1 : (a < b ? -1 : 0)
-    })
+    const Thing = Selection(Blah)
     let spy
     let stuff
     let component
@@ -286,7 +325,15 @@ describe("Selection", () => {
         3: 'hi3',
         1: 'hi',
         2: 'hi2'
-      })
+      }, [
+        {node: selectable1},
+        {node: selectable2},
+        {node: selectable3}
+      ], [
+        'hi',
+        'hi2',
+        'hi3'
+      ])
 
       component.propagateFinishedSelect()
 

@@ -1,3 +1,7 @@
+0.4.0 / 2016-??-??
+==================
+- implement #7: by default, sort selectable items by DOM order
+
 0.3.0 / 2016-06-19
 ==================
 - remove IE9 support.  React crashes on setting state in a Selectable component.

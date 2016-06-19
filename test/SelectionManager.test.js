@@ -180,7 +180,9 @@ describe("SelectionManager", function() {
       const changedNodes = []
       const thing = {key: 'hi', component: {}, value: 5}
       const bounds = {}
-      manager.saveNode(changedNodes, thing, bounds)
+      manager.saveNode(changedNodes, thing, bounds, {
+        x: 1, left: 1, y: 1, top: 1
+      })
 
       changedNodes.should.have.length(1)
       changedNodes[0].should.eql([
@@ -197,8 +199,9 @@ describe("SelectionManager", function() {
       const changedNodes = []
       const thing = {key: 'hi', component: {}, value: 5}
       const bounds = {}
-      manager.saveNode(changedNodes, thing, bounds)
-      manager.saveNode(changedNodes, thing, bounds)
+      const rect = {x: 1, left: 2, y: 1, top: 2}
+      manager.saveNode(changedNodes, thing, bounds, rect)
+      manager.saveNode(changedNodes, thing, bounds, rect)
 
       changedNodes.should.have.length(1)
     })
@@ -217,7 +220,7 @@ describe("SelectionManager", function() {
         return node
       },
       objectsCollide(rect, bounds) {
-        return rect.indexOf(bounds) !== -1
+        return rect.sub.indexOf(bounds) !== -1
       }
     }
     const findit = (i) => i
@@ -233,10 +236,60 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: false
       }
-      manager.walkNodes([1, 2, 4], indices, changedNodes, findit, mouse, node, 1)
+      manager.walkNodes({sub: [1, 2, 4], x: 1, y: 1, left: 1, top: 1}, indices, changedNodes, findit, mouse, node, 1)
 
       indices.should.have.length(1)
       indices[0].should.equal(1)
+
+      changedNodes.should.have.length(1)
+      changedNodes[0].should.eql([true, node])
+    })
+
+    it("should sort nodes in reverse within the rect if the user selected from bottom to top", () => {
+      const indices = [34]
+      const changedNodes = []
+      const node = {
+        component: 2,
+        key: 2,
+        bounds: false
+      }
+      const mouse = {
+        getBoundsForNode(node) {
+          return node
+        },
+        objectsCollide(rect, bounds) {
+          return rect.sub.indexOf(bounds) !== -1
+        }
+      }
+      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 4, y: 5, top: 5 }, indices, changedNodes, findit, mouse, node, 1)
+
+      indices.should.have.length(2)
+      indices[0].should.equal(1)
+
+      changedNodes.should.have.length(1)
+      changedNodes[0].should.eql([true, node])
+    })
+
+    it("should sort nodes forward within the rect if the user selected from bottom to top", () => {
+      const indices = [34]
+      const changedNodes = []
+      const node = {
+        component: 2,
+        key: 2,
+        bounds: false
+      }
+      const mouse = {
+        getBoundsForNode(node) {
+          return node
+        },
+        objectsCollide(rect, bounds) {
+          return rect.sub.indexOf(bounds) !== -1
+        }
+      }
+      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 2, y: 5, top: 6 }, indices, changedNodes, findit, mouse, node, 1)
+
+      indices.should.have.length(2)
+      indices[1].should.equal(1)
 
       changedNodes.should.have.length(1)
       changedNodes[0].should.eql([true, node])
@@ -250,10 +303,13 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: {}
       }
+      const rect = {sub: [1, 2, 4], x: 1, y: 1, left: 1, top: 1}
       manager.selectedNodes[2] = {}
       manager.selectedValues[2] = {}
-      manager.walkNodes([1, 2, 4], indices, changedNodes, findit, mouse, node, 3)
-      manager.walkNodes([1, 2, 4], indices, changedNodes, findit, mouse, node, 5) // test that it ignores non-selected values
+      manager.selectedNodeList = [manager.selectedNodes[2]]
+      manager.selectedValueList = [manager.selectedValues[2]]
+      manager.walkNodes(rect, indices, changedNodes, findit, mouse, node, 3)
+      manager.walkNodes(rect, indices, changedNodes, findit, mouse, node, 5) // test that it ignores non-selected values
 
       indices.should.have.length(0)
 
@@ -262,6 +318,8 @@ describe("SelectionManager", function() {
 
       manager.selectedNodes.should.not.have.property(2)
       manager.selectedValues.should.not.have.property(2)
+      manager.selectedNodeList.should.have.length(0)
+      manager.selectedValueList.should.have.length(0)
     })
   })
 
@@ -277,7 +335,7 @@ describe("SelectionManager", function() {
         return node
       },
       objectsCollide(rect, bounds) {
-        return rect.indexOf(bounds) !== -1
+        return rect.sub.indexOf(bounds) !== -1
       }
     }
     const findit = (i) => i
@@ -318,7 +376,13 @@ describe("SelectionManager", function() {
     })
 
     it("should select 3 values when within the rectangle", () => {
-      manager.select([1, 2, 4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
+      manager.select({sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2},
+        {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(2)
@@ -326,7 +390,7 @@ describe("SelectionManager", function() {
 
       manager.selectedNodes[1].should.eql({bounds: 1, node: 1})
       manager.selectedNodes[2].should.eql({bounds: 2, node: 2})
-      manager.selectedNodes[2].should.eql({bounds: 2, node: 2})
+      manager.selectedNodes[4].should.eql({bounds: 4, node: 4})
 
       expect(node1.callback.called).to.be.true
       expect(node2.callback.called).to.be.true
@@ -339,7 +403,12 @@ describe("SelectionManager", function() {
     it("should select 4 values with selectIntermediates", () => {
       props.selectIntermediates = true
 
-      manager.select([1, 2, 4], {selectedNodes: {}, selectedValues: {}}, props, findit, mouse)
+      manager.select({sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(2)

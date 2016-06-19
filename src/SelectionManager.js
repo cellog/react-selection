@@ -10,6 +10,8 @@ export default class SelectionManager {
     this.sortedNodes = []
     this.selectedNodes = {}
     this.selectedValues = {}
+    this.selectedNodeList = []
+    this.selectedValueList = []
     this.notify = notify
   }
 
@@ -32,19 +34,28 @@ export default class SelectionManager {
     if (this.selectedNodes[key]) {
       const nodes = this.selectedNodes
       const values = this.selectedValues
+      const nodelist = this.selectedNodeList.filter(node => node === nodes[key])
+      const valuelist = this.selectedValueList.filter(value => value === values[key])
       delete nodes[key]
       delete values[key]
-      this.notify.updateState(null, nodes, values)
+      this.notify.updateState(null, nodes, values, nodelist, valuelist)
     }
   }
 
-  saveNode(changedNodes, node, bounds) {
+  saveNode(changedNodes, node, bounds, selectionRectangle) {
     if (this.selectedNodes[node.key] !== undefined) return
     if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
       Debug.log(`select: ${node.key}`)
     }
     this.selectedNodes[node.key] = {node: node.component, bounds: bounds}
     this.selectedValues[node.key] = node.value
+    if (selectionRectangle.y === selectionRectangle.top && selectionRectangle.x === selectionRectangle.left) {
+      this.selectedNodeList.unshift(node.component)
+      this.selectedValueList.unshift(node.component)
+    } else {
+      this.selectedNodeList.push(node.value)
+      this.selectedValueList.push(node.value)
+    }
     changedNodes.push([true, node])
   }
 
@@ -62,20 +73,29 @@ export default class SelectionManager {
       }
       delete this.selectedNodes[key]
       delete this.selectedValues[key]
+      this.selectedNodeList = this.selectedNodeList.filter(n => n === node.component)
+      this.selectedValueList = this.selectedValueList.filter(val => val === node.value)
       changedNodes.push([false, node])
       return
     }
-    selectedIndices.push(idx)
-    this.saveNode(changedNodes, node, bounds)
+    if (selectionRectangle.y === selectionRectangle.top && selectionRectangle.x === selectionRectangle.left) {
+      selectedIndices.unshift(idx)
+    } else {
+      selectedIndices.push(idx)
+    }
+    this.saveNode(changedNodes, node, bounds, selectionRectangle)
   }
 
   select(selectionRectangle, currentState, props, findit = findDOMNode, mouse = mouseMath) {
     this.selectedNodes = currentState.selectedNodes
     this.selectedValues = currentState.selectedValues
+    this.selectedNodeList = currentState.selectedNodeList
+    this.selectedValueList = currentState.selectedValueList
     const changedNodes = []
     const selectedIndices = []
 
     this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes, findit, mouse), this)
+
     if (props.selectIntermediates) {
       const min = Math.min(...selectedIndices)
       const max = Math.max(...selectedIndices)
@@ -84,13 +104,19 @@ export default class SelectionManager {
       const diff = filled.filter(val => selectedIndices.indexOf(val) === -1)
       diff.forEach(idx => this.saveNode(changedNodes, this.sortedNodes[idx],
         this.sortedNodes[idx].bounds ? this.sortedNodes[idx].bounds :
-        mouse.getBoundsForNode(findit(this.sortedNodes[idx].component))))
+        mouse.getBoundsForNode(findit(this.sortedNodes[idx].component)),
+        selectionRectangle))
     }
     if (changedNodes.length) {
       changedNodes.forEach((item) => {
         item[1].callback(item[0], this.selectedNodes, this.selectedValues)
       })
-      this.notify.updateState(null, this.selectedNodes, this.selectedValues)
+      this.notify.updateState(null,
+        this.selectedNodes,
+        this.selectedValues,
+        this.selectedNodeList,
+        this.selectedValueList
+      )
     }
   }
 
@@ -103,7 +129,9 @@ export default class SelectionManager {
     if (changed) {
       this.selectedNodes = {}
       this.selectedValues = {}
-      this.notify.updateState(false, {}, {})
+      this.selectedNodeList = []
+      this.selectedValueList = []
+      this.notify.updateState(false, {}, {}, [], [])
     }
   }
 }
