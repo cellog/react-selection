@@ -92,7 +92,6 @@ describe("SelectionManager", function() {
       }])
     })
 
-
     it("should add the components in the order they are called", () => {
       const thing1 = {}
       const thing2 = {}

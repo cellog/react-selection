@@ -1,6 +1,7 @@
 /* eslint react/no-multi-comp:0 */
 import React, { PropTypes } from 'react'
 
+import makeReferenceableContainer from './ReferenceableContainer.jsx'
 import verifyComponent from './verifyComponent.js'
 
 function Selectable(Component, options) {
@@ -10,20 +11,7 @@ function Selectable(Component, options) {
   let ReferenceableContainer
   if (useContainer) {
     displayName = `Selectable(ReferenceableContainer(${componentDisplayName}))`
-    ReferenceableContainer = class extends React.Component {
-      static displayName = `ReferenceableContainer(${componentDisplayName})`
-      static propTypes = {
-        children: PropTypes.element
-      }
-      render() {
-        const {children, ...props} = this.props
-        return (
-          <Component {...props}>
-            {children}
-          </Component>
-        )
-      }
-    }
+    ReferenceableContainer = makeReferenceableContainer(Component, componentDisplayName)
   } else {
     displayName = `Selectable(${componentDisplayName})`
   }

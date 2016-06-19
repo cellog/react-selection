@@ -3,8 +3,7 @@ import React from 'react'
 import $ from 'teaspoon'
 
 import InputManager from '../src/InputManager.js'
-// import Debug from '../src/debug.js'
-import { mouseEvent, dispatchEvent } from './simulateMouseEvents.js'
+import { mouseEvent, dispatchEvent, touchEvent, createTouch } from './simulateMouseEvents.js'
 
 describe("InputManager", function() {
   const mouse = {
@@ -57,6 +56,8 @@ describe("InputManager", function() {
       const manager = new InputManager(me, notify, me, findit, mouse)
 
       manager.handlers = {
+        stoptouchstart: sinon.spy(),
+        stopmousedown: sinon.spy(),
         stopmouseup: sinon.spy(),
         stopmousemove: sinon.spy(),
         stoptouchend: sinon.spy(),
@@ -66,8 +67,10 @@ describe("InputManager", function() {
 
       manager.unmount()
 
+      expect(manager.handlers.stopmousedown.called).to.be.true
       expect(manager.handlers.stopmouseup.called).to.be.true
       expect(manager.handlers.stopmousemove.called).to.be.true
+      expect(manager.handlers.stoptouchstart.called).to.be.true
       expect(manager.handlers.stoptouchend.called).to.be.true
       expect(manager.handlers.stoptouchmove.called).to.be.true
       expect(manager.handlers.stoptouchcancel.called).to.be.true
@@ -559,12 +562,6 @@ describe("InputManager", function() {
     let manager
     let notify
     const Test = class extends React.Component {
-      onMouseDown(e) {
-        manager.mouseDown(e)
-      }
-      onTouchStart(e) {
-        manager.touchStart(e)
-      }
       render() {
         return (
           <div style={{height: 50, width: 50, position: 'absolute', top: 0}}
@@ -575,8 +572,6 @@ describe("InputManager", function() {
                  }
                  this.ref = ref
                }}
-               onMouseDown={this.onMouseDown}
-               onTouchStart={this.onTouchStart}
           >
             hi
           </div>
@@ -616,7 +611,8 @@ describe("InputManager", function() {
       if (window.____isjsdom) return
       expect(manager.mouseDownData).is.undefined
 
-      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+      const ev = mouseEvent('mousedown', 25, 25, 25, 25)
+      dispatchEvent(thing.dom(), ev)
 
       manager.mouseDownData.should.eql({
         x: 25,
@@ -631,7 +627,10 @@ describe("InputManager", function() {
       if (window.____isjsdom) return
       expect(manager.mouseDownData).is.undefined
 
-      thing.trigger('touchStart', {touches: [{pageX: 26, pageY: 25, clientX: 25, clientY: 25, identifier: 1}]})
+      const element = thing.dom()
+      const touches = [createTouch(element, 26, 25, 1, 25, 25, 25, 25)]
+      const ev = touchEvent('touchstart', touches)
+      dispatchEvent(element, ev)
 
       manager.mouseDownData.should.eql({
         x: 26,
@@ -646,7 +645,8 @@ describe("InputManager", function() {
       if (window.____isjsdom) return
       expect(manager.mouseDownData).is.undefined
 
-      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+      const ev = mouseEvent('mousedown', 25, 25, 25, 25)
+      dispatchEvent(thing.dom(), ev)
 
       manager._selectRect.should.eql({
         top: 25,
@@ -659,7 +659,7 @@ describe("InputManager", function() {
 
       const mousemove = mouseEvent('mousemove', 27, 27, 27, 27)
 
-      dispatchEvent(thing[0].ref, mousemove)
+      dispatchEvent(thing.dom(), mousemove)
 
       manager._selectRect.should.eql({
         top: 25,
@@ -672,7 +672,7 @@ describe("InputManager", function() {
 
       const mousemove2 = mouseEvent('mousemove', 23, 23, 23, 23)
 
-      dispatchEvent(thing[0].ref, mousemove2)
+      dispatchEvent(thing.dom(), mousemove2)
 
       manager._selectRect.should.eql({
         top: 23,
@@ -684,11 +684,130 @@ describe("InputManager", function() {
       })
     })
 
+    it("should update selection rectangle when finger is dragged", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      const element = thing.dom()
+      const touches = [createTouch(element, 25, 25, 1, 25, 25, 25, 25)]
+      const ev = touchEvent('touchstart', touches)
+      dispatchEvent(element, ev)
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 25,
+        y: 25,
+        right: 25,
+        bottom: 25
+      }, 'setup selection rectangle')
+
+      const touches2 = [createTouch(element, 27, 27, 1)]
+      const touchmove = touchEvent('touchmove', touches2)
+      dispatchEvent(element, touchmove)
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 27,
+        y: 27,
+        right: 27,
+        bottom: 27
+      })
+
+      const touches3 = [createTouch(element, 23, 23, 1)]
+      const touchmove2 = touchEvent('touchmove', touches3)
+      dispatchEvent(element, touchmove2)
+
+      manager._selectRect.should.eql({
+        top: 23,
+        left: 23,
+        x: 23,
+        y: 23,
+        right: 25,
+        bottom: 25
+      })
+    })
+
+    it("should release handlers, touch-based", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      const element = thing.dom()
+      const touches = [createTouch(element, 25, 25, 1, 25, 25, 25, 25)]
+      const ev = touchEvent('touchstart', touches)
+      dispatchEvent(element, ev)
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 25,
+        y: 25,
+        right: 25,
+        bottom: 25
+      }, 'setup selection rectangle')
+
+      const touches2 = [createTouch(element, 27, 27, 1)]
+      const touchmove = touchEvent('touchmove', touches2)
+      dispatchEvent(element, touchmove)
+
+      manager._selectRect.should.eql({
+        top: 25,
+        left: 25,
+        x: 27,
+        y: 27,
+        right: 27,
+        bottom: 27
+      })
+
+      const smm = sinon.spy()
+      const oldsmm = manager.handlers.stopmousemove
+      manager.handlers.stopmousemove = () => {
+        smm()
+        oldsmm()
+      }
+      const smu = sinon.spy()
+      const oldsmu = manager.handlers.stopmouseup
+      manager.handlers.stopmouseup = () => {
+        smu()
+        oldsmu()
+      }
+      const stm = sinon.spy()
+      const oldstm = manager.handlers.stoptouchmove
+      manager.handlers.stoptouchmove = () => {
+        stm()
+        oldstm()
+      }
+      const stc = sinon.spy()
+      const oldstc = manager.handlers.stoptouchcancel
+      manager.handlers.stoptouchcancel = () => {
+        stc()
+        oldstc()
+      }
+      const ste = sinon.spy()
+      const oldste = manager.handlers.stoptouchend
+      manager.handlers.stoptouchend = () => {
+        ste()
+        oldste()
+      }
+
+      const touches3 = [createTouch(element, 27, 27, 1)]
+      const touchend = touchEvent('touchend', touches3)
+      dispatchEvent(element, touchend)
+
+      expect(smm.called).to.be.true
+      expect(smu.called).to.be.true
+      expect(stm.called).to.be.true
+      expect(stc.called).to.be.true
+      expect(ste.called).to.be.true
+    })
+
     it("should release handlers", () => {
       if (window.____isjsdom) return
       expect(manager.mouseDownData).is.undefined
 
-      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+      const ev = mouseEvent('mousedown', 25, 25, 25, 25)
+      dispatchEvent(thing.dom(), ev)
 
       manager._selectRect.should.eql({
         top: 25,
@@ -753,11 +872,33 @@ describe("InputManager", function() {
       expect(ste.called).to.be.true
     })
 
+    it("should call end for a finger drag", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      const element = thing.dom()
+      const touches = [createTouch(element, 25, 25, 1, 25, 25, 25, 25)]
+      const ev = touchEvent('touchstart', touches)
+      dispatchEvent(element, ev)
+
+      const touches2 = [createTouch(element, 27, 27, 1)]
+      const touchmove = touchEvent('touchmove', touches2)
+      dispatchEvent(element, touchmove)
+
+      const touches3 = [createTouch(element, 27, 27, 1)]
+      const touchend = touchEvent('touchend', touches3)
+      dispatchEvent(element, touchend)
+
+      expect(notify.end.called, 'end called').to.be.true
+      expect(notify.click.called, 'click called').to.be.false
+    })
+
     it("should call end for a mouse drag", () => {
       if (window.____isjsdom) return
       expect(manager.mouseDownData).is.undefined
 
-      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+      const ev = mouseEvent('mousedown', 25, 25, 25, 25)
+      dispatchEvent(thing.dom(), ev)
 
       const mousemove = mouseEvent('mousemove', 29, 29, 29, 29)
 
@@ -775,7 +916,8 @@ describe("InputManager", function() {
       if (window.____isjsdom) return
       expect(manager.mouseDownData).is.undefined
 
-      thing.trigger('mouseDown', {pageX: 25, pageY: 25, clientX: 25, clientY: 25})
+      const ev = mouseEvent('mousedown', 25, 25, 25, 25)
+      dispatchEvent(thing.dom(), ev)
 
       const mousemove = mouseEvent('mousemove', 26, 26, 26, 26)
 
@@ -787,6 +929,27 @@ describe("InputManager", function() {
 
       expect(notify.end.called, 'end called').to.be.false
       expect(notify.click.called, 'click called').to.be.true
+    })
+
+    it("should call end for a tap", () => {
+      if (window.____isjsdom) return
+      expect(manager.mouseDownData).is.undefined
+
+      const element = thing.dom()
+      const touches = [createTouch(element, 25, 25, 1)]
+      const ev = touchEvent('touchstart', touches)
+      dispatchEvent(element, ev)
+
+      const touches2 = [createTouch(element, 26, 26, 1)]
+      const touchmove = touchEvent('touchmove', touches2)
+      dispatchEvent(element, touchmove)
+
+      const touches3 = [createTouch(element, 26, 26, 1)]
+      const touchend = touchEvent('touchend', touches3)
+      dispatchEvent(element, touchend)
+
+      expect(notify.end.called, 'end called').to.be.true
+      expect(notify.click.called, 'click called').to.be.false
     })
   })
 })

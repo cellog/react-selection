@@ -2,7 +2,6 @@ import 'should'
 import $ from 'teaspoon'
 import React, { Component, PropTypes } from 'react'
 
-// import Selection from '../src/Selection.jsx'
 import Selectable from '../src/Selectable.jsx'
 
 describe("Selectable", () => {
@@ -113,7 +112,7 @@ describe("Selectable", () => {
   })
 
   describe("selection", () => {
-    it("should set the selectable prop when selected")
+    it("should set the selected prop when selected")
   })
 
   describe("registration", () => {

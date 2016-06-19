@@ -2,20 +2,28 @@ import Debug from './debug.js'
 import InputManager from './InputManager.js'
 import SelectionManager from './SelectionManager.js'
 import verifyComponent from './verifyComponent.js'
+import makeReferenceableContainer from './ReferenceableContainer.jsx'
 
 import React, { PropTypes } from 'react'
 
 function makeSelectable( Component, options = {}) {
-  const { containerDiv = true, sorter = (a, b) => a - b, nodevalue = (node) => node.props.value } = options
+  const { sorter = (a, b) => a - b, nodevalue = (node) => node.props.value } = options
   // always force a containerDiv if a stateless functional component is passed in
-  const useContainerDiv = verifyComponent(Component) || containerDiv
-  const displayName = Component.displayName || Component.name || 'Component'
+  const useContainer = verifyComponent(Component)
+  const componentDisplayName = Component.displayName || Component.name || 'Component'
+  let displayName
+  let ReferenceableContainer
+  if (useContainer) {
+    displayName = `Selection(ReferenceableContainer(${componentDisplayName}))`
+    ReferenceableContainer = makeReferenceableContainer(Component, componentDisplayName)
+  } else {
+    displayName = `Selection(${componentDisplayName})`
+  }
 
   return class extends React.Component {
-    static displayName = `Selection(${displayName})`
+    static displayName = displayName
     constructor(props) {
       super(props)
-      this.containerDiv = useContainerDiv
       this.state = {
         selecting: false,
         selectedNodes: {},
@@ -24,8 +32,6 @@ function makeSelectable( Component, options = {}) {
         selectedValueList: []
       }
       this.selectionManager = new SelectionManager(this, props)
-      this.onMouseDown = this.onMouseDown.bind(this)
-      this.onTouchStart = this.onTouchStart.bind(this)
       this.makeInputManager = this.makeInputManager.bind(this)
     }
 
@@ -163,35 +169,20 @@ function makeSelectable( Component, options = {}) {
       this.inputManager = new inputManager(ref, this, this)
     }
 
-    onMouseDown(e) {
-      if (this.inputManager) this.inputManager.mouseDown(e)
-    }
-
-    onTouchStart(e) {
-      if (this.inputManager) this.inputManager.touchStart(e)
-    }
-
     render() {
-      if (this.containerDiv) {
+      if (useContainer) {
         return (
-          <div
+          <ReferenceableContainer
+            {...this.props}
+            {...this.state}
             ref={this.makeInputManager}
-            onMouseDown={this.onMouseDown}
-            onTouchStart={this.onTouchStart}
-          >
-            <Component
-              {...this.props}
-              {...this.state}
-            />
-          </div>
+          />
         )
       }
       return (
         <Component
           {...this.props}
           {...this.state}
-          onMouseDown={this.onMouseDown}
-          onTouchStart={this.onTouchStart}
           ref={this.makeInputManager}
         />
       )

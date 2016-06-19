@@ -4,6 +4,8 @@ import React, { Component, PropTypes } from 'react'
 
 import Selection from '../src/Selection.jsx'
 import Selectable from '../src/Selectable.jsx'
+import { mouseEvent, dispatchEvent, touchEvent, createTouch } from './simulateMouseEvents.js'
+import { spies } from '../src/InputManager.js'
 
 describe("Selection", () => {
   const Blah = class A extends Component {
@@ -14,13 +16,26 @@ describe("Selection", () => {
     }
     render() {
       return (
-        <div {...this.props}>
+        <div {...this.props} style={{position: 'absolute', top: 0, height: 50, width: 50}}>
           <p>hi {this.props.name}</p>
           {this.props.children}
         </div>
       )
     }
   }
+  const Blah2 = ({ name, children }) => {
+    return (
+      <div style={{position: 'absolute', top: 0, height: 50, width: 50}}>
+        <p>hi {name}</p>
+        {children}
+      </div>
+    )
+  }
+  Blah2.propTypes = {
+    name: PropTypes.string,
+    children: PropTypes.any
+  }
+  Blah2.displayName = 'A'
   const Child = class B extends Component {
     static displayName='B'
     static propTypes = {
@@ -57,11 +72,12 @@ describe("Selection", () => {
       }).to.throw('Component is not a class, must be a stateful React Component class')
     })
 
-    it("should force a container div for a stateless functional component", () => {
-      const Thing = Selection(() => null, { containerDiv: false })
+    it("should error if a wrapped component does not have any elements", () => {
+      expect(() => {
+        const Thing = Selection(() => null)
 
-      const stuff = $(<Thing />).render()
-      expect(stuff[0].containerDiv).to.be.true
+        $(<Thing />).render()
+      }).to.throw('Selection components must have elements as children, not null (in Selection(ReferenceableContainer(Component)))')
     })
 
     it("should pull displayname from displayName", () => {
@@ -519,21 +535,6 @@ describe("Selection", () => {
   })
 
   describe("render", () => {
-    it("should create a container div if containerDiv is specified", () => {
-      const Thing = Selection(Blah, {
-        containerDiv: true
-      })
-      const Thing2 = Selection(Blah, {
-        containerDiv: false
-      })
-
-      const a = $(<Thing />).render()
-      a.find('div').should.have.length(2)
-      const b = $(<Thing2 />).render()
-      b.find('div').should.have.length(1)
-      a.unmount()
-      b.unmount()
-    })
     it("should pass in all props", () => {
       const Thing = Selection(Blah)
 
@@ -553,52 +554,56 @@ describe("Selection", () => {
         another: "hi"
       })
     })
-    describe("container div", () => {
-      const Thing = Selection(Blah, {
-        containerDiv: true
-      })
+    describe("(stateful) React Class-based Component", () => {
+      const Thing = Selection(Blah)
       let stuff
-      let component
       beforeEach(() => {
+        spies.mouseDown = sinon.spy()
+        spies.touchStart = sinon.spy()
         stuff = $(<Thing />).render(true)
-        component = stuff[0]
       })
       afterEach(() => {
         stuff.unmount()
+        spies.mouseDown = false
+        spies.touchStart = false
       })
       it("should capture mousedown", () => {
-        component.inputManager.mouseDown = sinon.spy()
-        stuff.trigger('mouseDown', 5, 5, 5, 5)
-        expect(component.inputManager.mouseDown.called).to.be.true
+        const ev = mouseEvent('mousedown', 5, 5, 5, 5)
+        dispatchEvent(stuff.dom(), ev)
+        expect(spies.mouseDown.called).to.be.true
       })
       it("should capture touchstart", () => {
-        component.inputManager.touchStart = sinon.spy()
-        stuff.trigger('touchStart', 5, 5, 5, 5)
-        expect(component.inputManager.touchStart.called).to.be.true
+        const element = stuff.dom()
+        const touches = [createTouch(element, 5, 5, 1)]
+        const ev = touchEvent('touchstart', touches)
+        dispatchEvent(element, ev)
+        expect(spies.touchStart.called).to.be.true
       })
     })
-    describe("raw component", () => {
-      const Thing = Selection(Blah, {
-        containerDiv: false
-      })
+    describe("stateless functional component, wrapped in ReferenceableContainer", () => {
+      const Thing = Selection(Blah2)
       let stuff
-      let component
       beforeEach(() => {
+        spies.mouseDown = sinon.spy()
+        spies.touchStart = sinon.spy()
         stuff = $(<Thing />).render(true)
-        component = stuff[0]
       })
       afterEach(() => {
         stuff.unmount()
+        spies.mouseDown = false
+        spies.touchStart = false
       })
       it("should capture mousedown", () => {
-        component.inputManager.mouseDown = sinon.spy()
-        stuff.trigger('mouseDown', 5, 5, 5, 5)
-        expect(component.inputManager.mouseDown.called).to.be.true
+        const ev = mouseEvent('mousedown', 5, 5, 5, 5)
+        dispatchEvent(stuff.dom(), ev)
+        expect(spies.mouseDown.called).to.be.true
       })
       it("should capture touchstart", () => {
-        component.inputManager.touchStart = sinon.spy()
-        stuff.trigger('touchStart', 5, 5, 5, 5)
-        expect(component.inputManager.touchStart.called).to.be.true
+        const element = stuff.dom()
+        const touches = [createTouch(element, 5, 5, 1)]
+        const ev = touchEvent('touchstart', touches)
+        dispatchEvent(element, ev)
+        expect(spies.touchStart.called).to.be.true
       })
     })
   })

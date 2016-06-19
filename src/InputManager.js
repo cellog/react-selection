@@ -2,10 +2,17 @@ import { findDOMNode } from 'react-dom'
 
 import mouseMath from './mouseMath.js'
 import Debug from './debug.js'
-
+const spies = {
+  mouseDown: false,
+  touchStart: false
+}
 export default class InputManager {
   constructor(ref, notify, component, findit = findDOMNode, mouse = mouseMath) {
     this.node = findit(ref)
+    if (!this.node) {
+      throw new Error(`Selection components must have elements as children, not null (in ${
+        Object.getPrototypeOf(component).constructor.displayName})`)
+    }
     this.notify = notify
 
     this.cancel = this.cancel.bind(this)
@@ -15,8 +22,10 @@ export default class InputManager {
     this.touchStart = this.touchStart.bind(this)
 
     this.handlers = {
+      stopmousedown: () => null,
       stopmouseup: () => null,
       stopmousemove: () => null,
+      stoptouchstart: () => null,
       stoptouchend: () => null,
       stoptouchmove: () => null,
       stoptouchcancel: () => null
@@ -24,11 +33,16 @@ export default class InputManager {
 
     this.bounds = mouse.getBoundsForNode(this.node)
     this.component = component
+
+    this.addListener(this.node, 'mousedown', this.mouseDown)
+    this.addListener(this.node, 'touchstart', this.touchStart)
   }
 
   unmount() {
+    this.handlers.stopmousedown()
     this.handlers.stopmouseup()
     this.handlers.stopmousemove()
+    this.handlers.stoptouchstart()
     this.handlers.stoptouchend()
     this.handlers.stoptouchmove()
     this.handlers.stoptouchcancel()
@@ -51,6 +65,7 @@ export default class InputManager {
   }
 
   touchStart(e, win = window) {
+    if (spies.touchStart) spies.touchStart(e)
     if (!this.validSelectStart(e)) {
       this.notify.invalid(e, 'touchstart')
       return
@@ -62,6 +77,7 @@ export default class InputManager {
   }
 
   mouseDown(e, win = window) {
+    if (spies.mouseDown) spies.mouseDown(e)
     if (!this.validSelectStart(e)) {
       this.notify.invalid(e, 'mousedown')
       return
@@ -140,3 +156,5 @@ export default class InputManager {
     this.notify.cancel()
   }
 }
+
+export { spies }

@@ -1,6 +1,6 @@
 /* eslint guard-for-in:0 */
 function mouseEvent(type, sx, sy, cx, cy) {
-  let evt
+  let evt = {}
   const e = {
     bubbles: true,
     cancelable: (type !== "mousemove"),
@@ -41,5 +41,24 @@ function dispatchEvent(el, evt) {
   }
   return evt
 }
+function createTouch(element, x, y, id, sx = null, sy = null, cx = null, cy = null) {
+  return {
+    pageX: x,
+    pageY: y,
+    screenX: sx === null ? x : sx,
+    screenY: sy === null ? y : sy,
+    clientX: cx === null ? x : cx,
+    clientY: cy === null ? y : cy,
+    target: element,
+    identifier: id
+  }
+}
 
-export { dispatchEvent, mouseEvent }
+function touchEvent(type, touchList) {
+  const event = document.createEvent('Event')
+  event.initEvent(type, true, true)
+  event.touches = event.targetTouches = event.changedTouches = touchList
+  return event
+}
+
+export { dispatchEvent, mouseEvent, touchEvent, createTouch }
