@@ -112,7 +112,30 @@ describe("Selectable", () => {
   })
 
   describe("selection", () => {
-    it("should set the selected prop when selected")
+    it.only("should set the selected prop when selected", () => {
+      const Thing1 = Selectable(Blah, {
+        key: (props) => props.id,
+        value: (props) => props.value,
+        cacheBounds: true
+      })
+      const Thing2 = Selectable(Blah2, {
+        key: (props) => props.id,
+        value: (props) => props.value,
+        cacheBounds: true
+      })
+
+      const r1 = $(<Thing1 value="Greg" />).render(true)
+      r1.text().should.eql('hi Greg ')
+      r1[0].selectItem(true)
+      r1.text().should.eql('hi Greg selected')
+      r1.unmount()
+
+      const r2 = $(<Thing2 value="Hyeyung" />).render(true)
+      r2.text().should.eql('hi Hyeyung ')
+      r2[0].selectItem(true)
+      r2.text().should.eql('hi Hyeyung selected')
+      r2.unmount()
+    })
   })
 
   describe("registration", () => {
