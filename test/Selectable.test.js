@@ -54,6 +54,7 @@ describe("Selectable", () => {
 
       nextstuff.find('p').text().should.eql('hi Greg ')
       stuff.unmount()
+      nextstuff.unmount()
     })
 
     it("should make a reffable component from a stateless functional component", () => {
@@ -112,7 +113,7 @@ describe("Selectable", () => {
   })
 
   describe("selection", () => {
-    it.only("should set the selected prop when selected", () => {
+    it("should set the selected prop when selected", () => {
       const Thing1 = Selectable(Blah, {
         key: (props) => props.id,
         value: (props) => props.value,
@@ -139,9 +140,88 @@ describe("Selectable", () => {
   })
 
   describe("registration", () => {
-    it("should call registerSelectable on context.selectionManager")
-    it("should call options.key, options.value")
-    it("should set up unregistration on unmount")
-    it("should call unregistration on unmount")
+    class Foo extends React.Component {
+      static childContextTypes = {
+        selectionManager: PropTypes.object
+      }
+
+      constructor(props) {
+        super(props)
+        this.selectionManager = {
+          registerSelectable: sinon.spy(),
+          unregisterSelectable: sinon.spy()
+        }
+      }
+
+      getChildContext() {
+        return {
+          selectionManager: this.selectionManager
+        }
+      }
+
+      render() {
+        return <div>{this.props.children}</div>
+      }
+    }
+    it("should call registerSelectable on context.selectionManager", () => {
+      const Thing1 = Selectable(Blah, {
+        key: (props) => props.id,
+        value: (props) => props.value,
+        cacheBounds: true
+      })
+
+      const thing = $(<Foo><Thing1 value="Greg" id={1} /></Foo>).render(true)
+
+      expect(thing[0].selectionManager.registerSelectable.called).to.be.true
+      thing.unmount()
+    })
+    it("should call options.key, options.value", () => {
+      const spy1 = sinon.spy()
+      const spy2 = sinon.spy()
+      const Thing1 = Selectable(Blah, {
+        key: (props) => {
+          spy1()
+          return props.id
+        },
+        value: (props) => {
+          spy2()
+          return props.value
+        },
+        cacheBounds: true
+      })
+
+      const thing = $(<Foo><Thing1 value="Greg" id={1} /></Foo>).render(true)
+
+      expect(spy1.called).to.be.true
+      expect(spy2.called).to.be.true
+      thing.unmount()
+    })
+    it("should set up unregistration on unmount", () => {
+      const Thing1 = Selectable(Blah, {
+        key: (props) => props.id,
+        value: (props) => props.value,
+        cacheBounds: true
+      })
+
+      const thing = $(<Foo><Thing1 value="Greg" id={1} /></Foo>).render(true)
+      expect(thing[0].selectionManager.unregisterSelectable.called).to.be.false
+      thing.find(Thing1)[0].componentWillUnmount()
+      expect(thing[0].selectionManager.unregisterSelectable.called).to.be.true
+
+      thing.unmount()
+    })
+    it("should call unregistration on unmount", () => {
+      const Thing1 = Selectable(Blah, {
+        key: (props) => props.id,
+        value: (props) => props.value,
+        cacheBounds: true
+      })
+
+      const thing = $(<Foo><Thing1 value="Greg" id={1} /></Foo>).render(true)
+
+      expect(thing[0].selectionManager.unregisterSelectable.called).to.be.false
+      thing.unmount()
+      expect(thing[0].selectionManager.unregisterSelectable.called).to.be.true
+    })
   })
 })
