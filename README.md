@@ -1,4 +1,4 @@
-# react-selection [![Build Status](https://travis-ci.org/cellog/react-selection.svg)](https://travis-ci.org/cellog/react-selection) [![npm version](https://badge.fury.io/js/react-selection.svg)](http://badge.fury.io/js/react-selection)
+# react-selection [![Build Status](https://travis-ci.org/cellog/react-selection.svg)](https://travis-ci.org/cellog/react-selection) [![npm version](https://badge.fury.io/js/react-selection-hoc.svg)](http://badge.fury.io/js/react-selection-hoc)
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/cellog.svg)](https://saucelabs.com/u/cellog)
 
