@@ -141,6 +141,10 @@ describe("Selectable", () => {
 
   describe("registration", () => {
     class Foo extends React.Component {
+      static propTypes = {
+        children: PropTypes.any
+      }
+
       static childContextTypes = {
         selectionManager: PropTypes.object
       }

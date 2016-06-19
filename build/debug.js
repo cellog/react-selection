@@ -16,6 +16,29 @@ var Debug = function () {
   }
 
   _createClass(Debug, null, [{
+    key: 'log',
+    value: function log() {
+      for (var _len = arguments.length, props = Array(_len), _key = 0; _key < _len; _key++) {
+        props[_key] = arguments[_key];
+      }
+
+      Function.prototype.bind.call(console.log, console).apply(console, props); /* eslint no-console: 0 */
+    }
+  }, {
+    key: 'DOMFlush',
+    value: function DOMFlush(id) {
+      var tmp = 0;
+      // flush the DOM in IE
+      // (http://stackoverflow.com/questions/1397478/forcing-a-dom-refresh-in-internet-explorer-after-javascript-dom-manipulation)
+      var elementOnShow = document.getElementById(id);
+      if (navigator.appName === 'Microsoft Internet Explorer') {
+        tmp = elementOnShow.parentNode.offsetTop + 'px';
+      } else {
+        tmp = elementOnShow.offsetTop;
+      }
+      return tmp; // dummy value, only here to fool eslint
+    }
+  }, {
     key: 'debug',
     value: function debug(_ref) {
       var _ref$bounds = _ref.bounds;
@@ -30,10 +53,10 @@ var Debug = function () {
       var collisions = _ref$collisions === undefined ? false : _ref$collisions;
 
       if (bounds || clicks || selection || registration || collisions) {
-        var props = { bounds: bounds, clicks: clicks, selection: selection, registration: registration, collisions: collisions };
+        var _props = { bounds: bounds, clicks: clicks, selection: selection, registration: registration, collisions: collisions };
         Debug.DEBUGGING = _extends({
           debug: true
-        }, props);
+        }, _props);
       } else {
         Debug.DEBUGGING.debug = false;
       }
@@ -60,14 +83,14 @@ var Debug = function () {
         var _getBoundsForNode2$bo = _getBoundsForNode2.bottom;
         var bBottom = _getBoundsForNode2$bo === undefined ? bTop : _getBoundsForNode2$bo;
 
-        console.log('collide ' + key + ': ', getBoundsForNode(nodeA), getBoundsForNode(nodeB));
+        Debug.log('collide ' + key + ': ', getBoundsForNode(nodeA), getBoundsForNode(nodeB));
         if (Debug.DEBUGGING.collisions) {
-          console.log('a bottom < b top', aBottom - tolerance < bTop);
-          console.log('a top > b bottom', aTop + tolerance > bBottom);
-          console.log('a right < b left', aBottom - tolerance < bTop);
-          console.log('a left > b right', aLeft + tolerance > bRight);
+          Debug.log('a bottom < b top', aBottom - tolerance < bTop);
+          Debug.log('a top > b bottom', aTop + tolerance > bBottom);
+          Debug.log('a right < b left', aBottom - tolerance < bTop);
+          Debug.log('a left > b right', aLeft + tolerance > bRight);
         }
-        console.log(!(
+        Debug.log(!(
         // 'a' bottom doesn't touch 'b' top
         aBottom - tolerance < bTop ||
         // 'a' top doesn't touch 'b' bottom

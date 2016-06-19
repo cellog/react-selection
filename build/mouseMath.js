@@ -110,12 +110,15 @@ var mouseMath = function () {
         throw new Error('direction must be one of top or left, was "' + dir + '"');
       }
       var offsetname = dir === 'left' ? 'pageXOffset' : 'pageYOffset';
+      var backup = dir === 'left' ? win.document.body.scrollLeft : win.document.body.scrollTop;
       var offset = win[offsetname] ? win[offsetname] : 0;
+      if (!offset) offset = 0;
       var parentoffset = 0;
       if (!useLocal && win.parent && win.parent.window) {
         parentoffset = win.parent.window[offsetname];
       }
-      return Math.max(offset, parentoffset, 0);
+      if (!parentoffset) parentoffset = 0;
+      return Math.max(backup, offset, parentoffset, 0);
     }
 
     /**
@@ -127,13 +130,14 @@ var mouseMath = function () {
   }, {
     key: 'getBoundsForNode',
     value: function getBoundsForNode(node) {
-      var pageOffset = arguments.length <= 1 || arguments[1] === undefined ? mouseMath.pageOffset : arguments[1];
+      var win = arguments.length <= 1 || arguments[1] === undefined ? window : arguments[1];
+      var pageOffset = arguments.length <= 2 || arguments[2] === undefined ? mouseMath.pageOffset : arguments[2];
 
       if (!node.getBoundingClientRect) return node;
 
       var rect = node.getBoundingClientRect();
-      var left = rect.left + pageOffset('left', iOS);
-      var top = rect.top + pageOffset('top', iOS);
+      var left = rect.left + pageOffset('left', iOS, win);
+      var top = rect.top + pageOffset('top', iOS, win);
 
       return {
         top: top,

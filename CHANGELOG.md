@@ -1,7 +1,13 @@
-0.3.0 / 2016-??-??
+0.3.0 / 2016-06-19
 ==================
 - remove IE9 support.  React crashes on setting state in a Selectable component.
   This is unfixable.
+- fully unit test every line of code
+- verify all assumptions about browser-specific behavior in regards to bounds,
+  events (mouse and touch)
+- add support for stateless functional components
+- remove any addition of <div>s to the DOM, so CSS and structure is not broken
+- split off selection and input handling from the main code.  Modular=maintainable
 
 0.2.0 / 2016-06-14
 ==================
