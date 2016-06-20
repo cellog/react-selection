@@ -1,6 +1,7 @@
+import { findDOMNode } from 'react-dom'
+
 import mouseMath from './mouseMath.js'
 import Debug from './debug.js'
-import { findDOMNode } from 'react-dom'
 
 export default class SelectionManager {
   constructor(notify, props) {
@@ -65,7 +66,7 @@ export default class SelectionManager {
   saveNode(changedNodes, node, bounds, selectionRectangle) {
     if (this.selectedNodes[node.key] !== undefined) return
     if (this.firstNode !== null) {
-      if (![...this.firstNode.types].reduce((last, type) => last || node.types.has(type), false)) {
+      if (!this.firstNode.types.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {
         return
       }
     }

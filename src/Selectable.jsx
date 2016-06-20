@@ -36,7 +36,7 @@ function Selectable(Component, options) {
       const key = options.key(this.props)
       this.context.selectionManager.registerSelectable(this, {
         key: key,
-        types: options.types ? options.types : new Set(['default']),
+        types: options.types ? new options.types : ['default'],
         value: options.value(this.props),
         callback: this.selectItem,
         cacheBounds: options.cacheBounds

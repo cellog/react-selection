@@ -1,4 +1,5 @@
 import 'should'
+
 import SelectionManager from '../src/SelectionManager.js'
 
 describe("SelectionManager", function() {
@@ -106,7 +107,7 @@ describe("SelectionManager", function() {
       manager.registerSelectable(thing, {
         key: 'hi',
         value: 4,
-        types: new Set(['default']),
+        types: ['default'],
         callback,
         cacheBounds: true
       }, math, findit)
@@ -115,7 +116,7 @@ describe("SelectionManager", function() {
         component: thing,
         value: 4,
         key: 'hi',
-        types: new Set(['default']),
+        types: ['default'],
         callback,
         bounds: 'foobar'
       }])
@@ -129,21 +130,21 @@ describe("SelectionManager", function() {
       manager.registerSelectable(thing1, {
         key: 'hi',
         value: 4,
-        types: new Set(['default']),
+        types: ['default'],
         callback,
         cacheBounds: false
       })
       manager.registerSelectable(thing2, {
         key: 'hi2',
         value: 4,
-        types: new Set(['default']),
+        types: ['default'],
         callback,
         cacheBounds: false
       })
       manager.registerSelectable(thing3, {
         key: 'hi3',
         value: 4,
-        types: new Set(['default']),
+        types: ['default'],
         callback,
         cacheBounds: false
       })
@@ -155,7 +156,7 @@ describe("SelectionManager", function() {
           component: thing1,
           value: 4,
           key: 'hi',
-          types: new Set(['default']),
+          types: ['default'],
           callback,
           bounds: null
         },
@@ -163,7 +164,7 @@ describe("SelectionManager", function() {
           component: thing2,
           value: 4,
           key: 'hi2',
-          types: new Set(['default']),
+          types: ['default'],
           callback,
           bounds: null
         },
@@ -171,7 +172,7 @@ describe("SelectionManager", function() {
           component: thing3,
           value: 4,
           key: 'hi3',
-          types: new Set(['default']),
+          types: ['default'],
           callback,
           bounds: null
         }
@@ -407,27 +408,27 @@ describe("SelectionManager", function() {
       node1 = {
         component: 1,
         key: 1,
-        types: new Set(['default']),
+        types: ['default'],
         bounds: false,
         callback: sinon.spy()
       }
       node2 = {
         component: 2,
-        types: new Set(['default']),
+        types: ['default'],
         key: 2,
         bounds: false,
         callback: sinon.spy()
       }
       node3 = {
         component: 3,
-        types: new Set(['default']),
+        types: ['default'],
         key: 3,
         bounds: false,
         callback: sinon.spy()
       }
       node4 = {
         component: 4,
-        types: new Set(['default']),
+        types: ['default'],
         key: 4,
         bounds: false,
         callback: sinon.spy()
@@ -517,27 +518,27 @@ describe("SelectionManager", function() {
       node1 = {
         component: 1,
         key: 1,
-        types: new Set(['default', 'second']),
+        types: ['default', 'second'],
         bounds: false,
         callback: sinon.spy()
       }
       node2 = {
         component: 2,
-        types: new Set(['third']),
+        types: ['third'],
         key: 2,
         bounds: false,
         callback: sinon.spy()
       }
       node3 = {
         component: 3,
-        types: new Set(['default', 'third']),
+        types: ['default', 'third'],
         key: 3,
         bounds: false,
         callback: sinon.spy()
       }
       node4 = {
         component: 4,
-        types: new Set(['second', 'fourth']),
+        types: ['second', 'fourth'],
         key: 4,
         bounds: false,
         callback: sinon.spy()
