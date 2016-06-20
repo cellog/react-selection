@@ -6,6 +6,7 @@ import Debug from './debug.js'
 export default class SelectionManager {
   constructor(notify, props) {
     this.clickTolerance = props.clickTolerance
+    this.selecting = false
     this.selectables = {}
     this.selectableKeys = []
     this.sortedNodes = []
@@ -163,5 +164,17 @@ export default class SelectionManager {
       this.firstNode = null
       this.notify.updateState(false, {}, {}, [], [])
     }
+  }
+
+  begin() {
+    this.selecting = true
+  }
+
+  commit() {
+    this.selecting = false
+  }
+
+  isSelecting() {
+    return this.selecting
   }
 }

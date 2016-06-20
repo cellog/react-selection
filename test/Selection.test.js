@@ -216,6 +216,7 @@ describe("Selection", () => {
       const selectable2 = children[1]
       const selectable3 = children[2]
 
+      component.selectionManager.selecting = true
       component.updateState(null, {
         3: {node: selectable3},
         1: {node: selectable1},

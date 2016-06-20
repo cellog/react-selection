@@ -91,7 +91,7 @@ function makeSelectable( Component, options = {}) {
         selectedValueList: valuelist,
         containerBounds: this.bounds
       })
-      if (this.props.onSelectSlot && this.props.constantSelect) {
+      if (this.props.onSelectSlot && this.props.constantSelect && this.selectionManager.isSelecting()) {
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
           Debug.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, this.bounds)
         }
@@ -145,13 +145,16 @@ function makeSelectable( Component, options = {}) {
       this.bounds = bounds
       this.mouseDownData = mouseDownData
       if (this.props.constantSelect) {
+        this.selectionManager.begin()
         this.selectionManager.select(selectionRectangle, this.state, this.props)
       } else {
         this.selectionManager.deselect(this.state)
+        this.selectionManager.begin()
       }
     }
 
     cancel() {
+      this.selectionManager.commit()
       this.selectionManager.deselect(this.state)
       this.propagateFinishedSelect()
       this.setState({ selecting: false })
@@ -160,11 +163,13 @@ function makeSelectable( Component, options = {}) {
     end(e, mouseDownData, selectionRectangle) {
       if (this.props.constantSelect && !this.props.preserveSelection) {
         this.propagateFinishedSelect()
+        this.selectionManager.commit()
         this.selectionManager.deselect(this.state)
         return
       }
       this.selectionManager.select(selectionRectangle, this.state, this.props)
       this.propagateFinishedSelect()
+      this.selectionManager.commit()
     }
 
     change(selectionRectangle) {
