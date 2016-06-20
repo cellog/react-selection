@@ -1,6 +1,8 @@
 0.4.0 / 2016-??-??
 ==================
+- fix #9: onSelectSlot called after selection finished and onFinishSelect already called
 - implement #7: by default, sort selectable items by DOM order
+- implement #3: add selectable types
 
 0.3.0 / 2016-06-19
 ==================
