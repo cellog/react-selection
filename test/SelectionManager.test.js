@@ -293,7 +293,12 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: false
       }
-      manager.walkNodes({sub: [1, 2, 4], x: 1, y: 1, left: 1, top: 1}, indices, changedNodes, props, findit, mouse, node, 1)
+      manager.walkNodes({
+        selectionRectangle: {sub: [1, 2, 4], x: 1, y: 1, left: 1, top: 1},
+        selectedIndices: indices,
+        changedNodes,
+        props, findit, mouse
+      }, node, 1)
 
       indices.should.have.length(1)
       indices[0].should.equal(1)
@@ -318,7 +323,11 @@ describe("SelectionManager", function() {
           return rect.sub.indexOf(bounds) !== -1
         }
       }
-      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 4, y: 5, top: 5 }, indices, changedNodes, props, findit, mouse, node, 1)
+      manager.walkNodes({
+        selectionRectangle: {sub: [1, 2, 4], x: 4, left: 4, y: 5, top: 5},
+        selectedIndices: indices,
+        changedNodes, props, findit, mouse
+      }, node, 1)
 
       indices.should.have.length(2)
       indices[0].should.equal(1)
@@ -344,7 +353,14 @@ describe("SelectionManager", function() {
           return rect.sub.indexOf(bounds) !== -1
         }
       }
-      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 2, y: 5, top: 6 }, indices, changedNodes, props, findit, mouse, node, 1)
+      manager.walkNodes({
+        selectionRectangle: {sub: [1, 2, 4], x: 4, left: 2, y: 5, top: 6},
+        selectedIndices: indices,
+        changedNodes,
+        props,
+        findit,
+        mouse
+      }, node, 1)
 
       indices.should.have.length(2)
       indices[1].should.equal(1)
@@ -366,8 +382,22 @@ describe("SelectionManager", function() {
       manager.selectedValues[2] = {}
       manager.selectedNodeList = [manager.selectedNodes[2]]
       manager.selectedValueList = [manager.selectedValues[2]]
-      manager.walkNodes(rect, indices, changedNodes, {}, findit, mouse, node, 3)
-      manager.walkNodes(rect, indices, changedNodes, {}, findit, mouse, node, 5) // test that it ignores non-selected values
+      manager.walkNodes({
+        selectionRectangle: rect,
+        selectedIndices: indices,
+        changedNodes,
+        props: {},
+        findit,
+        mouse
+      }, node, 3)
+      manager.walkNodes({
+        selectionRectangle: rect,
+        selectedIndices: indices,
+        changedNodes,
+        props: {},
+        findit,
+        mouse
+      }, node, 5) // test that it ignores non-selected values
 
       indices.should.have.length(0)
 
@@ -439,13 +469,15 @@ describe("SelectionManager", function() {
     })
 
     it("should select 3 values when within the rectangle", () => {
-      manager.select({sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2},
-        {
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2},
+        currentState: {
           selectedNodes: {},
           selectedValues: {},
           selectedNodeList: [],
           selectedValueList: []
-        }, props, findit, mouse)
+        }, props
+      }, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(2)
@@ -466,12 +498,15 @@ describe("SelectionManager", function() {
     it("should select 4 values with selectIntermediates", () => {
       props.selectIntermediates = true
 
-      manager.select({sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(2)
@@ -549,51 +584,66 @@ describe("SelectionManager", function() {
     })
 
     it("should register the types of the first node selected (#1)", () => {
-      manager.select({sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       expect(manager.firstNode).equal(node1)
 
-      manager.select({sub: [2, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [2, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
       expect(manager.firstNode).equal(node1)
     })
 
     it("should register the types of the first node selected (#1)", () => {
-      manager.select({sub: [2, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [2, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       expect(manager.firstNode).equal(node2)
 
-      manager.select({sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       expect(manager.firstNode).equal(node2)
     })
 
     it("should select nodes that are the same type as the first selected node only (#1)", () => {
-      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(3)
@@ -606,50 +656,66 @@ describe("SelectionManager", function() {
         ...props,
         acceptedTypes: ['third']
       }
-      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, myprops, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        },
+        props: myprops
+      }, findit, mouse)
 
       manager.selectedNodes.should.have.property(2)
       manager.selectedNodes.should.have.property(3)
     })
 
     it("should select nodes that are the same type as the first selected node only (#2)", () => {
-      manager.select({sub: [2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
-      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       manager.selectedNodes.should.have.property(2)
       manager.selectedNodes.should.have.property(3)
     })
 
     it("should select nodes that are the same type as the first selected node only (#3)", () => {
-      manager.select({sub: [3, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
-      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(2)
@@ -657,19 +723,25 @@ describe("SelectionManager", function() {
     })
 
     it("should select nodes that are the same type as the first selected node only (#4)", () => {
-      manager.select({sub: [4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
-      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
-        selectedNodes: {},
-        selectedValues: {},
-        selectedNodeList: [],
-        selectedValueList: []
-      }, props, findit, mouse)
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
 
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(4)

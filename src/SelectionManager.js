@@ -95,7 +95,7 @@ export default class SelectionManager {
     changedNodes.push([true, node])
   }
 
-  walkNodes(selectionRectangle, selectedIndices, changedNodes, props, findit, mouse, node, idx) {
+  walkNodes({ selectionRectangle, selectedIndices, changedNodes, props, findit, mouse }, node, idx) {
     const domnode = findit(node.component)
     const key = node.key
     const bounds = node.bounds ? node.bounds : mouse.getBoundsForNode(domnode)
@@ -122,7 +122,7 @@ export default class SelectionManager {
     this.saveNode(changedNodes, node, bounds, selectionRectangle, props)
   }
 
-  select(selectionRectangle, currentState, props, findit = findDOMNode, mouse = mouseMath) {
+  select({ selectionRectangle, currentState, props }, findit = findDOMNode, mouse = mouseMath) {
     this.selectedNodes = currentState.selectedNodes
     this.selectedValues = currentState.selectedValues
     this.selectedNodeList = currentState.selectedNodeList
@@ -130,7 +130,7 @@ export default class SelectionManager {
     const changedNodes = []
     const selectedIndices = []
 
-    this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes, props, findit, mouse), this)
+    this.sortedNodes.forEach(this.walkNodes.bind(this, { selectionRectangle, selectedIndices, changedNodes, props, findit, mouse }), this)
 
     if (props.selectIntermediates) {
       const min = Math.min(...selectedIndices)
