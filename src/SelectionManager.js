@@ -53,8 +53,9 @@ export default class SelectionManager {
     if (this.selectedNodes[key]) {
       const nodes = this.selectedNodes
       const values = this.selectedValues
-      const nodelist = this.selectedNodeList.filter(node => node === nodes[key])
-      const valuelist = this.selectedValueList.filter(value => value === values[key])
+      const nodeindex = this.selectedNodeList.indexOf(nodes[key])
+      const nodelist = this.selectedNodeList.splice(nodeindex, 1)
+      const valuelist = this.selectedValueList.splice(nodeindex, 1)
       delete nodes[key]
       delete values[key]
       this.notify.updateState(null, nodes, values, nodelist, valuelist)
