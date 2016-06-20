@@ -12,19 +12,37 @@ export default class SelectionManager {
     this.selectedValues = {}
     this.selectedNodeList = []
     this.selectedValueList = []
+    this.indexMap = {}
     this.notify = notify
   }
 
-  registerSelectable(component, key, value, callback, cacheBounds, mouse = mouseMath, findit = findDOMNode) {
+  changeType(key, types) {
+    this.selectables[key].types = types
+    this.sortedNodes[this.indexMap[key]].types = types
+  }
+
+  changeSelectable(key, selectable) {
+    this.selectables[key].selectable = selectable
+    this.sortedNodes[this.indexMap[key]].selectable = selectable
+  }
+
+  registerSelectable(component, { key, value, types, selectable, callback, cacheBounds },
+                     mouse = mouseMath, findit = findDOMNode) {
     const bounds = cacheBounds ? mouse.getBoundsForNode(findit(component)) : null
-    if (!this.selectables.hasOwnProperty(key)) {
+    const info = { component, key, value, types, callback, bounds }
+    if (this.selectables.hasOwnProperty(key)) {
+      // this allows us to dynamically update a component if it changes
+      // its type, or its value
+      this.sortedNodes[this.indexMap[key]] = info
+    } else {
       this.selectableKeys.push(key)
-      this.sortedNodes.push({ component, key, value, callback, bounds } )
+      this.indexMap[key] = this.sortedNodes.length
+      this.sortedNodes.push(info)
     }
     if (Debug.DEBUGGING.debug && Debug.DEBUGGING.registration) {
       Debug.log(`registered: ${key}`, value)
     }
-    this.selectables[key] = { component, value, callback, bounds }
+    this.selectables[key] = info
   }
 
   unregisterSelectable(component, key) {
@@ -109,7 +127,7 @@ export default class SelectionManager {
     }
     if (changedNodes.length) {
       changedNodes.forEach((item) => {
-        item[1].callback(item[0], this.selectedNodes, this.selectedValues)
+        item[1].callback(item[0])
       })
       this.notify.updateState(null,
         this.selectedNodes,
@@ -124,7 +142,7 @@ export default class SelectionManager {
     let changed = false
     Object.keys(currentState.selectedNodes).forEach((key) => {
       changed = true
-      this.selectables[key].callback(false, {}, {})
+      this.selectables[key].callback(false)
     })
     if (changed) {
       this.selectedNodes = {}

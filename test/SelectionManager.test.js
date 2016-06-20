@@ -31,43 +31,66 @@ describe("SelectionManager", function() {
     it("should add the component to our lists, no bounds cached", () => {
       const thing = {}
       const callback = () => null
-      manager.registerSelectable(thing, 'hi', 4, callback, false)
+      manager.registerSelectable(thing, {
+        key: 'hi',
+        value: 4,
+        callback,
+        types: { default: 1},
+        cacheBounds: false
+      })
       manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
         value: 4,
         key: 'hi',
+        types: { default: 1},
         callback,
         bounds: null
       }], 'sortedNodes')
       manager.selectables.should.have.property('hi')
       manager.selectables.hi.should.eql({
         component: thing,
+        key: 'hi',
         value: 4,
+        types: { default: 1},
         callback,
         bounds: null
       }, 'selectables')
     })
 
-    it("should not add a duplicate", () => {
+    it("should replace an element if duplicate key specified", () => {
       const thing = {}
       const callback = () => null
-      manager.registerSelectable(thing, 'hi', 4, callback, false)
+      manager.registerSelectable(thing, {
+        key: 'hi',
+        value: 4,
+        callback,
+        types: { default: 1},
+        cacheBounds: false
+      })
       manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
         value: 4,
         key: 'hi',
+        types: { default: 1},
         callback,
         bounds: null
       }])
 
-      manager.registerSelectable(thing, 'hi', 4, callback, false)
+      manager.registerSelectable(thing, {
+        key: 'hi',
+        value: 5,
+        callback,
+        types: { default: 1},
+        cacheBounds: false
+      })
       manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
-        value: 4,
+        value: 5,
         key: 'hi',
+        types: { default: 1},
         callback,
         bounds: null
       }])
@@ -80,13 +103,19 @@ describe("SelectionManager", function() {
         getBoundsForNode() { return 'foobar' }
       }
       const findit = () => null
-
-      manager.registerSelectable(thing, 'hi', 4, callback, true, math, findit)
+      manager.registerSelectable(thing, {
+        key: 'hi',
+        value: 4,
+        types: { default: 1 },
+        callback,
+        cacheBounds: true
+      }, math, findit)
       manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
         value: 4,
         key: 'hi',
+        types: { default: 1 },
         callback,
         bounds: 'foobar'
       }])
@@ -97,16 +126,36 @@ describe("SelectionManager", function() {
       const thing2 = {}
       const thing3 = {}
       const callback = () => null
-      manager.registerSelectable(thing1, 'hi', 4, callback, false)
-      manager.registerSelectable(thing2, 'hi2', 4, callback, false)
-      manager.registerSelectable(thing3, 'hi3', 4, callback, false)
+      manager.registerSelectable(thing1, {
+        key: 'hi',
+        value: 4,
+        types: { default: 1 },
+        callback,
+        cacheBounds: false
+      })
+      manager.registerSelectable(thing2, {
+        key: 'hi2',
+        value: 4,
+        types: { default: 1 },
+        callback,
+        cacheBounds: false
+      })
+      manager.registerSelectable(thing3, {
+        key: 'hi3',
+        value: 4,
+        types: { default: 1 },
+        callback,
+        cacheBounds: false
+      })
 
       manager.selectableKeys.should.eql(['hi', 'hi2', 'hi3'])
+      manager.indexMap.should.eql({ hi: 0, hi2: 1, hi3: 2 })
       manager.sortedNodes.should.eql([
         {
           component: thing1,
           value: 4,
           key: 'hi',
+          types: { default: 1 },
           callback,
           bounds: null
         },
@@ -114,6 +163,7 @@ describe("SelectionManager", function() {
           component: thing2,
           value: 4,
           key: 'hi2',
+          types: { default: 1 },
           callback,
           bounds: null
         },
@@ -121,6 +171,7 @@ describe("SelectionManager", function() {
           component: thing3,
           value: 4,
           key: 'hi3',
+          types: { default: 1 },
           callback,
           bounds: null
         }
@@ -140,7 +191,12 @@ describe("SelectionManager", function() {
     const callback = () => null
     beforeEach(() => {
       manager = new SelectionManager(notify, props)
-      manager.registerSelectable(thing, 'hi', 4, callback, false)
+      manager.registerSelectable(thing, {
+        key: 'hi',
+        value: 4,
+        callback,
+        cacheBounds: false
+      })
     })
 
     it("should remove an existing item", () => {

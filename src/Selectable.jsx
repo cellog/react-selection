@@ -34,11 +34,13 @@ function Selectable(Component, options) {
     componentDidMount() {
       if (!this.context || !this.context.selectionManager) return
       const key = options.key(this.props)
-      this.context.selectionManager.registerSelectable(this,
-        key,
-        options.value(this.props),
-        this.selectItem,
-        options.cacheBounds)
+      this.context.selectionManager.registerSelectable(this, {
+        key: key,
+        types: options.types ? options.types : { default: 1 },
+        value: options.value(this.props),
+        callback: this.selectItem,
+        cacheBounds: options.cacheBounds
+      })
       unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key)
     }
 
