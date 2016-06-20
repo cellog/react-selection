@@ -26,7 +26,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -50,7 +52,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -91,7 +95,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -112,7 +118,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -137,7 +145,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: false
+          selectionOptions: {
+            selectable: false
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -157,7 +167,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -186,7 +198,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
     })
@@ -235,7 +249,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
     })
@@ -302,7 +318,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -324,7 +342,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -347,7 +367,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -378,7 +400,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -425,7 +449,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -468,7 +494,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -496,7 +524,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -516,7 +546,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -547,7 +579,9 @@ describe("InputManager", function() {
         },
         props: {
           clickTolerance: 2,
-          selectable: true
+          selectionOptions: {
+            selectable: true
+          }
         }
       }
       const manager = new InputManager(me, notify, me, findit, mouse)
@@ -568,7 +602,7 @@ describe("InputManager", function() {
                ref={(ref) => {
                  if (ref) {
                    manager = new InputManager(ref,
-                    notify, {props: { clickTolerance: 2, selectable: true } })
+                    notify, {props: { clickTolerance: 2, selectionOptions: { selectable: true } } })
                  }
                  this.ref = ref
                }}

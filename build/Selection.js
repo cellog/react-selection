@@ -101,7 +101,7 @@ function makeSelectable(Component) {
           selectedValues: newvalues,
           containerBounds: this.bounds
         });
-        if (this.props.onSelectSlot && this.props.constantSelect) {
+        if (this.props.selectionCallbacks.onSelectItem && this.props.selectionOptions.constant) {
           (function () {
             var nodelist = Object.keys(newnodes).map(function (key) {
               return newnodes[key];
@@ -112,7 +112,7 @@ function makeSelectable(Component) {
               return newvalues[key];
             }).sort(sorter);
             if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-              _debug2.default.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, _this2.bounds);
+              _debug2.default.log('updatestate onSelectItem', values, nodes, valuelist, nodelist, _this2.bounds);
             }
             if (_this2.props.onSelectSlot) {
               _this2.props.onSelectSlot(values, function () {
@@ -127,7 +127,7 @@ function makeSelectable(Component) {
     }, {
       key: 'propagateFinishedSelect',
       value: function propagateFinishedSelect() {
-        if (!this.props.onFinishSelect) return;
+        if (!this.props.selectionCallbacks.onFinishSelect) return;
         var newnodes = this.state.selectedNodes;
         var newvalues = this.state.selectedValues;
         var nodelist = Object.keys(newnodes).map(function (key) {
@@ -181,7 +181,7 @@ function makeSelectable(Component) {
       value: function start(bounds, mouseDownData, selectionRectangle) {
         this.bounds = bounds;
         this.mouseDownData = mouseDownData;
-        if (this.props.constantSelect) {
+        if (this.props.selectionOptions.constant) {
           this.selectionManager.select(selectionRectangle, this.state, this.props);
         } else {
           this.selectionManager.deselect(this.state);
@@ -197,7 +197,7 @@ function makeSelectable(Component) {
     }, {
       key: 'end',
       value: function end(e, mouseDownData, selectionRectangle) {
-        if (this.props.constantSelect && !this.props.preserveSelection) {
+        if (this.props.selectionOptions.constant && !this.props.selectionOptions.preserve) {
           this.propagateFinishedSelect();
           this.selectionManager.deselect(this.state);
           return;
@@ -214,7 +214,7 @@ function makeSelectable(Component) {
           this.setState({ selecting: true });
         }
 
-        if (this.props.constantSelect) {
+        if (this.props.selectionOptions.constantSelect) {
           this.selectionManager.select(selectionRectangle, this.state, this.props);
         }
       }

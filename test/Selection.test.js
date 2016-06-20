@@ -200,10 +200,12 @@ describe("Selection", () => {
       })
     })
 
-    it("should call onSelectSlot if constantSelect is enabled", () => {
+    it("should call onSelectItem if selectionOptions.constant is enabled", () => {
       const spy = sinon.spy()
       stuff = $((
-        <Thing selectable constantSelect onSelectSlot={spy}>
+        <Thing selectionOptions={{ selectable: true, constant: true }} selectionCallbacks={{
+          onSelectItem: spy
+        }}>
           <SelectableChild value="hi" key={1} />
           <SelectableChild value="hi2" key={2} />
           <SelectableChild value="hi3" key={3} />
@@ -256,10 +258,12 @@ describe("Selection", () => {
       ])
       expect(spy.args[0][4]).to.eql({hi: 'hi'})
     })
-    it("should not call onSelectSlot if constantSelection is disabled", () => {
+    it("should not call onSelectItem if selectionOptions.constant is disabled", () => {
       const spy = sinon.spy()
       stuff = $((
-        <Thing selectable onSelectSlot={spy}>
+        <Thing selectionOptions={{selectable: true}} selectionCallbacks={{
+          onSelectItem: spy
+        }}>
           <SelectableChild value="hi" key={1} />
           <SelectableChild value="hi2" key={2} />
           <SelectableChild value="hi3" key={3} />
@@ -298,7 +302,8 @@ describe("Selection", () => {
     beforeEach(() => {
       spy = sinon.spy()
       stuff = $((
-        <Thing selectable constantSelect onFinishSelect={spy}>
+        <Thing selectionOptions={{ selectable: true, constant: true }}
+               selectionCallbacks={{ onFinishSelect: spy }}>
         <SelectableChild value="hi" key={1}/>
         <SelectableChild value="hi2" key={2}/>
         <SelectableChild value="hi3" key={3}/>
@@ -402,8 +407,8 @@ describe("Selection", () => {
       spy = sinon.spy()
     })
 
-    it("should call select if constantSelect is active", () => {
-      stuff = $(<Thing constantSelect />).render()
+    it("should call select if selectionOptions.constant is active", () => {
+      stuff = $(<Thing selectionOptions={{ constant: true }} />).render()
 
       component = stuff[0]
 
@@ -413,7 +418,7 @@ describe("Selection", () => {
       expect(spy.called).to.be.true
     })
 
-    it("should call deselect if constantSelect is not active", () => {
+    it("should call deselect if selectionOptions.constant is not active", () => {
       stuff = $(<Thing />).render()
 
       component = stuff[0]
@@ -465,8 +470,8 @@ describe("Selection", () => {
   describe("end", () => {
     const Thing = Selection(Blah)
 
-    it("should call propagateFinishedSelect and deselect if constantSelect is on", () => {
-      const stuff = $(<Thing selectable constantSelect />).render()
+    it("should call propagateFinishedSelect and deselect if selectionOptions.constant is on", () => {
+      const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }} />).render()
       const component = stuff[0]
       component.propagateFinishedSelect = sinon.spy()
       component.selectionManager.deselect = sinon.spy()
@@ -475,6 +480,7 @@ describe("Selection", () => {
       expect(component.propagateFinishedSelect.called).to.be.true
       expect(component.selectionManager.deselect.called).to.be.true
     })
+
     it("should select any items in the selection rectangle, and propagateFinishedSelect", () => {
       const stuff = $(<Thing selectable />).render()
       const component = stuff[0]
@@ -502,8 +508,8 @@ describe("Selection", () => {
         selecting: true
       })
     })
-    it("should call select if constantSelect is enabled", () => {
-      const stuff = $(<Thing constantSelect />).render()
+    it("should call select if selectionOptions.constant is enabled", () => {
+      const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }} />).render()
       const component = stuff[0]
       component.selectionManager.select = sinon.spy()
 
@@ -590,10 +596,13 @@ describe("Selection", () => {
 
       component.props.should.eql({
         clickTolerance: 2,
-        constantSelect: false,
-        preserveSelection: false,
-        selectIntermediates: false,
-        selectable: false,
+        selectionOptions: {
+          selectable: false,
+          constant: false,
+          preserve: false,
+          fillInGaps: false
+        },
+        selectionCallbacks: {},
         selectedNodeList: [],
         selectedNodes: {},
         selectedValueList: [],

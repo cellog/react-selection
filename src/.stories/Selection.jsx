@@ -75,9 +75,11 @@ storiesOf('module.Selectable', module)
   .add('selectable, constant select', () => {
     const Sel = Selection(Test)
     return (
-      <Sel constantSelect selectable
-           onFinishSelect={(...props) => console.log('finish', props)}
-           onSelectSlot={(...props) => console.log('slot', props)}
+      <Sel selectionOptions={{ constant: true, selectable: true }}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
       >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
@@ -89,9 +91,11 @@ storiesOf('module.Selectable', module)
   .add('selectable, not constant select', () => {
     const Sel = Selection(Test)
     return (
-      <Sel selectable
-           onFinishSelect={(...props) => console.log('finish', props)}
-           onSelectSlot={(...props) => console.log('slot', props)}
+      <Sel selectionOptions={{selectable: true}}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
       >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
@@ -104,8 +108,10 @@ storiesOf('module.Selectable', module)
     const Sel = Selection(Test)
     return (
       <Sel
-        onFinishSelect={(...props) => console.log('finish', props)}
-        onSelectSlot={(...props) => console.log('slot', props)}
+        selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
       >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
@@ -117,9 +123,11 @@ storiesOf('module.Selectable', module)
   .add('selectable, constant select, preserve selection', () => {
     const Sel = Selection(Test)
     return (
-      <Sel constantSelect selectable preserveSelection
-           onFinishSelect={(...props) => console.log('finish', props)}
-           onSelectSlot={(...props) => console.log('slot', props)}
+      <Sel selectionOptions={{ constant: true, selectable: true, preserve: true }}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
       >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
@@ -131,9 +139,11 @@ storiesOf('module.Selectable', module)
   .add('selectable, not constant select, preserve selection', () => {
     const Sel = Selection(Test)
     return (
-      <Sel selectable preserveSelection
-           onFinishSelect={(...props) => console.log('finish', props)}
-           onSelectSlot={(...props) => console.log('slot', props)}
+      <Sel selectionOptions={{ selectable: true, preserve: true }}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
       >
         <SelectableThing thing="hi" index={1}/>
         <SelectableThing thing="there" index={2} />
@@ -148,9 +158,11 @@ storiesOf('module.Selectable', module)
 
     const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
     return (
-      <Sel selectable constantSelect selectIntermediates
-           onFinishSelect={(...props) => console.log('finish', props)}
-           onSelectSlot={(...props) => console.log('slot', props)}
+      <Sel selectionOptions={{ selectable: true, constant: true, fillInGaps: true }}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
         {things}
       </Sel>
@@ -163,8 +175,10 @@ storiesOf('module.Selectable', module)
 
     const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
     return (
-      <Sel selectable constantSelect
-           onFinishSelect={(...props) => console.log('finish', props)}
+      <Sel selectionOptions={{ selectable: true, constant: true }}
+           selectionCallbacks={{
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
         {things}
       </Sel>
@@ -178,8 +192,10 @@ storiesOf('module.Selectable', module)
 
     const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
     return (
-      <Sel selectable constantSelect
-           onFinishSelect={(...props) => console.log('finish', props)}
+      <Sel selectionOptions={{ selectable: true, constant: true }}
+           selectionCallbacks={{
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
         {things}
       </Sel>

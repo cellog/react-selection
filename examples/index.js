@@ -36,7 +36,7 @@ class Test extends React.Component {
 const Sel = Selection(Test)
 
 ReactDOM.render((
-  <Sel constantSelect selectable>
+  <Sel selectionOptions={{ constant: true, selectable: true }}>
     <SelectableThing thing="hi" index={1}/>
     <SelectableThing thing="there" index={2} />
     <SelectableThing thing="foo" index={3} />
@@ -92,7 +92,7 @@ const things = Array(50).fill(0).map(generateThing)
 const Sel2 = Selection(Test, (a, b) => Number(a) - Number(b))
 
 ReactDOM.render((
-  <Sel2 selectable constantSelect selectIntermediates style={{display: 'flex', flexFlow: 'row wrap', width: '100%'}}>
+  <Sel2 selectionOptions={{ selectable: true, constant: true, fillinGaps: true }} style={{display: 'flex', flexFlow: 'row wrap', width: '100%'}}>
     {things}
   </Sel2>
 ), document.getElementById('example2')
@@ -103,10 +103,12 @@ class Demo extends Component {
     super(props)
 
     this.state = {
-      constantSelect: false,
-      selectable: true,
-      preserveSelection: false,
-      selectIntermediates: false
+      selectionOptions: {
+        constant: false,
+        selectable: true,
+        preserve: false,
+        fillInGaps: false
+      },
     }
   }
 
@@ -115,11 +117,11 @@ class Demo extends Component {
       name = PropTypes.string.isRequired,
       checked = PropTypes.bool.isRequired
     }) => <div><label htmlFor={name}>{name} <input type="checkbox" value={checked} checked={checked} onChange={
-        () => this.setState({ [name]: !this.state[name] })
+        () => this.setState({ selectionOptions: { [name]: !this.state[name] } })
       }/></label></div>
     const ret = []
 
-    for (const name in this.state) {
+    for (const name in this.state.selectionOptions) {
       ret.push(<Checkbox name={name} checked={this.state[name]} />)
     }
     return ret

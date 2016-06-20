@@ -1,5 +1,11 @@
 0.4.0 / 2016-??-??
 ==================
+- BREAKING CHANGE: all selection options are now part of a map, selectionOptions
+- selectIntermediates renamed "fillInGaps"
+- constantSelect renamed "constant"
+- preserveSelection renamed "preserve"
+- BREAKING CHANGE: all selection callbacks are now part of a map, selectionCallback
+- onSelectSlot renamed onSelectItem
 - fix #9: onSelectSlot called after selection finished and onFinishSelect already called
 - implement #7: by default, sort selectable items by DOM order
 - implement #3: add selectable types

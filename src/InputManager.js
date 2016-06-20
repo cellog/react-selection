@@ -52,7 +52,7 @@ export default class InputManager {
     const invalid = e && e.touches && e.touches.length > 1
       || e.which === 3
       || e.button === 2
-      || !this.component.props.selectable
+      || !this.component.props.selectionOptions.selectable
     return !invalid
   }
 

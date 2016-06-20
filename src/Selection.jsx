@@ -37,23 +37,32 @@ function makeSelectable( Component, options = {}) {
 
     static propTypes = {
       clickTolerance: PropTypes.number,
-      constantSelect: PropTypes.bool,
-      selectable: PropTypes.bool,
-      preserveSelection: PropTypes.bool,
-      selectIntermediates: PropTypes.bool,
-      onSelectSlot: PropTypes.func,
-      onFinishSelect: PropTypes.func,
+      selectionOptions: PropTypes.shape({
+        constant: PropTypes.bool,
+        selectable: PropTypes.bool,
+        preserve: PropTypes.bool,
+        fillInGaps: PropTypes.bool,
+        acceptedTypes: PropTypes.array
+      }),
+      selectionCallbacks: PropTypes.shape({
+        onSelectItem: PropTypes.func,
+        onFinishSelect: PropTypes.func,
+        onSelectStart: PropTypes.func
+      }),
       onMouseDown: PropTypes.func,
       onTouchStart: PropTypes.func,
-      acceptedTypes: PropTypes.array
     }
 
     static defaultProps = {
       clickTolerance: 2,
-      constantSelect: false,
-      selectable: false,
-      preserveSelection: false,
-      selectIntermediates: false
+      selectionOptions: {
+        constant: false,
+        selectable: false,
+        preserve: false,
+        fillInGaps: false
+      },
+      selectionCallbacks: {
+      }
     }
 
     static childContextTypes = {
@@ -92,18 +101,18 @@ function makeSelectable( Component, options = {}) {
         selectedValueList: valuelist,
         containerBounds: this.bounds
       })
-      if (this.props.onSelectSlot && this.props.constantSelect && this.selectionManager.isSelecting()) {
+      if (this.props.selectionCallbacks.onSelectItem && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-          Debug.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, this.bounds)
+          Debug.log('updatestate onSelectItem', values, nodes, valuelist, nodelist, this.bounds)
         }
-        if (this.props.onSelectSlot) {
-          this.props.onSelectSlot(values, () => nodes, valuelist, () => nodelist, this.bounds)
+        if (this.props.selectionCallbacks.onSelectItem) {
+          this.props.selectionCallbacks.onSelectItem(values, () => nodes, valuelist, () => nodelist, this.bounds)
         }
       }
     }
 
     propagateFinishedSelect() {
-      if (!this.props.onFinishSelect) return
+      if (!this.props.selectionCallbacks.onFinishSelect) return
       const newnodes = this.state.selectedNodes
       const newvalues = this.state.selectedValues
       const nodelist = this.state.selectedNodeList
@@ -111,7 +120,7 @@ function makeSelectable( Component, options = {}) {
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
         Debug.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds)
       }
-      this.props.onFinishSelect(newvalues, () => newnodes, valuelist, () => nodelist, this.bounds)
+      this.props.selectionCallbacks.onFinishSelect(newvalues, () => newnodes, valuelist, () => nodelist, this.bounds)
     }
 
     getChildContext() {
@@ -145,9 +154,9 @@ function makeSelectable( Component, options = {}) {
     start(bounds, mouseDownData, selectionRectangle) {
       this.bounds = bounds
       this.mouseDownData = mouseDownData
-      if (this.props.constantSelect) {
+      if (this.props.selectionOptions.constant) {
         this.selectionManager.begin()
-        this.selectionManager.select(selectionRectangle, this.state, this.props)
+        this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
       } else {
         this.selectionManager.deselect(this.state)
         this.selectionManager.begin()
@@ -162,13 +171,13 @@ function makeSelectable( Component, options = {}) {
     }
 
     end(e, mouseDownData, selectionRectangle) {
-      if (this.props.constantSelect && !this.props.preserveSelection) {
+      if (this.props.selectionOptions.constant && !this.props.selectionOptions.preserve) {
         this.propagateFinishedSelect()
         this.selectionManager.commit()
         this.selectionManager.deselect(this.state)
         return
       }
-      this.selectionManager.select(selectionRectangle, this.state, this.props)
+      this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
       this.propagateFinishedSelect()
       this.selectionManager.commit()
     }
@@ -180,8 +189,8 @@ function makeSelectable( Component, options = {}) {
         this.setState({selecting: true})
       }
 
-      if (this.props.constantSelect) {
-        this.selectionManager.select(selectionRectangle, this.state, this.props)
+      if (this.props.selectionOptions.constant) {
+        this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
       }
     }
 
