@@ -44,7 +44,8 @@ function makeSelectable( Component, options = {}) {
       onSelectSlot: PropTypes.func,
       onFinishSelect: PropTypes.func,
       onMouseDown: PropTypes.func,
-      onTouchStart: PropTypes.func
+      onTouchStart: PropTypes.func,
+      acceptedTypes: PropTypes.array
     }
 
     static defaultProps = {

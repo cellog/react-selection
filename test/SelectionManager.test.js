@@ -239,7 +239,7 @@ describe("SelectionManager", function() {
       const bounds = {}
       manager.saveNode(changedNodes, thing, bounds, {
         x: 1, left: 1, y: 1, top: 1
-      })
+      }, props)
 
       changedNodes.should.have.length(1)
       changedNodes[0].should.eql([
@@ -257,8 +257,8 @@ describe("SelectionManager", function() {
       const thing = {key: 'hi', component: {}, value: 5}
       const bounds = {}
       const rect = {x: 1, left: 2, y: 1, top: 2}
-      manager.saveNode(changedNodes, thing, bounds, rect)
-      manager.saveNode(changedNodes, thing, bounds, rect)
+      manager.saveNode(changedNodes, thing, bounds, rect, props)
+      manager.saveNode(changedNodes, thing, bounds, rect, props)
 
       changedNodes.should.have.length(1)
     })
@@ -293,7 +293,7 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: false
       }
-      manager.walkNodes({sub: [1, 2, 4], x: 1, y: 1, left: 1, top: 1}, indices, changedNodes, findit, mouse, node, 1)
+      manager.walkNodes({sub: [1, 2, 4], x: 1, y: 1, left: 1, top: 1}, indices, changedNodes, props, findit, mouse, node, 1)
 
       indices.should.have.length(1)
       indices[0].should.equal(1)
@@ -318,7 +318,7 @@ describe("SelectionManager", function() {
           return rect.sub.indexOf(bounds) !== -1
         }
       }
-      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 4, y: 5, top: 5 }, indices, changedNodes, findit, mouse, node, 1)
+      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 4, y: 5, top: 5 }, indices, changedNodes, props, findit, mouse, node, 1)
 
       indices.should.have.length(2)
       indices[0].should.equal(1)
@@ -335,6 +335,7 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: false
       }
+      const props = {}
       const mouse = {
         getBoundsForNode(node) {
           return node
@@ -343,7 +344,7 @@ describe("SelectionManager", function() {
           return rect.sub.indexOf(bounds) !== -1
         }
       }
-      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 2, y: 5, top: 6 }, indices, changedNodes, findit, mouse, node, 1)
+      manager.walkNodes({ sub: [1, 2, 4], x: 4, left: 2, y: 5, top: 6 }, indices, changedNodes, props, findit, mouse, node, 1)
 
       indices.should.have.length(2)
       indices[1].should.equal(1)
@@ -365,8 +366,8 @@ describe("SelectionManager", function() {
       manager.selectedValues[2] = {}
       manager.selectedNodeList = [manager.selectedNodes[2]]
       manager.selectedValueList = [manager.selectedValues[2]]
-      manager.walkNodes(rect, indices, changedNodes, findit, mouse, node, 3)
-      manager.walkNodes(rect, indices, changedNodes, findit, mouse, node, 5) // test that it ignores non-selected values
+      manager.walkNodes(rect, indices, changedNodes, {}, findit, mouse, node, 3)
+      manager.walkNodes(rect, indices, changedNodes, {}, findit, mouse, node, 5) // test that it ignores non-selected values
 
       indices.should.have.length(0)
 
@@ -597,6 +598,23 @@ describe("SelectionManager", function() {
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(3)
       manager.selectedNodes.should.have.property(4)
+    })
+
+
+    it("should select nodes in acceptedTypes prop", () => {
+      const myprops = {
+        ...props,
+        acceptedTypes: ['third']
+      }
+      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, myprops, findit, mouse)
+
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.have.property(3)
     })
 
     it("should select nodes that are the same type as the first selected node only (#2)", () => {

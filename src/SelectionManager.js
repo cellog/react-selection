@@ -64,8 +64,14 @@ export default class SelectionManager {
     }
   }
 
-  saveNode(changedNodes, node, bounds, selectionRectangle) {
+  saveNode(changedNodes, node, bounds, selectionRectangle, props) {
     if (this.selectedNodes[node.key] !== undefined) return
+    if (props.hasOwnProperty('acceptedTypes')) {
+      // by default we accept all types, this prop restricts types accepted
+      if (!props.acceptedTypes.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {
+        return
+      }
+    }
     if (this.firstNode !== null) {
       if (!this.firstNode.types.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {
         return
@@ -89,7 +95,7 @@ export default class SelectionManager {
     changedNodes.push([true, node])
   }
 
-  walkNodes(selectionRectangle, selectedIndices, changedNodes, findit, mouse, node, idx) {
+  walkNodes(selectionRectangle, selectedIndices, changedNodes, props, findit, mouse, node, idx) {
     const domnode = findit(node.component)
     const key = node.key
     const bounds = node.bounds ? node.bounds : mouse.getBoundsForNode(domnode)
@@ -113,7 +119,7 @@ export default class SelectionManager {
     } else {
       selectedIndices.push(idx)
     }
-    this.saveNode(changedNodes, node, bounds, selectionRectangle)
+    this.saveNode(changedNodes, node, bounds, selectionRectangle, props)
   }
 
   select(selectionRectangle, currentState, props, findit = findDOMNode, mouse = mouseMath) {
@@ -124,7 +130,7 @@ export default class SelectionManager {
     const changedNodes = []
     const selectedIndices = []
 
-    this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes, findit, mouse), this)
+    this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes, props, findit, mouse), this)
 
     if (props.selectIntermediates) {
       const min = Math.min(...selectedIndices)
@@ -135,7 +141,7 @@ export default class SelectionManager {
       diff.forEach(idx => this.saveNode(changedNodes, this.sortedNodes[idx],
         this.sortedNodes[idx].bounds ? this.sortedNodes[idx].bounds :
         mouse.getBoundsForNode(findit(this.sortedNodes[idx].component)),
-        selectionRectangle))
+        selectionRectangle, props))
     }
     if (changedNodes.length) {
       changedNodes.forEach((item) => {
