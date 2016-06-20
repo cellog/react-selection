@@ -270,7 +270,8 @@ describe("SelectionManager", function() {
 
     }
     const props = {
-      clickTolerance: 5
+      clickTolerance: 5,
+      selectionOptions: {}
     }
     const mouse = {
       getBoundsForNode(node) {
@@ -344,7 +345,9 @@ describe("SelectionManager", function() {
         key: 2,
         bounds: false
       }
-      const props = {}
+      const props = {
+        selectionOptions: {}
+      }
       const mouse = {
         getBoundsForNode(node) {
           return node
@@ -371,6 +374,9 @@ describe("SelectionManager", function() {
 
     it("should remove nodes not within the rect", () => {
       const indices = []
+      const props = {
+        selectionOptions: {}
+      }
       const changedNodes = []
       const node = {
         component: 1,
@@ -386,7 +392,7 @@ describe("SelectionManager", function() {
         selectionRectangle: rect,
         selectedIndices: indices,
         changedNodes,
-        props: {},
+        props,
         findit,
         mouse
       }, node, 3)
@@ -394,7 +400,7 @@ describe("SelectionManager", function() {
         selectionRectangle: rect,
         selectedIndices: indices,
         changedNodes,
-        props: {},
+        props,
         findit,
         mouse
       }, node, 5) // test that it ignores non-selected values
@@ -750,6 +756,228 @@ describe("SelectionManager", function() {
       manager.selectedNodes.should.have.property(1)
       manager.selectedNodes.should.have.property(4)
     })
+  })
+
+  describe("additive selection mode", () => {
+    let manager
+    const notify = {
+      updateState: sinon.spy()
+    }
+
+    let props
+    const mouse = {
+      getBoundsForNode(node) {
+        return node
+      },
+      objectsCollide(rect, bounds) {
+        return rect.sub.indexOf(bounds) !== -1
+      }
+    }
+    const findit = (i) => i
+    let node1
+    let node2
+    let node3
+    let node4
+    beforeEach(() => {
+      props = {
+        clickTolerance: 5,
+        selectionOptions: {
+          selectable: true,
+          additive: true
+        },
+        selectionCallbacks: {}
+      }
+      manager = new SelectionManager(notify, props)
+      node1 = {
+        component: 1,
+        key: 1,
+        types: ['default'],
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node2 = {
+        component: 2,
+        types: ['default'],
+        key: 2,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node3 = {
+        component: 3,
+        types: ['default'],
+        key: 3,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node4 = {
+        component: 4,
+        types: ['default'],
+        key: 4,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      manager.sortedNodes = [node1, node2, node3, node4]
+      manager.indexMap = { 1: 0, 2: 1, 3: 2, 4: 3 }
+    })
+
+    it("should select normally on the first run", () => {
+
+      manager.begin({
+        selectedNodes: {}
+      })
+      manager.select({
+        selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
+      manager.commit()
+
+      manager.selectedNodes.should.have.property(3)
+      manager.selectedNodes.should.have.property(4)
+    })
+
+    it("should de-select previously selected items on the second run, and select newly selected ones", () => {
+
+      manager.begin({
+        selectedNodes: {}
+      })
+      manager.select({
+        selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
+
+      manager.commit()
+      manager.begin({
+        selectedNodes: manager.selectedNodes
+      })
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: manager.selectedNodes,
+          selectedValues: manager.selectedValues,
+          selectedNodeList: manager.selectedNodeList,
+          selectedValueList: manager.selectedValueList
+        }, props
+      }, findit, mouse)
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.not.have.property(3)
+      manager.selectedNodes.should.not.have.property(4)
+    })
+
+    it("should work with constant select", () => {
+      props.selectionOptions.constant = true
+
+      manager.begin({
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      })
+      manager.select({
+        selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: {},
+          selectedValues: {},
+          selectedNodeList: [],
+          selectedValueList: []
+        }, props
+      }, findit, mouse)
+
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: manager.selectedNodes,
+          selectedValues: manager.selectedValues,
+          selectedNodeList: manager.selectedNodeList,
+          selectedValueList: manager.selectedValueList
+        }, props
+      }, findit, mouse)
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.have.property(3)
+      manager.selectedNodes.should.have.property(4)
+
+      manager.commit()
+      manager.begin({
+        selectedNodes: manager.selectedNodes,
+        selectedValues: manager.selectedValues,
+        selectedNodeList: manager.selectedNodeList,
+        selectedValueList: manager.selectedValueList
+      })
+
+      manager.select({
+        selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: manager.selectedNodes,
+          selectedValues: manager.selectedValues,
+          selectedNodeList: manager.selectedNodeList,
+          selectedValueList: manager.selectedValueList
+        }, props
+      }, findit, mouse)
+
+      manager.commit()
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.not.have.property(3)
+      manager.selectedNodes.should.not.have.property(4)
+
+      manager.begin({
+        selectedNodes: manager.selectedNodes,
+        selectedValues: manager.selectedValues,
+        selectedNodeList: manager.selectedNodeList,
+        selectedValueList: manager.selectedValueList
+      })
+
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: manager.selectedNodes,
+          selectedValues: manager.selectedValues,
+          selectedNodeList: manager.selectedNodeList,
+          selectedValueList: manager.selectedValueList
+        }, props
+      }, findit, mouse)
+
+      manager.selectedNodes.should.not.have.property(1)
+      manager.selectedNodes.should.not.have.property(2)
+      manager.selectedNodes.should.have.property(3)
+      manager.selectedNodes.should.not.have.property(4)
+
+      manager.select({
+        selectionRectangle: {sub: [1, 2, 3], x: 1, left: 1, y: 1, top: 1},
+        currentState: {
+          selectedNodes: manager.selectedNodes,
+          selectedValues: manager.selectedValues,
+          selectedNodeList: manager.selectedNodeList,
+          selectedValueList: manager.selectedValueList
+        }, props
+      }, findit, mouse)
+
+      manager.selectedNodes.should.not.have.property(1)
+      manager.selectedNodes.should.not.have.property(2)
+      manager.selectedNodes.should.have.property(3)
+      manager.selectedNodes.should.not.have.property(4)
+
+      manager.commit()
+    })
+
+    it("should work with fill in gaps", () => {
+      
+    })
+    it("should work with fill in gaps and constant select")
   })
 
   describe("deselect", () => {

@@ -95,6 +95,17 @@ export default class SelectionManager {
     changedNodes.push([true, node])
   }
 
+  removeNode(changedNodes, node, key) {
+    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
+      Debug.log(`deselect: ${key}`)
+    }
+    delete this.selectedNodes[key]
+    delete this.selectedValues[key]
+    this.selectedNodeList = this.selectedNodeList.filter(n => n === node.component)
+    this.selectedValueList = this.selectedValueList.filter(val => val === node.value)
+    changedNodes.push([false, node])
+  }
+
   walkNodes({ selectionRectangle, selectedIndices, changedNodes, props, findit, mouse }, node, idx) {
     const domnode = findit(node.component)
     const key = node.key
@@ -103,15 +114,12 @@ export default class SelectionManager {
       Debug.log(`node ${key} bounds`, bounds)
     }
     if (!domnode || !mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
-      if (!this.selectedNodes.hasOwnProperty(key)) return
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log(`deselect: ${key}`)
-      }
-      delete this.selectedNodes[key]
-      delete this.selectedValues[key]
-      this.selectedNodeList = this.selectedNodeList.filter(n => n === node.component)
-      this.selectedValueList = this.selectedValueList.filter(val => val === node.value)
-      changedNodes.push([false, node])
+      if (!this.selectedNodes.hasOwnProperty(key) || props.selectionOptions.additive) return
+      this.removeNode(changedNodes, node, key)
+      return
+    }
+    if (props.selectionOptions.additive && this.startingState.selectedNodes.hasOwnProperty(key)) {
+      this.removeNode(changedNodes, node, key)
       return
     }
     if (selectionRectangle.y === selectionRectangle.top && selectionRectangle.x === selectionRectangle.left) {
@@ -172,11 +180,15 @@ export default class SelectionManager {
     }
   }
 
-  begin() {
+  begin(state) {
+    this.startingState = {
+      selectedNodes: {...state.selectedNodes}
+    }
     this.selecting = true
   }
 
   commit() {
+    this.startingState = {}
     this.selecting = false
   }
 

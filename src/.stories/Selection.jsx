@@ -169,6 +169,57 @@ storiesOf('module.Selectable', module)
     )
   })
 
+  .add('selectable, additive', () => {
+    const generateThing = (...i) => <SelectableThing thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
+    const things = Array(20).fill(0).map(generateThing)
+
+    const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
+    return (
+      <Sel selectionOptions={{ selectable: true, additive: true }}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
+           style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+        {things}
+      </Sel>
+    )
+  })
+
+  .add('selectable, additive, constant select', () => {
+    const generateThing = (...i) => <SelectableThing thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
+    const things = Array(20).fill(0).map(generateThing)
+
+    const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
+    return (
+      <Sel selectionOptions={{ selectable: true, additive: true, constant: true }}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
+           style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+        {things}
+      </Sel>
+    )
+  })
+
+  .add('selectable, additive, constant select, fill in gaps', () => {
+    const generateThing = (...i) => <SelectableThing thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
+    const things = Array(20).fill(0).map(generateThing)
+
+    const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
+    return (
+      <Sel selectionOptions={{ selectable: true, additive: true, constant: true, fillInGaps: true }}
+           selectionCallbacks={{
+             onSelectItem: (...props) => console.log('item', props),
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
+           style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
+        {things}
+      </Sel>
+    )
+  })
+
   .add('selectable, constant select, 1000 nodes, not cached', () => {
     const generateThing = (...i) => <SelectableThing3 thing={`hi${i[1]}`} index={i[1]} key={i[1]} />
     const things = Array(1000).fill(0).map(generateThing)
@@ -184,7 +235,6 @@ storiesOf('module.Selectable', module)
       </Sel>
     )
   })
-
 
   .add('selectable, constant select, 1000 nodes', () => {
     const generateThing = (...i) => <SelectableThing2 thing={`hi${i[1]}`} index={i[1]} key={i[1]} />

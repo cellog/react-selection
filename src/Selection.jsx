@@ -39,6 +39,7 @@ function makeSelectable( Component, options = {}) {
       clickTolerance: PropTypes.number,
       selectionOptions: PropTypes.shape({
         constant: PropTypes.bool,
+        additive: PropTypes.bool,
         selectable: PropTypes.bool,
         preserve: PropTypes.bool,
         fillInGaps: PropTypes.bool,
@@ -155,11 +156,11 @@ function makeSelectable( Component, options = {}) {
       this.bounds = bounds
       this.mouseDownData = mouseDownData
       if (this.props.selectionOptions.constant) {
-        this.selectionManager.begin()
+        this.selectionManager.begin(this.state)
         this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
       } else {
-        this.selectionManager.deselect(this.state)
-        this.selectionManager.begin()
+        if (!this.props.selectionOptions.additive) this.selectionManager.deselect(this.state)
+        this.selectionManager.begin(this.state)
       }
     }
 
@@ -171,7 +172,8 @@ function makeSelectable( Component, options = {}) {
     }
 
     end(e, mouseDownData, selectionRectangle) {
-      if (this.props.selectionOptions.constant && !this.props.selectionOptions.preserve) {
+      if (this.props.selectionOptions.constant &&
+           !(this.props.selectionOptions.preserve || this.props.selectionOptions.additive)) {
         this.propagateFinishedSelect()
         this.selectionManager.commit()
         this.selectionManager.deselect(this.state)
@@ -192,6 +194,10 @@ function makeSelectable( Component, options = {}) {
       if (this.props.selectionOptions.constant) {
         this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
       }
+    }
+
+    click(e, mouseDownData, selectionRectangle) {
+      this.end(e, mouseDownData, selectionRectangle)
     }
 
     makeInputManager(ref, inputManager = InputManager) {
