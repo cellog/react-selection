@@ -433,7 +433,9 @@ describe("SelectionManager", function() {
     let node4
     beforeEach(() => {
       props = {
-        clickTolerance: 5
+        clickTolerance: 5,
+        selectionOptions: {},
+        selectionCallbacks: {}
       }
       manager = new SelectionManager(notify, props)
       node1 = {
@@ -495,8 +497,8 @@ describe("SelectionManager", function() {
       expect(notify.updateState.called).to.be.true
     })
 
-    it("should select 4 values with selectIntermediates", () => {
-      props.selectIntermediates = true
+    it("should select 4 values with fillInGaps", () => {
+      props.selectionOptions.fillInGaps = true
 
       manager.select({
         selectionRectangle: {sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2},
@@ -548,7 +550,9 @@ describe("SelectionManager", function() {
     let node4
     beforeEach(() => {
       props = {
-        clickTolerance: 5
+        clickTolerance: 5,
+        selectionOptions: {},
+        selectionCallbacks: {}
       }
       manager = new SelectionManager(notify, props)
       node1 = {

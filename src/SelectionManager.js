@@ -132,7 +132,7 @@ export default class SelectionManager {
 
     this.sortedNodes.forEach(this.walkNodes.bind(this, { selectionRectangle, selectedIndices, changedNodes, props, findit, mouse }), this)
 
-    if (props.selectIntermediates) {
+    if (props.selectionOptions.fillInGaps) {
       const min = Math.min(...selectedIndices)
       const max = Math.max(...selectedIndices)
       const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
