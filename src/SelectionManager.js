@@ -12,6 +12,7 @@ export default class SelectionManager {
     this.selectedValues = {}
     this.selectedNodeList = []
     this.selectedValueList = []
+    this.firstNode = null
     this.indexMap = {}
     this.notify = notify
   }
@@ -62,6 +63,11 @@ export default class SelectionManager {
 
   saveNode(changedNodes, node, bounds, selectionRectangle) {
     if (this.selectedNodes[node.key] !== undefined) return
+    if (this.firstNode !== null) {
+      if (![...this.firstNode.types].reduce((last, type) => last || node.types.has(type), false)) {
+        return
+      }
+    }
     if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
       Debug.log(`select: ${node.key}`)
     }
@@ -73,6 +79,9 @@ export default class SelectionManager {
     } else {
       this.selectedNodeList.push(node.value)
       this.selectedValueList.push(node.value)
+    }
+    if (this.firstNode === null) {
+      this.firstNode = node
     }
     changedNodes.push([true, node])
   }
@@ -149,6 +158,7 @@ export default class SelectionManager {
       this.selectedValues = {}
       this.selectedNodeList = []
       this.selectedValueList = []
+      this.firstNode = null
       this.notify.updateState(false, {}, {}, [], [])
     }
   }

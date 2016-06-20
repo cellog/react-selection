@@ -106,7 +106,7 @@ describe("SelectionManager", function() {
       manager.registerSelectable(thing, {
         key: 'hi',
         value: 4,
-        types: { default: 1 },
+        types: new Set(['default']),
         callback,
         cacheBounds: true
       }, math, findit)
@@ -115,7 +115,7 @@ describe("SelectionManager", function() {
         component: thing,
         value: 4,
         key: 'hi',
-        types: { default: 1 },
+        types: new Set(['default']),
         callback,
         bounds: 'foobar'
       }])
@@ -129,21 +129,21 @@ describe("SelectionManager", function() {
       manager.registerSelectable(thing1, {
         key: 'hi',
         value: 4,
-        types: { default: 1 },
+        types: new Set(['default']),
         callback,
         cacheBounds: false
       })
       manager.registerSelectable(thing2, {
         key: 'hi2',
         value: 4,
-        types: { default: 1 },
+        types: new Set(['default']),
         callback,
         cacheBounds: false
       })
       manager.registerSelectable(thing3, {
         key: 'hi3',
         value: 4,
-        types: { default: 1 },
+        types: new Set(['default']),
         callback,
         cacheBounds: false
       })
@@ -155,7 +155,7 @@ describe("SelectionManager", function() {
           component: thing1,
           value: 4,
           key: 'hi',
-          types: { default: 1 },
+          types: new Set(['default']),
           callback,
           bounds: null
         },
@@ -163,7 +163,7 @@ describe("SelectionManager", function() {
           component: thing2,
           value: 4,
           key: 'hi2',
-          types: { default: 1 },
+          types: new Set(['default']),
           callback,
           bounds: null
         },
@@ -171,7 +171,7 @@ describe("SelectionManager", function() {
           component: thing3,
           value: 4,
           key: 'hi3',
-          types: { default: 1 },
+          types: new Set(['default']),
           callback,
           bounds: null
         }
@@ -407,28 +407,33 @@ describe("SelectionManager", function() {
       node1 = {
         component: 1,
         key: 1,
+        types: new Set(['default']),
         bounds: false,
         callback: sinon.spy()
       }
       node2 = {
         component: 2,
+        types: new Set(['default']),
         key: 2,
         bounds: false,
         callback: sinon.spy()
       }
       node3 = {
         component: 3,
+        types: new Set(['default']),
         key: 3,
         bounds: false,
         callback: sinon.spy()
       }
       node4 = {
         component: 4,
+        types: new Set(['default']),
         key: 4,
         bounds: false,
         callback: sinon.spy()
       }
       manager.sortedNodes = [node1, node2, node3, node4]
+      manager.indexMap = { 1: 0, 2: 1, 3: 2, 4: 3 }
     })
 
     it("should select 3 values when within the rectangle", () => {
@@ -481,6 +486,174 @@ describe("SelectionManager", function() {
       expect(node4.callback.called).to.be.true
 
       expect(notify.updateState.called).to.be.true
+    })
+  })
+
+  describe("select: selection types", () => {
+    let manager
+    const notify = {
+      updateState: sinon.spy()
+    }
+
+    let props
+    const mouse = {
+      getBoundsForNode(node) {
+        return node
+      },
+      objectsCollide(rect, bounds) {
+        return rect.sub.indexOf(bounds) !== -1
+      }
+    }
+    const findit = (i) => i
+    let node1
+    let node2
+    let node3
+    let node4
+    beforeEach(() => {
+      props = {
+        clickTolerance: 5
+      }
+      manager = new SelectionManager(notify, props)
+      node1 = {
+        component: 1,
+        key: 1,
+        types: new Set(['default', 'second']),
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node2 = {
+        component: 2,
+        types: new Set(['third']),
+        key: 2,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node3 = {
+        component: 3,
+        types: new Set(['default', 'third']),
+        key: 3,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node4 = {
+        component: 4,
+        types: new Set(['second', 'fourth']),
+        key: 4,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      manager.sortedNodes = [node1, node2, node3, node4]
+      manager.indexMap = { 1: 0, 2: 1, 3: 2, 4: 3 }
+    })
+
+    it("should register the types of the first node selected (#1)", () => {
+      manager.select({sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      expect(manager.firstNode).equal(node1)
+
+      manager.select({sub: [2, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+      expect(manager.firstNode).equal(node1)
+    })
+
+    it("should register the types of the first node selected (#1)", () => {
+      manager.select({sub: [2, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      expect(manager.firstNode).equal(node2)
+
+      manager.select({sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      expect(manager.firstNode).equal(node2)
+    })
+
+    it("should select nodes that are the same type as the first selected node only (#1)", () => {
+      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(3)
+      manager.selectedNodes.should.have.property(4)
+    })
+
+    it("should select nodes that are the same type as the first selected node only (#2)", () => {
+      manager.select({sub: [2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.have.property(3)
+    })
+
+    it("should select nodes that are the same type as the first selected node only (#3)", () => {
+      manager.select({sub: [3, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(2)
+      manager.selectedNodes.should.have.property(3)
+    })
+
+    it("should select nodes that are the same type as the first selected node only (#4)", () => {
+      manager.select({sub: [4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      manager.select({sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1}, {
+        selectedNodes: {},
+        selectedValues: {},
+        selectedNodeList: [],
+        selectedValueList: []
+      }, props, findit, mouse)
+
+      manager.selectedNodes.should.have.property(1)
+      manager.selectedNodes.should.have.property(4)
     })
   })
 
