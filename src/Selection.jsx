@@ -2,6 +2,7 @@ import Debug from './debug.js'
 import InputManager from './InputManager.js'
 import SelectionManager from './SelectionManager.js'
 import verifyComponent from './verifyComponent.js'
+import selectedList from './selectedList.js'
 import makeReferenceableContainer from './ReferenceableContainer.jsx'
 
 import React, { PropTypes } from 'react'
@@ -31,7 +32,8 @@ function makeSelectable( Component, options = {}) {
         selectedValues: {},
         selectedValueList: []
       }
-      this.selectionManager = new SelectionManager(this, props)
+      this.selectedList = new selectedList
+      this.selectionManager = new SelectionManager(this, this.selectedList, props)
       this.makeInputManager = this.makeInputManager.bind(this)
     }
 
@@ -156,11 +158,11 @@ function makeSelectable( Component, options = {}) {
       this.bounds = bounds
       this.mouseDownData = mouseDownData
       if (this.props.selectionOptions.constant) {
-        this.selectionManager.begin(this.state)
+        this.selectionManager.begin(this.state, this.props)
         this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
       } else {
         if (!this.props.selectionOptions.additive) this.selectionManager.deselect(this.state)
-        this.selectionManager.begin(this.state)
+        this.selectionManager.begin(this.state, this.props)
       }
     }
 

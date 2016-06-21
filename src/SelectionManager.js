@@ -4,7 +4,9 @@ import mouseMath from './mouseMath.js'
 import Debug from './debug.js'
 
 export default class SelectionManager {
-  constructor(notify, props) {
+  constructor(notify, list, props) {
+    this.selectedList = list
+    if (!props) console.trace()
     this.clickTolerance = props.clickTolerance
     this.selecting = false
     this.selectables = {}
@@ -46,6 +48,7 @@ export default class SelectionManager {
       Debug.log(`registered: ${key}`, value)
     }
     this.selectables[key] = info
+    this.selectedList.setNodes(this.sortedNodes)
   }
 
   unregisterSelectable(component, key) {
@@ -62,6 +65,7 @@ export default class SelectionManager {
       delete values[key]
       this.notify.updateState(null, nodes, values, nodelist, valuelist)
     }
+    this.selectedList.setNodes(this.sortedNodes)
   }
 
   saveNode(changedNodes, node, bounds, selectionRectangle, props) {
@@ -91,6 +95,7 @@ export default class SelectionManager {
     }
     if (this.firstNode === null) {
       this.firstNode = node
+      this.firstSelectedIndex = this.sortedNodes.indexOf(node)
     }
     changedNodes.push([true, node])
   }
@@ -114,6 +119,14 @@ export default class SelectionManager {
       Debug.log(`node ${key} bounds`, bounds)
     }
     if (!domnode || !mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
+      if (!this.selectedNodes.hasOwnProperty(key)
+        && props.selectionOptions.fillInGaps
+        && idx >= this.firstSelectedIndex) {
+        if (!this.gapNodes) {
+          this.gapNodes = []
+        }
+        this.gapNodes.push({ node, bounds })
+      }
       if (!this.selectedNodes.hasOwnProperty(key) || props.selectionOptions.additive) return
       this.removeNode(changedNodes, node, key)
       return
@@ -122,15 +135,24 @@ export default class SelectionManager {
       this.removeNode(changedNodes, node, key)
       return
     }
-    if (selectionRectangle.y === selectionRectangle.top && selectionRectangle.x === selectionRectangle.left) {
-      selectedIndices.unshift(idx)
-    } else {
-      selectedIndices.push(idx)
+    if (this.gapNodes) {
+      this.gapNodes.forEach((info) => this.saveNode(changedNodes, info.node, info.bounds, selectionRectangle, props))
+      this.gapNodes = undefined
     }
     this.saveNode(changedNodes, node, bounds, selectionRectangle, props)
   }
 
   select({ selectionRectangle, currentState, props }, findit = findDOMNode, mouse = mouseMath) {
+    if (!this.selectedList.selectItemsInRectangle(selectionRectangle, props, findit, mouse)) {
+      return
+    }
+    this.notify.updateState(null,
+      this.selectedList.selectedNodes(),
+      this.selectedList.selectedValues(),
+      this.selectedList.selectedNodeList(),
+      this.selectedList.selectedValueList()
+    )
+    return
     this.selectedNodes = currentState.selectedNodes
     this.selectedValues = currentState.selectedValues
     this.selectedNodeList = currentState.selectedNodeList
@@ -138,9 +160,11 @@ export default class SelectionManager {
     const changedNodes = []
     const selectedIndices = []
 
+    this.firstSelectedIndex = this.sortedNodes.indexOf(this.firstNode)
+    if (this.firstSelectedIndex === -1) this.firstSelectedIndex = Infinity
     this.sortedNodes.forEach(this.walkNodes.bind(this, { selectionRectangle, selectedIndices, changedNodes, props, findit, mouse }), this)
 
-    if (props.selectionOptions.fillInGaps) {
+    if (false && props.selectionOptions.fillInGaps) {
       const min = Math.min(...selectedIndices)
       const max = Math.max(...selectedIndices)
       const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
@@ -180,7 +204,9 @@ export default class SelectionManager {
     }
   }
 
-  begin(state) {
+  begin(state, props) {
+    this.selectedList.begin(props.selectionOptions.additive ?
+      this.selectedList.selectedIndices : [], props)
     this.startingState = {
       selectedNodes: {...state.selectedNodes}
     }
@@ -188,6 +214,7 @@ export default class SelectionManager {
   }
 
   commit() {
+    this.selectedList.commit()
     this.startingState = {}
     this.selecting = false
   }

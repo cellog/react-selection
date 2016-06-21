@@ -1,6 +1,8 @@
 import 'should'
 
 import SelectionManager from '../src/SelectionManager.js'
+import selectedList from '../src/selectedList.js'
+import Debug from '../src/debug.js'
 
 describe("SelectionManager", function() {
   describe("construction", () => {
@@ -11,7 +13,7 @@ describe("SelectionManager", function() {
       const props = {
         clickTolerance: 5
       }
-      const manager = new SelectionManager(notify, props)
+      const manager = new SelectionManager(notify, new selectedList, props)
       manager.notify.should.equal(notify)
       manager.clickTolerance.should.eql(5)
     })
@@ -26,7 +28,7 @@ describe("SelectionManager", function() {
       clickTolerance: 5
     }
     beforeEach(() => {
-      manager = new SelectionManager(notify, props)
+      manager = new SelectionManager(notify, new selectedList, props)
     })
 
     it("should add the component to our lists, no bounds cached", () => {
@@ -191,7 +193,7 @@ describe("SelectionManager", function() {
     const thing = {}
     const callback = () => null
     beforeEach(() => {
-      manager = new SelectionManager(notify, props)
+      manager = new SelectionManager(notify, new selectedList, props)
       manager.registerSelectable(thing, {
         key: 'hi',
         value: 4,
@@ -230,7 +232,7 @@ describe("SelectionManager", function() {
       clickTolerance: 5
     }
     beforeEach(() => {
-      manager = new SelectionManager(notify, props)
+      manager = new SelectionManager(notify, new selectedList, props)
     })
 
     it("should add it to the selection trackers", () => {
@@ -264,7 +266,7 @@ describe("SelectionManager", function() {
     })
   })
 
-  describe("walkNodes", () => {
+  describe.skip("walkNodes", () => {
     let manager
     const notify = {
 
@@ -281,9 +283,44 @@ describe("SelectionManager", function() {
         return rect.sub.indexOf(bounds) !== -1
       }
     }
+    let node1
+    let node2
+    let node3
+    let node4
     const findit = (i) => i
     beforeEach(() => {
-      manager = new SelectionManager(notify, props)
+      manager = new SelectionManager(notify, new selectedList, props)
+      node1 = {
+        component: 1,
+        key: 1,
+        types: ['default'],
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node2 = {
+        component: 2,
+        types: ['default'],
+        key: 2,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node3 = {
+        component: 3,
+        types: ['default'],
+        key: 3,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      node4 = {
+        component: 4,
+        types: ['default'],
+        key: 4,
+        bounds: false,
+        callback: sinon.spy()
+      }
+      manager.sortedNodes = [node1, node2, node3, node4]
+      manager.indexMap = { 1: 0, 2: 1, 3: 2, 4: 3 }
+      manager.selectedList.setNodes(manager.sortedNodes)
     })
 
     it("should find nodes within the rect", () => {
@@ -443,7 +480,7 @@ describe("SelectionManager", function() {
         selectionOptions: {},
         selectionCallbacks: {}
       }
-      manager = new SelectionManager(notify, props)
+      manager = new SelectionManager(notify, new selectedList, props)
       node1 = {
         component: 1,
         key: 1,
@@ -474,9 +511,11 @@ describe("SelectionManager", function() {
       }
       manager.sortedNodes = [node1, node2, node3, node4]
       manager.indexMap = { 1: 0, 2: 1, 3: 2, 4: 3 }
+      manager.selectedList.setNodes(manager.sortedNodes)
     })
 
     it("should select 3 values when within the rectangle", () => {
+      manager.begin({}, props)
       manager.select({
         selectionRectangle: {sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2},
         currentState: {
@@ -487,13 +526,12 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([0, 1, 3])
+      const selectedNodes = manager.selectedList.selectedNodes()
 
-      manager.selectedNodes[1].should.eql({bounds: 1, node: 1})
-      manager.selectedNodes[2].should.eql({bounds: 2, node: 2})
-      manager.selectedNodes[4].should.eql({bounds: 4, node: 4})
+      selectedNodes[1].should.eql({bounds: 1, node: 1})
+      selectedNodes[2].should.eql({bounds: 2, node: 2})
+      selectedNodes[4].should.eql({bounds: 4, node: 4})
 
       expect(node1.callback.called).to.be.true
       expect(node2.callback.called).to.be.true
@@ -506,6 +544,7 @@ describe("SelectionManager", function() {
     it("should select 4 values with fillInGaps", () => {
       props.selectionOptions.fillInGaps = true
 
+      manager.begin({}, props)
       manager.select({
         selectionRectangle: {sub: [1, 2, 4], x: 1, left: 2, y: 1, top: 2},
         currentState: {
@@ -516,14 +555,14 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([0, 1, 2, 3])
+      
+      const selectedNodes = manager.selectedList.selectedNodes()
 
-      manager.selectedNodes[1].should.eql({bounds: 1, node: 1})
-      manager.selectedNodes[2].should.eql({bounds: 2, node: 2})
-      manager.selectedNodes[3].should.eql({bounds: 3, node: 3})
-      manager.selectedNodes[4].should.eql({bounds: 4, node: 4})
+      selectedNodes[1].should.eql({bounds: 1, node: 1})
+      selectedNodes[2].should.eql({bounds: 2, node: 2})
+      selectedNodes[3].should.eql({bounds: 3, node: 3})
+      selectedNodes[4].should.eql({bounds: 4, node: 4})
 
       expect(node1.callback.called).to.be.true
       expect(node2.callback.called).to.be.true
@@ -560,7 +599,7 @@ describe("SelectionManager", function() {
         selectionOptions: {},
         selectionCallbacks: {}
       }
-      manager = new SelectionManager(notify, props)
+      manager = new SelectionManager(notify, new selectedList, props)
       node1 = {
         component: 1,
         key: 1,
@@ -591,9 +630,12 @@ describe("SelectionManager", function() {
       }
       manager.sortedNodes = [node1, node2, node3, node4]
       manager.indexMap = { 1: 0, 2: 1, 3: 2, 4: 3 }
+      manager.selectedList.setNodes(manager.sortedNodes)
     })
 
     it("should register the types of the first node selected (#1)", () => {
+      manager.selectedList.begin([], props)
+      expect(manager.selectedList.transaction.firstNode).is.false
       manager.select({
         selectionRectangle: {sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -604,7 +646,7 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      expect(manager.firstNode).equal(node1)
+      expect(manager.selectedList.transaction.firstNode).equal(node1)
 
       manager.select({
         selectionRectangle: {sub: [2, 4], x: 1, left: 1, y: 1, top: 1},
@@ -615,10 +657,13 @@ describe("SelectionManager", function() {
           selectedValueList: []
         }, props
       }, findit, mouse)
-      expect(manager.firstNode).equal(node1)
+      expect(manager.selectedList.transaction.firstNode).equal(node1)
+      manager.selectedList.commit()
+      expect(manager.selectedList.transaction.firstNode).is.undefined
     })
 
     it("should register the types of the first node selected (#1)", () => {
+      manager.begin({}, props)
       manager.select({
         selectionRectangle: {sub: [2, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -629,7 +674,7 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      expect(manager.firstNode).equal(node2)
+      expect(manager.selectedList.transaction.firstNode).equal(node2)
 
       manager.select({
         selectionRectangle: {sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1},
@@ -641,10 +686,13 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      expect(manager.firstNode).equal(node2)
+      expect(manager.selectedList.transaction.firstNode).equal(node2)
+      manager.selectedList.selectedIndices.should.eql([1])
+      manager.selectedList.commit()
     })
 
     it("should select nodes that are the same type as the first selected node only (#1)", () => {
+      manager.begin({}, props)
       manager.select({
         selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -655,9 +703,7 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(3)
-      manager.selectedNodes.should.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([0, 2, 3])
     })
 
 
@@ -666,6 +712,7 @@ describe("SelectionManager", function() {
         ...props,
         acceptedTypes: ['third']
       }
+      manager.begin({}, myprops)
       manager.select({
         selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -677,11 +724,11 @@ describe("SelectionManager", function() {
         props: myprops
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.have.property(3)
+      manager.selectedList.selectedIndices.should.eql([1, 2])
     })
 
     it("should select nodes that are the same type as the first selected node only (#2)", () => {
+      manager.begin({}, props)
       manager.select({
         selectionRectangle: {sub: [2, 3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -702,11 +749,11 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.have.property(3)
+      manager.selectedList.selectedIndices.should.eql([1, 2])
     })
 
     it("should select nodes that are the same type as the first selected node only (#3)", () => {
+      manager.begin({}, props)
       manager.select({
         selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -727,12 +774,11 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.have.property(3)
+      manager.selectedList.selectedIndices.should.eql([0, 1, 2])
     })
 
     it("should select nodes that are the same type as the first selected node only (#4)", () => {
+      manager.begin({}, props)
       manager.select({
         selectionRectangle: {sub: [4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -753,8 +799,7 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([0, 3])
     })
   })
 
@@ -787,7 +832,7 @@ describe("SelectionManager", function() {
         },
         selectionCallbacks: {}
       }
-      manager = new SelectionManager(notify, props)
+      manager = new SelectionManager(notify, new selectedList, props)
       node1 = {
         component: 1,
         key: 1,
@@ -821,10 +866,10 @@ describe("SelectionManager", function() {
     })
 
     it("should select normally on the first run", () => {
-
+      manager.selectedList.setNodes(manager.sortedNodes)
       manager.begin({
         selectedNodes: {}
-      })
+      }, props)
       manager.select({
         selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -836,15 +881,14 @@ describe("SelectionManager", function() {
       }, findit, mouse)
       manager.commit()
 
-      manager.selectedNodes.should.have.property(3)
-      manager.selectedNodes.should.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([2, 3])
     })
 
     it("should de-select previously selected items on the second run, and select newly selected ones", () => {
-
+      manager.selectedList.setNodes(manager.sortedNodes)
       manager.begin({
         selectedNodes: {}
-      })
+      }, props)
       manager.select({
         selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -856,9 +900,11 @@ describe("SelectionManager", function() {
       }, findit, mouse)
 
       manager.commit()
+      manager.selectedList.selectedIndices.should.eql([ 2, 3])
+
       manager.begin({
         selectedNodes: manager.selectedNodes
-      })
+      }, props)
       manager.select({
         selectionRectangle: {sub: [1, 2, 3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -869,13 +915,11 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.not.have.property(3)
-      manager.selectedNodes.should.not.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([ 0, 1])
     })
 
     it("should work with constant select", () => {
+      manager.selectedList.setNodes(manager.sortedNodes)
       props.selectionOptions.constant = true
 
       manager.begin({
@@ -883,7 +927,7 @@ describe("SelectionManager", function() {
         selectedValues: {},
         selectedNodeList: [],
         selectedValueList: []
-      })
+      }, props)
       manager.select({
         selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
         currentState: {
@@ -904,10 +948,7 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.have.property(3)
-      manager.selectedNodes.should.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([0, 1, 2, 3])
 
       manager.commit()
       manager.begin({
@@ -915,7 +956,7 @@ describe("SelectionManager", function() {
         selectedValues: manager.selectedValues,
         selectedNodeList: manager.selectedNodeList,
         selectedValueList: manager.selectedValueList
-      })
+      }, props)
 
       manager.select({
         selectionRectangle: {sub: [3, 4], x: 1, left: 1, y: 1, top: 1},
@@ -929,17 +970,14 @@ describe("SelectionManager", function() {
 
       manager.commit()
 
-      manager.selectedNodes.should.have.property(1)
-      manager.selectedNodes.should.have.property(2)
-      manager.selectedNodes.should.not.have.property(3)
-      manager.selectedNodes.should.not.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([0, 1])
 
       manager.begin({
         selectedNodes: manager.selectedNodes,
         selectedValues: manager.selectedValues,
         selectedNodeList: manager.selectedNodeList,
         selectedValueList: manager.selectedValueList
-      })
+      }, props)
 
       manager.select({
         selectionRectangle: {sub: [1, 2, 3], x: 1, left: 1, y: 1, top: 1},
@@ -951,10 +989,7 @@ describe("SelectionManager", function() {
         }, props
       }, findit, mouse)
 
-      manager.selectedNodes.should.not.have.property(1)
-      manager.selectedNodes.should.not.have.property(2)
-      manager.selectedNodes.should.have.property(3)
-      manager.selectedNodes.should.not.have.property(4)
+      manager.selectedList.selectedIndices.should.eql([2])
 
       manager.select({
         selectionRectangle: {sub: [1, 2, 3], x: 1, left: 1, y: 1, top: 1},
@@ -965,18 +1000,12 @@ describe("SelectionManager", function() {
           selectedValueList: manager.selectedValueList
         }, props
       }, findit, mouse)
-
-      manager.selectedNodes.should.not.have.property(1)
-      manager.selectedNodes.should.not.have.property(2)
-      manager.selectedNodes.should.have.property(3)
-      manager.selectedNodes.should.not.have.property(4)
 
       manager.commit()
+      manager.selectedList.selectedIndices.should.eql([2])
     })
 
-    it("should work with fill in gaps", () => {
-      
-    })
+    it("should work with fill in gaps")
     it("should work with fill in gaps and constant select")
   })
 
@@ -988,7 +1017,7 @@ describe("SelectionManager", function() {
     const props = {
       clickTolerance: 5
     }
-    manager = new SelectionManager(notify, props)
+    manager = new SelectionManager(notify, new selectedList, props)
     it("should remove all selected items and update state", () => {
       manager.selectedNodes = {
         'hi': {}

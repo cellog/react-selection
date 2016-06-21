@@ -438,11 +438,15 @@ describe("Selection", () => {
 
     beforeEach(() => {
       spy = sinon.spy()
-      stuff = $(<Thing />).render()
+      stuff = $(<Thing />).render(true)
       component = stuff[0]
+    })
+    afterEach(() => {
+      stuff.unmount()
     })
 
     it("should call deselect", () => {
+      component.selectionManager.begin({}, component.props)
       component.selectionManager.deselect = spy
 
       component.cancel()
@@ -451,6 +455,9 @@ describe("Selection", () => {
     })
 
     it("should call propageFinishedSelect", () => {
+      component.selectionManager.begin({}, {
+        selectionOptions: {}
+      })
       component.propagateFinishedSelect = spy
       component.cancel()
 
@@ -458,6 +465,7 @@ describe("Selection", () => {
     })
 
     it("should turn off selection", () => {
+      component.selectionManager.begin({}, component.props)
       component.setState = spy
       component.cancel()
 
@@ -473,6 +481,7 @@ describe("Selection", () => {
     it("should call propagateFinishedSelect and deselect if selectionOptions.constant is on", () => {
       const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }} />).render()
       const component = stuff[0]
+      component.selectionManager.begin({}, component.props)
       component.propagateFinishedSelect = sinon.spy()
       component.selectionManager.deselect = sinon.spy()
       component.end(1, 2, 3)
@@ -484,6 +493,7 @@ describe("Selection", () => {
     it("should select any items in the selection rectangle, and propagateFinishedSelect", () => {
       const stuff = $(<Thing selectable />).render()
       const component = stuff[0]
+      component.selectionManager.begin({}, component.props)
       component.propagateFinishedSelect = sinon.spy()
       component.selectionManager.select = sinon.spy()
       component.end(1, 2, 3)
