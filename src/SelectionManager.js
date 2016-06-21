@@ -6,7 +6,6 @@ import Debug from './debug.js'
 export default class SelectionManager {
   constructor(notify, list, props) {
     this.selectedList = list
-    if (!props) console.trace()
     this.clickTolerance = props.clickTolerance
     this.selecting = false
     this.selectables = {}
@@ -68,81 +67,7 @@ export default class SelectionManager {
     this.selectedList.setNodes(this.sortedNodes)
   }
 
-  saveNode(changedNodes, node, bounds, selectionRectangle, props) {
-    if (this.selectedNodes[node.key] !== undefined) return
-    if (props.hasOwnProperty('acceptedTypes')) {
-      // by default we accept all types, this prop restricts types accepted
-      if (!props.acceptedTypes.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {
-        return
-      }
-    }
-    if (this.firstNode !== null) {
-      if (!this.firstNode.types.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {
-        return
-      }
-    }
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-      Debug.log(`select: ${node.key}`)
-    }
-    this.selectedNodes[node.key] = {node: node.component, bounds: bounds}
-    this.selectedValues[node.key] = node.value
-    if (selectionRectangle.y === selectionRectangle.top && selectionRectangle.x === selectionRectangle.left) {
-      this.selectedNodeList.unshift(node.component)
-      this.selectedValueList.unshift(node.component)
-    } else {
-      this.selectedNodeList.push(node.value)
-      this.selectedValueList.push(node.value)
-    }
-    if (this.firstNode === null) {
-      this.firstNode = node
-      this.firstSelectedIndex = this.sortedNodes.indexOf(node)
-    }
-    changedNodes.push([true, node])
-  }
-
-  removeNode(changedNodes, node, key) {
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-      Debug.log(`deselect: ${key}`)
-    }
-    delete this.selectedNodes[key]
-    delete this.selectedValues[key]
-    this.selectedNodeList = this.selectedNodeList.filter(n => n === node.component)
-    this.selectedValueList = this.selectedValueList.filter(val => val === node.value)
-    changedNodes.push([false, node])
-  }
-
-  walkNodes({ selectionRectangle, selectedIndices, changedNodes, props, findit, mouse }, node, idx) {
-    const domnode = findit(node.component)
-    const key = node.key
-    const bounds = node.bounds ? node.bounds : mouse.getBoundsForNode(domnode)
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-      Debug.log(`node ${key} bounds`, bounds)
-    }
-    if (!domnode || !mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
-      if (!this.selectedNodes.hasOwnProperty(key)
-        && props.selectionOptions.fillInGaps
-        && idx >= this.firstSelectedIndex) {
-        if (!this.gapNodes) {
-          this.gapNodes = []
-        }
-        this.gapNodes.push({ node, bounds })
-      }
-      if (!this.selectedNodes.hasOwnProperty(key) || props.selectionOptions.additive) return
-      this.removeNode(changedNodes, node, key)
-      return
-    }
-    if (props.selectionOptions.additive && this.startingState.selectedNodes.hasOwnProperty(key)) {
-      this.removeNode(changedNodes, node, key)
-      return
-    }
-    if (this.gapNodes) {
-      this.gapNodes.forEach((info) => this.saveNode(changedNodes, info.node, info.bounds, selectionRectangle, props))
-      this.gapNodes = undefined
-    }
-    this.saveNode(changedNodes, node, bounds, selectionRectangle, props)
-  }
-
-  select({ selectionRectangle, currentState, props }, findit = findDOMNode, mouse = mouseMath) {
+  select({ selectionRectangle, props }, findit = findDOMNode, mouse = mouseMath) {
     if (!this.selectedList.selectItemsInRectangle(selectionRectangle, props, findit, mouse)) {
       return
     }
@@ -152,71 +77,20 @@ export default class SelectionManager {
       this.selectedList.selectedNodeList(),
       this.selectedList.selectedValueList()
     )
-    return
-    this.selectedNodes = currentState.selectedNodes
-    this.selectedValues = currentState.selectedValues
-    this.selectedNodeList = currentState.selectedNodeList
-    this.selectedValueList = currentState.selectedValueList
-    const changedNodes = []
-    const selectedIndices = []
-
-    this.firstSelectedIndex = this.sortedNodes.indexOf(this.firstNode)
-    if (this.firstSelectedIndex === -1) this.firstSelectedIndex = Infinity
-    this.sortedNodes.forEach(this.walkNodes.bind(this, { selectionRectangle, selectedIndices, changedNodes, props, findit, mouse }), this)
-
-    if (false && props.selectionOptions.fillInGaps) {
-      const min = Math.min(...selectedIndices)
-      const max = Math.max(...selectedIndices)
-      const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
-      filled.unshift(min)
-      const diff = filled.filter(val => selectedIndices.indexOf(val) === -1)
-      diff.forEach(idx => this.saveNode(changedNodes, this.sortedNodes[idx],
-        this.sortedNodes[idx].bounds ? this.sortedNodes[idx].bounds :
-        mouse.getBoundsForNode(findit(this.sortedNodes[idx].component)),
-        selectionRectangle, props))
-    }
-    if (changedNodes.length) {
-      changedNodes.forEach((item) => {
-        item[1].callback(item[0])
-      })
-      this.notify.updateState(null,
-        this.selectedNodes,
-        this.selectedValues,
-        this.selectedNodeList,
-        this.selectedValueList
-      )
-    }
   }
 
-  deselect(currentState) {
-    let changed = false
-    Object.keys(currentState.selectedNodes).forEach((key) => {
-      changed = true
-      this.selectables[key].callback(false)
-    })
-    if (changed) {
-      this.selectedNodes = {}
-      this.selectedValues = {}
-      this.selectedNodeList = []
-      this.selectedValueList = []
-      this.firstNode = null
-      this.notify.updateState(false, {}, {}, [], [])
-    }
+  deselect() {
+    if (!this.selectedList.clear()) return
+    this.notify.updateState(false, {}, {}, [], [])
   }
 
-  begin(state, props) {
+  begin(props) {
     this.selectedList.begin(props.selectionOptions.additive ?
       this.selectedList.selectedIndices : [], props)
-    this.startingState = {
-      selectedNodes: {...state.selectedNodes}
-    }
-    this.selecting = true
   }
 
   commit() {
     this.selectedList.commit()
-    this.startingState = {}
-    this.selecting = false
   }
 
   isSelecting() {

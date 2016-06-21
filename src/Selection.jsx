@@ -157,18 +157,18 @@ function makeSelectable( Component, options = {}) {
     start(bounds, mouseDownData, selectionRectangle) {
       this.bounds = bounds
       this.mouseDownData = mouseDownData
+      if (!this.props.selectionOptions.additive) {
+        this.selectionManager.deselect()
+      }
+      this.selectionManager.begin(this.props)
       if (this.props.selectionOptions.constant) {
-        this.selectionManager.begin(this.state, this.props)
-        this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
-      } else {
-        if (!this.props.selectionOptions.additive) this.selectionManager.deselect(this.state)
-        this.selectionManager.begin(this.state, this.props)
+        this.selectionManager.select({ selectionRectangle, props: this.props })
       }
     }
 
     cancel() {
       this.selectionManager.commit()
-      this.selectionManager.deselect(this.state)
+      this.selectionManager.deselect()
       this.propagateFinishedSelect()
       this.setState({ selecting: false })
     }
@@ -178,12 +178,14 @@ function makeSelectable( Component, options = {}) {
            !(this.props.selectionOptions.preserve || this.props.selectionOptions.additive)) {
         this.propagateFinishedSelect()
         this.selectionManager.commit()
-        this.selectionManager.deselect(this.state)
+        this.selectionManager.deselect()
+        this.setState({ selecting: false })
         return
       }
-      this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
+      this.selectionManager.select({ selectionRectangle, props: this.props })
       this.propagateFinishedSelect()
       this.selectionManager.commit()
+      this.setState({ selecting: false })
     }
 
     change(selectionRectangle) {
@@ -194,7 +196,7 @@ function makeSelectable( Component, options = {}) {
       }
 
       if (this.props.selectionOptions.constant) {
-        this.selectionManager.select({ selectionRectangle, currentState: this.state, props: this.props })
+        this.selectionManager.select({ selectionRectangle, props: this.props })
       }
     }
 

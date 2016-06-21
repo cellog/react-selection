@@ -29,9 +29,6 @@ export default class selectList {
 
   commit() {
     this.transaction = {}
-    if (this.props.selectionOptions && !this.props.selectionOptions.preserve && !this.props.selectionOptions.additive) {
-      this.selectedIndices = []
-    }
   }
 
   addItem(idx, selectedIndices = this.selectedIndices) {
@@ -190,6 +187,12 @@ export default class selectList {
 
     removed.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(false) : null)
     added.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(true) : null)
+    return true
+  }
+
+  clear() {
+    if (this.selectedIndices.length === 0) return false
+    this.selectedIndices.forEach(idx => this.nodes[idx].callback && this.nodes[idx].callback(false))
     return true
   }
 
