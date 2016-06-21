@@ -48,7 +48,7 @@ function makeSelectable( Component, options = {}) {
         acceptedTypes: PropTypes.array
       }),
       selectionCallbacks: PropTypes.shape({
-        onSelectItem: PropTypes.func,
+        onSelectionChange: PropTypes.func,
         onFinishSelect: PropTypes.func,
         onSelectStart: PropTypes.func
       }),
@@ -104,12 +104,12 @@ function makeSelectable( Component, options = {}) {
         selectedValueList: valuelist,
         containerBounds: this.bounds
       })
-      if (this.props.selectionCallbacks.onSelectItem && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
+      if (this.props.selectionCallbacks.onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
         if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-          Debug.log('updatestate onSelectItem', values, nodes, valuelist, nodelist, this.bounds)
+          Debug.log('updatestate onSelectionChange', values, nodes, valuelist, nodelist, this.bounds)
         }
-        if (this.props.selectionCallbacks.onSelectItem) {
-          this.props.selectionCallbacks.onSelectItem(values, () => nodes, valuelist, () => nodelist, this.bounds)
+        if (this.props.selectionCallbacks.onSelectionChange) {
+          this.props.selectionCallbacks.onSelectionChange(values, () => nodes, valuelist, () => nodelist, this.bounds)
         }
       }
     }

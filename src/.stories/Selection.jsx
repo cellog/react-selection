@@ -77,7 +77,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{ constant: true, selectable: true }}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
       >
@@ -93,7 +93,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{selectable: true}}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
       >
@@ -109,7 +109,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel
         selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
       >
@@ -125,7 +125,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{ constant: true, selectable: true, preserve: true }}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
       >
@@ -141,7 +141,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{ selectable: true, preserve: true }}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
       >
@@ -160,7 +160,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{ selectable: true, constant: true, fillInGaps: true }}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
@@ -177,7 +177,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{ selectable: true, additive: true }}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
@@ -194,7 +194,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{ selectable: true, additive: true, constant: true }}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>
@@ -211,7 +211,7 @@ storiesOf('module.Selectable', module)
     return (
       <Sel selectionOptions={{ selectable: true, additive: true, constant: true, fillInGaps: true }}
            selectionCallbacks={{
-             onSelectItem: (...props) => console.log('item', props),
+             onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
            }}
            style={{display: 'flex', flexFlow: 'row wrap', width: '50%'}}>

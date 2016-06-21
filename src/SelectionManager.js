@@ -87,10 +87,12 @@ export default class SelectionManager {
   begin(props) {
     this.selectedList.begin(props.selectionOptions.additive ?
       this.selectedList.selectedIndices : [], props)
+    this.selecting = true
   }
 
   commit() {
     this.selectedList.commit()
+    this.selecting = false
   }
 
   isSelecting() {

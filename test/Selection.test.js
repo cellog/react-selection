@@ -200,11 +200,11 @@ describe("Selection", () => {
       })
     })
 
-    it("should call onSelectItem if selectionOptions.constant is enabled", () => {
+    it("should call onSelectionChange if selectionOptions.constant is enabled", () => {
       const spy = sinon.spy()
       stuff = $((
         <Thing selectionOptions={{ selectable: true, constant: true }} selectionCallbacks={{
-          onSelectItem: spy
+          onSelectionChange: spy
         }}>
           <SelectableChild value="hi" key={1} />
           <SelectableChild value="hi2" key={2} />
@@ -258,11 +258,11 @@ describe("Selection", () => {
       ])
       expect(spy.args[0][4]).to.eql({hi: 'hi'})
     })
-    it("should not call onSelectItem if selectionOptions.constant is disabled", () => {
+    it("should not call onSelectionChange if selectionOptions.constant is disabled", () => {
       const spy = sinon.spy()
       stuff = $((
         <Thing selectionOptions={{selectable: true}} selectionCallbacks={{
-          onSelectItem: spy
+          onSelectionChange: spy
         }}>
           <SelectableChild value="hi" key={1} />
           <SelectableChild value="hi2" key={2} />
