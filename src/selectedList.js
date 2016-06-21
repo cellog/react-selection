@@ -127,12 +127,8 @@ export default class selectList {
     }
   }
 
-  removed(newSelected, prevSelected) {
+  changed(newSelected, prevSelected) {
     return prevSelected.filter(idx => newSelected.indexOf(idx) === -1)
-  }
-
-  added(newSelected, prevSelected) {
-    return newSelected.filter(idx => prevSelected.indexOf(idx) === -1)
   }
 
   xor(newSelected, prevSelected) {
@@ -181,8 +177,8 @@ export default class selectList {
     if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
       if (this.selectedIndices.every((idx, i) => this.transaction.mostRecentSelection[i] === idx)) return false
     }
-    const removed = this.removed(this.selectedIndices, this.transaction.mostRecentSelection)
-    const added = this.added(this.selectedIndices, this.transaction.mostRecentSelection)
+    const removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection)
+    const added = this.changed(this.transaction.mostRecentSelection, this.selectedIndices)
     this.transaction.mostRecentSelection = [...this.selectedIndices]
 
     removed.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(false) : null)
