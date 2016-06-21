@@ -92,7 +92,7 @@ const things = Array(50).fill(0).map(generateThing)
 const Sel2 = Selection(Test, (a, b) => Number(a) - Number(b))
 
 ReactDOM.render((
-  <Sel2 selectionOptions={{ selectable: true, constant: true, fillinGaps: true }} style={{display: 'flex', flexFlow: 'row wrap', width: '100%'}}>
+  <Sel2 selectionOptions={{ selectable: true, constant: true, inBetween: true }} style={{display: 'flex', flexFlow: 'row wrap', width: '100%'}}>
     {things}
   </Sel2>
 ), document.getElementById('example2')
@@ -107,7 +107,7 @@ class Demo extends Component {
         constant: false,
         selectable: true,
         preserve: false,
-        fillInGaps: false
+        inBetween: false
       },
     }
   }

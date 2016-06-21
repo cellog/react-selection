@@ -156,7 +156,7 @@ export default class selectList {
 
     // add the nodes that are logically selected in-between
     const options = props.selectionOptions
-    if (options.fillInGaps && this.selectedIndices.length) {
+    if (options.inBetween && this.selectedIndices.length) {
       const min = Math.min(...this.selectedIndices)
       const max = Math.max(...this.selectedIndices)
       const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)

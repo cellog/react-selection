@@ -610,7 +610,7 @@ describe("Selection", () => {
           selectable: false,
           constant: false,
           preserve: false,
-          fillInGaps: false
+          inBetween: false
         },
         selectionCallbacks: {},
         selectedNodeList: [],

@@ -303,8 +303,8 @@ describe("SelectionManager", function() {
       expect(notify.updateState.called).to.be.true
     })
 
-    it("should select 4 values with fillInGaps", () => {
-      props.selectionOptions.fillInGaps = true
+    it("should select 4 values with inBetween", () => {
+      props.selectionOptions.inBetween = true
 
       manager.begin(props)
       manager.select({

@@ -44,7 +44,7 @@ function makeSelectable( Component, options = {}) {
         additive: PropTypes.bool,
         selectable: PropTypes.bool,
         preserve: PropTypes.bool,
-        fillInGaps: PropTypes.bool,
+        inBetween: PropTypes.bool,
         acceptedTypes: PropTypes.array
       }),
       selectionCallbacks: PropTypes.shape({
@@ -62,7 +62,7 @@ function makeSelectable( Component, options = {}) {
         constant: false,
         selectable: false,
         preserve: false,
-        fillInGaps: false
+        inBetween: false
       },
       selectionCallbacks: {
       }

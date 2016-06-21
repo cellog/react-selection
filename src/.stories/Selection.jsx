@@ -158,7 +158,7 @@ storiesOf('module.Selectable', module)
 
     const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
     return (
-      <Sel selectionOptions={{ selectable: true, constant: true, fillInGaps: true }}
+      <Sel selectionOptions={{ selectable: true, constant: true, inBetween: true }}
            selectionCallbacks={{
              onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
@@ -209,7 +209,7 @@ storiesOf('module.Selectable', module)
 
     const Sel = Selection(Test, (a, b) => Number(a) - Number(b))
     return (
-      <Sel selectionOptions={{ selectable: true, additive: true, constant: true, fillInGaps: true }}
+      <Sel selectionOptions={{ selectable: true, additive: true, constant: true, inBetween: true }}
            selectionCallbacks={{
              onSelectionChange: (...props) => console.log('item', props),
              onFinishSelect: (...props) => console.log('finish', props)
