@@ -633,8 +633,40 @@ describe("SelectionManager", function() {
       manager.selectedList.selectedIndices.should.eql([2])
     })
 
-    it("should work with fill in gaps")
-    it("should work with fill in gaps and constant select")
+    it("should work with inBetween", () => {
+      manager.selectedList.setNodes(manager.sortedNodes)
+      props.selectionOptions.inBetween = true
+
+      manager.begin(props)
+      manager.select({
+        selectionRectangle: {sub: [1, 4], x: 1, left: 1, y: 1, top: 1}, props
+      }, findit, mouse)
+
+      manager.commit()
+
+      manager.selectedList.selectedIndices.should.eql([0, 1, 2, 3])
+    })
+    it("should work with inBetween and constant select", () => {
+      manager.selectedList.setNodes(manager.sortedNodes)
+      props.selectionOptions.inBetween = true
+      props.selectionOptions.constant = true
+
+      manager.begin(props)
+      manager.select({
+        selectionRectangle: {sub: [1], x: 1, left: 1, y: 1, top: 1}, props
+      }, findit, mouse)
+      manager.selectedList.selectedIndices.should.eql([0])
+
+      manager.commit()
+      manager.begin(props)
+      manager.select({
+        selectionRectangle: {sub: [1, 3], x: 1, left: 1, y: 1, top: 1}, props
+      }, findit, mouse)
+
+      manager.selectedList.selectedIndices.should.eql([1, 2])
+      manager.commit()
+
+    })
   })
 
   describe("deselect", () => {
