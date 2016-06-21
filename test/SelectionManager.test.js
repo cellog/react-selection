@@ -665,7 +665,6 @@ describe("SelectionManager", function() {
 
       manager.selectedList.selectedIndices.should.eql([1, 2])
       manager.commit()
-
     })
   })
 
