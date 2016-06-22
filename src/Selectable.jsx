@@ -33,16 +33,25 @@ function Selectable(Component, options) {
       selectionManager: PropTypes.object
     }
 
-    componentDidMount() {
-      if (!this.context || !this.context.selectionManager) return
-      const key = options.key(this.props)
+    componentWillReceiveProps(props) {
+      this.register(props)
+    }
+
+    register(props) {
       this.context.selectionManager.registerSelectable(this, {
-        key: key,
-        types: options.types ? new options.types : ['default'],
-        value: options.value(this.props),
+        key: options.key(this.props),
+        selectable: options.selectable ? options.selectable(props) : true,
+        types: options.types ? options.types : ['default'],
+        value: options.value(props),
         callback: this.selectItem,
         cacheBounds: options.cacheBounds
       })
+    }
+
+    componentDidMount() {
+      if (!this.context || !this.context.selectionManager) return
+      const key = options.key(this.props)
+      this.register(this.props)
       unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key)
     }
 

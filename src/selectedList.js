@@ -79,6 +79,7 @@ export default class selectList {
   selectItem(idx) {
     // first check to see if this index is the same type as the first node selected
     const node = this.nodes[idx]
+    if (!node.selectable) return
     if (this.props.hasOwnProperty('acceptedTypes')) {
       // by default we accept all types, this prop restricts types accepted
       if (!this.props.acceptedTypes.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {

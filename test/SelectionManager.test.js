@@ -35,6 +35,7 @@ describe("SelectionManager", function() {
       const callback = () => null
       manager.registerSelectable(thing, {
         key: 'hi',
+        selectable: true,
         value: 4,
         callback,
         types: { default: 1},
@@ -42,6 +43,7 @@ describe("SelectionManager", function() {
       })
       manager.sortedNodes.should.eql([{
         component: thing,
+        selectable: true,
         value: 4,
         key: 'hi',
         types: { default: 1},
@@ -51,6 +53,7 @@ describe("SelectionManager", function() {
       manager.selectables.should.have.property('hi')
       manager.selectables.hi.should.eql({
         component: thing,
+        selectable: true,
         key: 'hi',
         value: 4,
         types: { default: 1},
@@ -64,6 +67,7 @@ describe("SelectionManager", function() {
       const callback = () => null
       manager.registerSelectable(thing, {
         key: 'hi',
+        selectable: true,
         value: 4,
         callback,
         types: { default: 1},
@@ -71,6 +75,7 @@ describe("SelectionManager", function() {
       })
       manager.sortedNodes.should.eql([{
         component: thing,
+        selectable: true,
         value: 4,
         key: 'hi',
         types: { default: 1},
@@ -80,6 +85,7 @@ describe("SelectionManager", function() {
 
       manager.registerSelectable(thing, {
         key: 'hi',
+        selectable: false,
         value: 5,
         callback,
         types: { default: 1},
@@ -87,6 +93,7 @@ describe("SelectionManager", function() {
       })
       manager.sortedNodes.should.eql([{
         component: thing,
+        selectable: false,
         value: 5,
         key: 'hi',
         types: { default: 1},
@@ -104,6 +111,7 @@ describe("SelectionManager", function() {
       const findit = () => null
       manager.registerSelectable(thing, {
         key: 'hi',
+        selectable: true,
         value: 4,
         types: ['default'],
         callback,
@@ -111,6 +119,7 @@ describe("SelectionManager", function() {
       }, math, findit)
       manager.sortedNodes.should.eql([{
         component: thing,
+        selectable: true,
         value: 4,
         key: 'hi',
         types: ['default'],
@@ -126,6 +135,7 @@ describe("SelectionManager", function() {
       const callback = () => null
       manager.registerSelectable(thing1, {
         key: 'hi',
+        selectable: true,
         value: 4,
         types: ['default'],
         callback,
@@ -133,6 +143,7 @@ describe("SelectionManager", function() {
       })
       manager.registerSelectable(thing2, {
         key: 'hi2',
+        selectable: true,
         value: 4,
         types: ['default'],
         callback,
@@ -140,6 +151,7 @@ describe("SelectionManager", function() {
       })
       manager.registerSelectable(thing3, {
         key: 'hi3',
+        selectable: true,
         value: 4,
         types: ['default'],
         callback,
@@ -150,6 +162,7 @@ describe("SelectionManager", function() {
       manager.sortedNodes.should.eql([
         {
           component: thing1,
+          selectable: true,
           value: 4,
           key: 'hi',
           types: ['default'],
@@ -158,6 +171,7 @@ describe("SelectionManager", function() {
         },
         {
           component: thing2,
+          selectable: true,
           value: 4,
           key: 'hi2',
           types: ['default'],
@@ -166,6 +180,7 @@ describe("SelectionManager", function() {
         },
         {
           component: thing3,
+          selectable: true,
           value: 4,
           key: 'hi3',
           types: ['default'],
@@ -241,6 +256,7 @@ describe("SelectionManager", function() {
       manager = new SelectionManager(notify, new selectedList, props)
       node1 = {
         component: 1,
+        selectable: true,
         key: 1,
         types: ['default'],
         bounds: false,
@@ -248,6 +264,7 @@ describe("SelectionManager", function() {
       }
       node2 = {
         component: 2,
+        selectable: true,
         types: ['default'],
         key: 2,
         bounds: false,
@@ -255,6 +272,7 @@ describe("SelectionManager", function() {
       }
       node3 = {
         component: 3,
+        selectable: true,
         types: ['default'],
         key: 3,
         bounds: false,
@@ -262,6 +280,7 @@ describe("SelectionManager", function() {
       }
       node4 = {
         component: 4,
+        selectable: true,
         types: ['default'],
         key: 4,
         bounds: false,
@@ -334,6 +353,7 @@ describe("SelectionManager", function() {
       manager = new SelectionManager(notify, new selectedList, props)
       node1 = {
         component: 1,
+        selectable: true,
         key: 1,
         types: ['default', 'second'],
         bounds: false,
@@ -341,6 +361,7 @@ describe("SelectionManager", function() {
       }
       node2 = {
         component: 2,
+        selectable: true,
         types: ['third'],
         key: 2,
         bounds: false,
@@ -348,6 +369,7 @@ describe("SelectionManager", function() {
       }
       node3 = {
         component: 3,
+        selectable: true,
         types: ['default', 'third'],
         key: 3,
         bounds: false,
@@ -355,6 +377,7 @@ describe("SelectionManager", function() {
       }
       node4 = {
         component: 4,
+        selectable: true,
         types: ['second', 'fourth'],
         key: 4,
         bounds: false,
@@ -369,25 +392,13 @@ describe("SelectionManager", function() {
       manager.selectedList.begin([], props)
       expect(manager.selectedList.transaction.firstNode).is.false
       manager.select({
-        selectionRectangle: {sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1},
-        currentState: {
-          selectedNodes: {},
-          selectedValues: {},
-          selectedNodeList: [],
-          selectedValueList: []
-        }, props
+        selectionRectangle: {sub: [1, 2, 4], x: 1, left: 1, y: 1, top: 1}, props
       }, findit, mouse)
 
       expect(manager.selectedList.transaction.firstNode).equal(node1)
 
       manager.select({
-        selectionRectangle: {sub: [2, 4], x: 1, left: 1, y: 1, top: 1},
-        currentState: {
-          selectedNodes: {},
-          selectedValues: {},
-          selectedNodeList: [],
-          selectedValueList: []
-        }, props
+        selectionRectangle: {sub: [2, 4], x: 1, left: 1, y: 1, top: 1}, props
       }, findit, mouse)
       expect(manager.selectedList.transaction.firstNode).equal(node1)
       manager.selectedList.commit()
@@ -507,6 +518,7 @@ describe("SelectionManager", function() {
       manager = new SelectionManager(notify, new selectedList, props)
       node1 = {
         component: 1,
+        selectable: true,
         key: 1,
         types: ['default'],
         bounds: false,
@@ -514,6 +526,7 @@ describe("SelectionManager", function() {
       }
       node2 = {
         component: 2,
+        selectable: true,
         types: ['default'],
         key: 2,
         bounds: false,
@@ -521,6 +534,7 @@ describe("SelectionManager", function() {
       }
       node3 = {
         component: 3,
+        selectable: true,
         types: ['default'],
         key: 3,
         bounds: false,
@@ -528,6 +542,7 @@ describe("SelectionManager", function() {
       }
       node4 = {
         component: 4,
+        selectable: true,
         types: ['default'],
         key: 4,
         bounds: false,

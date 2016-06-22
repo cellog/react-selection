@@ -32,7 +32,7 @@ export default class SelectionManager {
       throw new Error(`component registered with undefined key, value is ${JSON.stringify(value)}`)
     }
     const bounds = cacheBounds ? mouse.getBoundsForNode(findit(component)) : null
-    const info = { component, key, value, types, callback, bounds }
+    const info = { component, selectable, key, value, types, callback, bounds }
     if (this.selectables.hasOwnProperty(key)) {
       // this allows us to dynamically update a component if it changes
       // its type, or its value

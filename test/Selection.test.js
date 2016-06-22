@@ -165,7 +165,6 @@ describe("Selection", () => {
           <SelectableChild value="hi3" id={3} />
         </Thing>
       )).render()
-      const children = stuff.find(SelectableChild)
       component = stuff[0]
       component.bounds = { hi: 'hi' }
 
@@ -180,9 +179,6 @@ describe("Selection", () => {
     let spy
     let stuff
     let component
-    let selectable1
-    let selectable2
-    let selectable3
 
     beforeEach(() => {
       spy = sinon.spy()
@@ -198,9 +194,6 @@ describe("Selection", () => {
       const children = stuff.find(SelectableChild)
       component = stuff[0]
       component.bounds = {hi: 'hi'}
-      selectable1 = children[0]
-      selectable2 = children[1]
-      selectable3 = children[2]
     })
 
     afterEach(() => {
