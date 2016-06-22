@@ -6,9 +6,10 @@ import selectedList from './selectedList.js'
 import makeReferenceableContainer from './ReferenceableContainer.jsx'
 
 import React, { PropTypes } from 'react'
+import { findDOMNode } from 'react-dom'
+import mouseMath from './mouseMath.js'
 
 function makeSelectable( Component, options = {}) {
-  const { sorter = false, nodevalue = (node) => node.props.value } = options
   // always force a ReferenceableContainer if a stateless functional component is passed in
   const useContainer = verifyComponent(Component)
   const componentDisplayName = Component.displayName || Component.name || 'Component'
@@ -27,14 +28,12 @@ function makeSelectable( Component, options = {}) {
       super(props)
       this.state = {
         selecting: false,
-        selectedNodes: {},
-        selectedNodeList: [],
-        selectedValues: {},
-        selectedValueList: []
+        selectedIndices: []
       }
       this.selectedList = new selectedList
       this.selectionManager = new SelectionManager(this, this.selectedList, props)
       this.makeInputManager = this.makeInputManager.bind(this)
+      this.cancelSelection = this.cancelSelection.bind(this)
     }
 
     static propTypes = {
@@ -70,69 +69,51 @@ function makeSelectable( Component, options = {}) {
 
     static childContextTypes = {
       selectionManager: PropTypes.object,
-      selectedNodes: PropTypes.object,
-      selectedNodeList: PropTypes.array,
-      selectedValues: PropTypes.object,
-      selectedValueList: PropTypes.array
+      selectedIndices: PropTypes.array,
+      nodeList: PropTypes.object
     }
 
-    updateState(selecting, nodes, values, nodearray, valuearray) {
+    updateState(selecting) {
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log('updatestate: ', selecting, nodes, values)
+        Debug.log('updatestate: ', selecting)
       }
-      const newnodes = nodes === null ? this.state.selectedNodes : nodes
-      const newvalues = values === null ? this.state.selectedValues : values
-      let nodelist
-      if (nodearray === null) {
-        nodelist = this.state.selectedNodeList
-      } else {
-        nodelist = sorter ? Object.keys(newnodes).map((key) => newnodes[key]).sort((a, b) => nodevalue(a.node) - nodevalue(b.node))
-          : nodearray
+      const onSelectionChange = this.props.selectionCallbacks.onSelectionChange
+      if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
+        const result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList)
+        if (!result) {
+          this.selectedList.revert()
+        } else if (result !== true) {
+          this.selectedList.setSelection(result)
+        }
       }
-      let valuelist
-      if (valuearray === null) {
-        valuelist = this.state.selectedValueList
-      } else {
-        valuelist = sorter ? Object.keys(newvalues).map((key) => newvalues[key]).sort(sorter)
-          : valuearray
-      }
+      // we are ok to notify
+      this.selectedList.notifyChangedNodes()
+
       this.setState({
         selecting: selecting === null ? this.state.selecting : selecting,
-        selectedNodes: newnodes,
-        selectedNodeList: nodelist,
-        selectedValues: newvalues,
-        selectedValueList: valuelist,
+        selectedIndices: [...this.selectedList.selectedIndices],
         containerBounds: this.bounds
       })
-      if (this.props.selectionCallbacks.onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
-        if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-          Debug.log('updatestate onSelectionChange', values, nodes, valuelist, nodelist, this.bounds)
-        }
-        if (this.props.selectionCallbacks.onSelectionChange) {
-          this.props.selectionCallbacks.onSelectionChange(values, () => nodes, valuelist, () => nodelist, this.bounds)
-        }
-      }
+      return true
+    }
+
+    cancelSelection(items) {
+      this.selectionManager.cancelSelection(items)
     }
 
     propagateFinishedSelect() {
       if (!this.props.selectionCallbacks.onFinishSelect) return
-      const newnodes = this.state.selectedNodes
-      const newvalues = this.state.selectedValues
-      const nodelist = this.state.selectedNodeList
-      const valuelist = this.state.selectedValueList
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds)
+        Debug.log('finishselect', this.state.selectedIndices, this.bounds)
       }
-      this.props.selectionCallbacks.onFinishSelect(newvalues, () => newnodes, valuelist, () => nodelist, this.bounds)
+      this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList, this.bounds)
     }
 
     getChildContext() {
       return {
         selectionManager: this.selectionManager,
-        selectedNodes: this.state.selectedNodes,
-        selectedValues: this.state.selectedValues,
-        selectedNodeList: this.state.selectedNodeList,
-        selectedValueList: this.state.selectedValueList
+        selectedIndices: this.state.selectedIndices,
+        nodeList: this.selectedList
       }
     }
 
@@ -162,14 +143,15 @@ function makeSelectable( Component, options = {}) {
       }
       this.selectionManager.begin(this.props)
       if (this.props.selectionOptions.constant) {
-        this.selectionManager.select({ selectionRectangle, props: this.props })
+        if (this.selectionManager.select({ selectionRectangle, props: this.props })) {
+          this.updateState(null)
+        }
       }
     }
 
     cancel() {
       this.selectionManager.commit()
       this.selectionManager.deselect()
-      this.propagateFinishedSelect()
       this.setState({ selecting: false })
     }
 
@@ -179,16 +161,19 @@ function makeSelectable( Component, options = {}) {
         this.propagateFinishedSelect()
         this.selectionManager.commit()
         this.selectionManager.deselect()
+        this.updateState(false)
         this.setState({ selecting: false })
         return
       }
       this.selectionManager.select({ selectionRectangle, props: this.props })
-      this.propagateFinishedSelect()
+      if (this.updateState(null)) {
+        this.propagateFinishedSelect()
+      }
       this.selectionManager.commit()
       this.setState({ selecting: false })
     }
 
-    change(selectionRectangle) {
+    change(selectionRectangle, findit = findDOMNode, mouse = mouseMath) {
       const old = this.state.selecting
 
       if (!old) {
@@ -196,7 +181,11 @@ function makeSelectable( Component, options = {}) {
       }
 
       if (this.props.selectionOptions.constant) {
-        this.selectionManager.select({ selectionRectangle, props: this.props })
+        if (this.selectionManager.select({selectionRectangle, props: this.props}, findit, mouse)) {
+          if (!this.updateState(null)) {
+            this.cancel()
+          }
+        }
       }
     }
 

@@ -9,13 +9,7 @@ export default class SelectionManager {
     this.clickTolerance = props.clickTolerance
     this.selecting = false
     this.selectables = {}
-    this.selectableKeys = []
     this.sortedNodes = []
-    this.selectedNodes = {}
-    this.selectedValues = {}
-    this.selectedNodeList = []
-    this.selectedValueList = []
-    this.firstNode = null
     this.indexMap = {}
     this.notify = notify
   }
@@ -32,6 +26,9 @@ export default class SelectionManager {
 
   registerSelectable(component, { key, value, types, selectable, callback, cacheBounds },
                      mouse = mouseMath, findit = findDOMNode) {
+    if (key === undefined) {
+      throw new Error(`component registered with undefined key, value is ${JSON.stringify(value)}`)
+    }
     const bounds = cacheBounds ? mouse.getBoundsForNode(findit(component)) : null
     const info = { component, key, value, types, callback, bounds }
     if (this.selectables.hasOwnProperty(key)) {
@@ -39,7 +36,6 @@ export default class SelectionManager {
       // its type, or its value
       this.sortedNodes[this.indexMap[key]] = info
     } else {
-      this.selectableKeys.push(key)
       this.indexMap[key] = this.sortedNodes.length
       this.sortedNodes.push(info)
     }
@@ -52,36 +48,33 @@ export default class SelectionManager {
 
   unregisterSelectable(component, key) {
     delete this.selectables[key]
-    this.selectableKeys = this.selectableKeys.filter((itemKey) => itemKey !== key)
+    const index = this.indexMap[key]
     this.sortedNodes = this.sortedNodes.filter((item) => item.key !== key)
-    if (this.selectedNodes[key]) {
-      const nodes = this.selectedNodes
-      const values = this.selectedValues
-      const nodeindex = this.selectedNodeList.indexOf(nodes[key])
-      const nodelist = this.selectedNodeList.splice(nodeindex, 1)
-      const valuelist = this.selectedValueList.splice(nodeindex, 1)
-      delete nodes[key]
-      delete values[key]
-      this.notify.updateState(null, nodes, values, nodelist, valuelist)
-    }
     this.selectedList.setNodes(this.sortedNodes)
+    if (this.selectedList.selectedIndices.indexOf(index) !== -1) {
+      this.selectedList.selectedIndices.splice(index, 1)
+      this.notify.updateState(null)
+    }
   }
 
   select({ selectionRectangle, props }, findit = findDOMNode, mouse = mouseMath) {
-    if (!this.selectedList.selectItemsInRectangle(selectionRectangle, props, findit, mouse)) {
-      return
+    return this.selectedList.selectItemsInRectangle(selectionRectangle, props, findit, mouse)
+  }
+
+  cancelSelection({ indices = undefined, nodes = undefined, values = undefined }) {
+    if (indices) {
+      return this.selectedList.cancelIndices(indices)
     }
-    this.notify.updateState(null,
-      this.selectedList.selectedNodes(),
-      this.selectedList.selectedValues(),
-      this.selectedList.selectedNodeList(),
-      this.selectedList.selectedValueList()
-    )
+    if (nodes) {
+      return this.selectedList.removeNodes(nodes)
+    }
+    if (values) {
+      return this.selectedList.removeValues(values)
+    }
   }
 
   deselect() {
     if (!this.selectedList.clear()) return
-    this.notify.updateState(false, {}, {}, [], [])
   }
 
   begin(props) {

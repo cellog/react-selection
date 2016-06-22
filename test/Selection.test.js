@@ -98,104 +98,28 @@ describe("Selection", () => {
 
   describe("updateState", () => {
     const Thing = Selection(Blah)
-    const Thing2 = Selection(Blah, {
-      sorter: (a, b) => a < b ? 1 : (a > b ? -1 : 0),
-      nodevalue: (node) => node
-    })
     let stuff
-    let stuff2
     let component
-    let component2
     beforeEach(() => {
       stuff = $(<Thing />).render()
-      stuff2 = $(<Thing2 />).render()
       component = stuff[0]
-      component2 = stuff2[0]
     })
     afterEach(() => {
       stuff.unmount()
-      stuff2.unmount()
     })
 
     it("should keep state the same if passed null", () => {
       component.setState({
         selecting: false,
-        selectedNodes: { 1: 1, 2: 2, 3: 3 },
-        selectedNodeList: [1, 2, 3],
-        selectedValues: { 4: 4, 5: 5, 6: 6 },
-        selectedValueList: [4, 5, 6],
+        selectedIndices: [],
         containerBounds: component.bounds
       })
+
+      component.updateState(null)
 
       component.state.should.eql({
         selecting: false,
-        selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [1, 2, 3],
-        selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [4, 5, 6],
-        containerBounds: component.bounds
-      })
-
-      component.updateState(null, null, null, null, null)
-
-      component.state.should.eql({
-        selecting: false,
-        selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [1, 2, 3],
-        selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [4, 5, 6],
-        containerBounds: component.bounds
-      })
-    })
-    it("should set values if passed", () => {
-      component.setState({
-        selecting: false,
-        selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [1, 2, 3],
-        selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [4, 5, 6],
-        containerBounds: component.bounds
-      })
-
-      component.state.should.eql({
-        selecting: false,
-        selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [1, 2, 3],
-        selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [4, 5, 6],
-        containerBounds: component.bounds
-      })
-
-      component.updateState(true, { hi: 'hi' }, { there: 'there' }, ['hi'], ['there'])
-
-      component.state.should.eql({
-        selecting: true,
-        selectedNodes: { hi: 'hi' },
-        selectedNodeList: ['hi'],
-        selectedValues: { there: 'there' },
-        selectedValueList: ['there'],
-        containerBounds: component.bounds
-      })
-    })
-
-    it("should sort by user sorter if passed into to HOC creator", () => {
-      component2.setState({
-        selecting: false,
-        selectedNodes: { 1: 1, 2: 2, 3: 3},
-        selectedNodeList: [1, 2, 3],
-        selectedValues: { 4: 4, 5: 5, 6: 6},
-        selectedValueList: [4, 5, 6],
-        containerBounds: component.bounds
-      })
-
-      component2.updateState(true, { hi: 'hi', bye: 'bye' }, { there: 'there', ziggy: 'ziggy' }, ['bye', 'hi'], ['there', 'ziggy'])
-
-      component2.state.should.eql({
-        selecting: true,
-        selectedNodes: { hi: 'hi', bye: 'bye' },
-        selectedNodeList: ['hi', 'bye'],
-        selectedValues: { there: 'there', ziggy: 'ziggy' },
-        selectedValueList: ['ziggy', 'there'],
+        selectedIndices: [],
         containerBounds: component.bounds
       })
     })
@@ -204,87 +128,48 @@ describe("Selection", () => {
       const spy = sinon.spy()
       stuff = $((
         <Thing selectionOptions={{ selectable: true, constant: true }} selectionCallbacks={{
-          onSelectionChange: spy
+          onSelectionChange: (...args) => {
+            spy(...args)
+            return true
+          }
         }}>
-          <SelectableChild value="hi" key={1} />
-          <SelectableChild value="hi2" key={2} />
-          <SelectableChild value="hi3" key={3} />
+          <SelectableChild value="hi" id={1} />
+          <SelectableChild value="hi2" id={2} />
+          <SelectableChild value="hi3" id={3} />
         </Thing>
           )).render()
-      const children = stuff.find(SelectableChild)
       component = stuff[0]
       component.bounds = { hi: 'hi' }
-      const selectable1 = children[0]
-      const selectable2 = children[1]
-      const selectable3 = children[2]
 
       component.selectionManager.selecting = true
-      component.updateState(null, {
-        3: {node: selectable3},
-        1: {node: selectable1},
-        2: {node: selectable2}
-      }, {
-        3: 'hi3',
-        1: 'hi',
-        2: 'hi2'
-      }, [
-        {node: selectable1},
-        {node: selectable2},
-        {node: selectable3}
-      ], [
-        'hi',
-        'hi2',
-        'hi3'
-      ])
+      component.selectedList.removed = [0]
+      component.selectedList.added = [2]
+      component.updateState(null)
 
       expect(spy.called).to.be.true
 
-      spy.args[0].should.have.length(5)
-      spy.args[0][0].should.be.eql({
-        3: 'hi3',
-        1: 'hi',
-        2: 'hi2'
-      })
-      expect(spy.args[0][1]()).to.eql({
-        3: {node: selectable3},
-        1: {node: selectable1},
-        2: {node: selectable2}
-      })
-      expect(spy.args[0][2]).to.eql(['hi', 'hi2', 'hi3'])
-      expect(spy.args[0][3]()).to.eql([
-        {node: selectable1},
-        {node: selectable2},
-        {node: selectable3}
-      ])
-      expect(spy.args[0][4]).to.eql({hi: 'hi'})
+      spy.args[0].should.have.length(3)
+      spy.args[0][0].should.be.eql([0])
+      spy.args[0][1].should.be.eql([2])
+      spy.args[0][2].should.equal(component.selectedList)
     })
+
     it("should not call onSelectionChange if selectionOptions.constant is disabled", () => {
       const spy = sinon.spy()
       stuff = $((
         <Thing selectionOptions={{selectable: true}} selectionCallbacks={{
           onSelectionChange: spy
         }}>
-          <SelectableChild value="hi" key={1} />
-          <SelectableChild value="hi2" key={2} />
-          <SelectableChild value="hi3" key={3} />
+          <SelectableChild value="hi" id={1} />
+          <SelectableChild value="hi2" id={2} />
+          <SelectableChild value="hi3" id={3} />
         </Thing>
       )).render()
       const children = stuff.find(SelectableChild)
       component = stuff[0]
       component.bounds = { hi: 'hi' }
-      const selectable1 = children[0]
-      const selectable2 = children[1]
-      const selectable3 = children[2]
 
-      component.updateState(null, {
-        3: {node: selectable3},
-        1: {node: selectable1},
-        2: {node: selectable2}
-      }, {
-        3: 'hi3',
-        1: 'hi',
-        2: 'hi2'
-      })
+      component.updateState(null)
 
       expect(spy.called).to.be.false
     })
@@ -304,9 +189,9 @@ describe("Selection", () => {
       stuff = $((
         <Thing selectionOptions={{ selectable: true, constant: true }}
                selectionCallbacks={{ onFinishSelect: spy }}>
-        <SelectableChild value="hi" key={1}/>
-        <SelectableChild value="hi2" key={2}/>
-        <SelectableChild value="hi3" key={3}/>
+        <SelectableChild value="hi" id={1}/>
+        <SelectableChild value="hi2" id={2}/>
+        <SelectableChild value="hi3" id={3}/>
         </Thing>
       )).render()
       component = stuff[0]
@@ -323,46 +208,17 @@ describe("Selection", () => {
     })
 
     it("should return our info", () => {
-      component.updateState(null, {
-        3: {node: selectable3},
-        1: {node: selectable1},
-        2: {node: selectable2}
-      }, {
-        3: 'hi3',
-        1: 'hi',
-        2: 'hi2'
-      }, [
-        {node: selectable1},
-        {node: selectable2},
-        {node: selectable3}
-      ], [
-        'hi',
-        'hi2',
-        'hi3'
-      ])
+      component.selectedList.selectedIndices = [0, 1, 2]
+      component.updateState(null)
 
       component.propagateFinishedSelect()
 
       expect(spy.called).to.be.true
 
-      spy.args[0].should.have.length(5)
-      spy.args[0][0].should.be.eql({
-        3: 'hi3',
-        1: 'hi',
-        2: 'hi2'
-      })
-      expect(spy.args[0][1]()).to.eql({
-        3: {node: selectable3},
-        1: {node: selectable1},
-        2: {node: selectable2}
-      })
-      expect(spy.args[0][2]).to.eql(['hi', 'hi2', 'hi3'])
-      expect(spy.args[0][3]()).to.eql([
-        {node: selectable1},
-        {node: selectable2},
-        {node: selectable3}
-      ])
-      expect(spy.args[0][4]).to.eql({hi: 'hi'})
+      spy.args[0].should.have.length(3)
+      spy.args[0][0].should.be.eql([0, 1, 2])
+      expect(spy.args[0][1]).to.equal(component.selectedList)
+      expect(spy.args[0][2]).to.equal(component.bounds)
     })
   })
 
@@ -454,16 +310,6 @@ describe("Selection", () => {
       expect(spy.called).to.be.true
     })
 
-    it("should call propageFinishedSelect", () => {
-      component.selectionManager.begin({
-        selectionOptions: {}
-      })
-      component.propagateFinishedSelect = spy
-      component.cancel()
-
-      expect(spy.called).to.be.true
-    })
-
     it("should turn off selection", () => {
       component.selectionManager.begin(component.props)
       component.setState = spy
@@ -505,6 +351,25 @@ describe("Selection", () => {
 
   describe("change", () => {
     const Thing = Selection(Blah)
+    let i
+    let setit
+    const mouse = {
+      getBoundsForSelection: (thing) => {
+        return thing
+      },
+      objectsCollide: () => {
+        if (!setit) return false
+        if (i++) {
+          return true
+        }
+        return false
+      }
+    }
+    const findit = () => { return { hi: 'hi' }}
+    beforeEach(() => {
+      setit = false
+      i = 1
+    })
 
     it("should enable selection", () => {
       const stuff = $(<Thing />).render()
@@ -526,6 +391,24 @@ describe("Selection", () => {
       component.change(1)
 
       expect(component.selectionManager.select.called).to.be.true
+    })
+    it("should call updateState if the selection changed, constant is enabled", () => {
+      const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }}>
+        <SelectableChild id={1} value="hi" />
+        <SelectableChild id={2} value="hi2" />
+        </Thing>).render()
+      const component = stuff[0]
+      component.updateState = sinon.spy()
+      component.selectionManager.begin(component.props)
+      component.change({
+        x: 1, y: 1, top: 2, left: 2
+      }, findit, mouse)
+      expect(component.updateState.called).to.be.false
+      setit = true
+      component.change({
+        x: 1, y: 1, top: 2, left: 2
+      }, findit, mouse)
+      expect(component.updateState.called).to.be.true
     })
   })
 
@@ -575,7 +458,7 @@ describe("Selection", () => {
 
       expect(spy.calledOnce).to.be.true
     })
-    it("should umount inputManager and re-set if ref changes", () => {
+    it("should unmount inputManager and re-set if ref changes", () => {
       const spy = sinon.spy()
       const spy2 = sinon.spy()
 
@@ -613,10 +496,7 @@ describe("Selection", () => {
           inBetween: false
         },
         selectionCallbacks: {},
-        selectedNodeList: [],
-        selectedNodes: {},
-        selectedValueList: [],
-        selectedValues: {},
+        selectedIndices: [],
         selecting: false,
         another: "hi"
       })

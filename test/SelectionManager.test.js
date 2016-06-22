@@ -40,7 +40,6 @@ describe("SelectionManager", function() {
         types: { default: 1},
         cacheBounds: false
       })
-      manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
         value: 4,
@@ -70,7 +69,6 @@ describe("SelectionManager", function() {
         types: { default: 1},
         cacheBounds: false
       })
-      manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
         value: 4,
@@ -87,7 +85,6 @@ describe("SelectionManager", function() {
         types: { default: 1},
         cacheBounds: false
       })
-      manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
         value: 5,
@@ -112,7 +109,6 @@ describe("SelectionManager", function() {
         callback,
         cacheBounds: true
       }, math, findit)
-      manager.selectableKeys.should.eql(['hi'])
       manager.sortedNodes.should.eql([{
         component: thing,
         value: 4,
@@ -150,7 +146,6 @@ describe("SelectionManager", function() {
         cacheBounds: false
       })
 
-      manager.selectableKeys.should.eql(['hi', 'hi2', 'hi3'])
       manager.indexMap.should.eql({ hi: 0, hi2: 1, hi3: 2 })
       manager.sortedNodes.should.eql([
         {
@@ -202,20 +197,15 @@ describe("SelectionManager", function() {
     })
 
     it("should remove an existing item", () => {
-      manager.selectableKeys.should.have.length(1)
       manager.sortedNodes.should.have.length(1)
       manager.unregisterSelectable(thing, 'hi')
-      manager.selectableKeys.should.have.length(0)
       manager.sortedNodes.should.have.length(0)
     })
 
     it("should notify if removing affects the current selection", () => {
-      manager.selectableKeys.should.have.length(1)
       manager.sortedNodes.should.have.length(1)
-      manager.selectedNodes.hi = thing
-      manager.selectedValues.hi = 4
+      manager.selectedList.selectedIndices = [0]
       manager.unregisterSelectable(thing, 'hi')
-      manager.selectableKeys.should.have.length(0)
       manager.sortedNodes.should.have.length(0)
 
       expect(notify.updateState.called).to.equal(true)
@@ -294,13 +284,6 @@ describe("SelectionManager", function() {
       selectedNodes[1].should.eql({bounds: 1, node: 1})
       selectedNodes[2].should.eql({bounds: 2, node: 2})
       selectedNodes[4].should.eql({bounds: 4, node: 4})
-
-      expect(node1.callback.called).to.be.true
-      expect(node2.callback.called).to.be.true
-      expect(node3.callback.called).to.be.false
-      expect(node4.callback.called).to.be.true
-
-      expect(notify.updateState.called).to.be.true
     })
 
     it("should select 4 values with inBetween", () => {
@@ -319,13 +302,6 @@ describe("SelectionManager", function() {
       selectedNodes[2].should.eql({bounds: 2, node: 2})
       selectedNodes[3].should.eql({bounds: 3, node: 3})
       selectedNodes[4].should.eql({bounds: 4, node: 4})
-
-      expect(node1.callback.called).to.be.true
-      expect(node2.callback.called).to.be.true
-      expect(node3.callback.called).to.be.true
-      expect(node4.callback.called).to.be.true
-
-      expect(notify.updateState.called).to.be.true
     })
   })
 
@@ -688,7 +664,6 @@ describe("SelectionManager", function() {
       manager.deselect({})
 
       expect(spy.callback.called).to.be.true
-      expect(notify.updateState.called).to.be.true
     })
   })
 })

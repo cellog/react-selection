@@ -8,6 +8,8 @@ export default class selectList {
   bounds = []
   indices = {}
   selectedIndices = []
+  removed = []
+  added = []
   transaction = {
   }
 
@@ -24,6 +26,8 @@ export default class selectList {
     }
 
     this.selectedIndices = []
+    this.removed = []
+    this.added = []
     this.props = props
   }
 
@@ -150,9 +154,11 @@ export default class selectList {
     }
     this.selectedIndices = []
     this.props = props
+    this.removed = []
+    this.added = []
 
     // get a list of all nodes that are potential selects from the selection rectangle
-    this.nodes.forEach(this.testNodes.bind(this, { selectionRectangle, props, findit, mouse }))
+    this.nodes.forEach(this.testNodes.bind(this, {selectionRectangle, props, findit, mouse}))
 
     // add the nodes that are logically selected in-between
     const options = props.selectionOptions
@@ -177,19 +183,30 @@ export default class selectList {
     if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
       if (this.selectedIndices.every((idx, i) => this.transaction.mostRecentSelection[i] === idx)) return false
     }
-    const removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection)
-    const added = this.changed(this.transaction.mostRecentSelection, this.selectedIndices)
+    this.removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection)
+    this.added = this.changed(this.transaction.mostRecentSelection, this.selectedIndices)
+    this.transaction.previousMostRecentSelection = [...this.transaction.mostRecentSelection]
     this.transaction.mostRecentSelection = [...this.selectedIndices]
-
-    removed.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(false) : null)
-    added.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(true) : null)
     return true
+  }
+
+  notifyChangedNodes() {
+    this.removed.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(false) : null)
+    this.added.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(true) : null)
   }
 
   clear() {
     if (this.selectedIndices.length === 0) return false
     this.selectedIndices.forEach(idx => this.nodes[idx].callback && this.nodes[idx].callback(false))
     return true
+  }
+
+  nodes() {
+    return this.nodes
+  }
+
+  selectedIndices() {
+    return this.selectedIndices
   }
 
   selectedNodeList() {
@@ -215,5 +232,19 @@ export default class selectList {
       val[this.nodes[idx].key] = this.nodes[idx].value
       return val
     }, {})
+  }
+
+  revert() {
+    const add = this.removed
+    const remove = this.added
+
+    add.forEach(idx => this.addItem(idx, this.selectedIndices))
+    remove.forEach(idx => this.removeItem(idx, this.selectedIndices))
+  }
+
+  setSelection(indices) {
+    this.selectedIndices = indices
+    this.removed = this.changed(this.selectedIndices, this.transaction.previousMostRecentSelection)
+    this.added = this.changed(this.transaction.previousMostRecentSelection, this.selectedIndices)
   }
 }

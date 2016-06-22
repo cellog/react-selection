@@ -7,6 +7,7 @@
 - BREAKING CHANGE: all selection callbacks are now part of a map, selectionCallback
 - BREAKING CHANGE: onSelectSlot renamed selectionOptions.onSelectionChange
 - fix #9: onSelectSlot called after selection finished and onFinishSelect already called
+- implement #13: Allow canceling or modifying selection
 - implement #8: additive selection mode
 - implement #7: by default, sort selectable items by DOM order
 - implement #3: add selectable types
