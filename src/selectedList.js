@@ -13,6 +13,44 @@ export default class selectList {
   transaction = {
   }
 
+  constructor() {
+    const _this = this
+    this.accessor = {
+      nodes() {
+        return [..._this.nodes]
+      },
+
+      selectedIndices() {
+        return [..._this.selectedIndices]
+      },
+
+      selectedNodeList() {
+        return _this.selectedIndices.map(idx => this.nodes[idx].component)
+      },
+
+      selectedValueList() {
+        return _this.selectedIndices.map(idx => this.nodes[idx].value)
+      },
+
+      selectedNodes() {
+        return _this.selectedIndices.reduce((val, idx) => {
+          val[this.nodes[idx].key] = {
+            node: this.nodes[idx].component,
+            bounds: this.bounds[idx]
+          }
+          return val
+        }, {})
+      },
+
+      selectedValues() {
+        return _this.selectedIndices.reduce((val, idx) => {
+          val[this.nodes[idx].key] = this.nodes[idx].value
+          return val
+        }, {})
+      }
+    }
+  }
+
   setNodes(nodes) {
     this.nodes = nodes
     this.nodes.forEach((node, idx) => this.indices[node.key] = idx)
@@ -200,39 +238,6 @@ export default class selectList {
     if (this.selectedIndices.length === 0) return false
     this.selectedIndices.forEach(idx => this.nodes[idx].callback && this.nodes[idx].callback(false))
     return true
-  }
-
-  nodes() {
-    return this.nodes
-  }
-
-  selectedIndices() {
-    return this.selectedIndices
-  }
-
-  selectedNodeList() {
-    return this.selectedIndices.map(idx => this.nodes[idx].component)
-  }
-
-  selectedValueList() {
-    return this.selectedIndices.map(idx => this.nodes[idx].value)
-  }
-
-  selectedNodes() {
-    return this.selectedIndices.reduce((val, idx) => {
-      val[this.nodes[idx].key] = {
-        node: this.nodes[idx].component,
-        bounds: this.bounds[idx]
-      }
-      return val
-    }, {})
-  }
-
-  selectedValues() {
-    return this.selectedIndices.reduce((val, idx) => {
-      val[this.nodes[idx].key] = this.nodes[idx].value
-      return val
-    }, {})
   }
 
   revert() {
