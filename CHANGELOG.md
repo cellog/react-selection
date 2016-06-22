@@ -10,6 +10,7 @@
 - implement #13: Allow canceling or modifying selection
 - implement #8: additive selection mode
 - implement #7: by default, sort selectable items by DOM order
+- implement #4: Allow Selectable objects to be marked as temporarily unselectable
 - implement #3: add selectable types
 
 0.3.0 / 2016-06-19

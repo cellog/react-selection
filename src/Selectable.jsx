@@ -22,9 +22,11 @@ function Selectable(Component, options) {
     constructor(props, context) {
       super(props, context)
       this.state = {
-        selected: false
+        selected: false,
+        selectable: true
       }
       this.selectItem = this.selectItem.bind(this)
+      this.changeSelectable = this.changeSelectable.bind(this)
     }
 
     static contextTypes = {
@@ -53,11 +55,16 @@ function Selectable(Component, options) {
       this.setState({ selected: value })
     }
 
+    changeSelectable(selectable) {
+      this.context.selectionManager.changeSelectable(options.key(this.props), selectable)
+      this.setState({ selectable })
+    }
+
     render() {
       if (useContainer) {
-        return <ReferenceableContainer {...this.props} selected={this.state.selected} />
+        return <ReferenceableContainer {...this.props} selected={this.state.selected} changeSelectable={this.changeSelectable} />
       }
-      return <Component {...this.props} selected={this.state.selected} />
+      return <Component {...this.props} selected={this.state.selected} changeSelectable={this.changeSelectable} />
     }
   }
 }

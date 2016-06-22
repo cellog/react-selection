@@ -17,11 +17,13 @@ export default class SelectionManager {
   changeType(key, types) {
     this.selectables[key].types = types
     this.sortedNodes[this.indexMap[key]].types = types
+    this.selectedList.setNodes(this.sortedNodes)
   }
 
   changeSelectable(key, selectable) {
     this.selectables[key].selectable = selectable
     this.sortedNodes[this.indexMap[key]].selectable = selectable
+    this.selectedList.setNodes(this.sortedNodes)
   }
 
   registerSelectable(component, { key, value, types, selectable, callback, cacheBounds },
