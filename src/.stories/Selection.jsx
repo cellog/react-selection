@@ -9,14 +9,22 @@ class Thing extends React.Component {
     thing: React.PropTypes.string.isRequired
   }
   render() {
-    return <div style={{
-      width: 50,
-      height: 50,
-      backgroundColor: (this.props.selected ? 'green' : 'red'),
-      margin: 10}}
-    >
-      {this.props.thing}
-    </div>
+    let bgColor
+    if (this.props.selectable) {
+      bgColor = this.props.selected ? 'green' : 'red'
+    } else {
+      bgColor = 'gray'
+    }
+    return (
+      <div style={{
+        width: 50,
+        height: 50,
+        backgroundColor: bgColor,
+        margin: 10}}
+      >
+        {this.props.thing}
+      </div>
+    )
   }
 }
 
@@ -42,6 +50,10 @@ const SelectableThing = Selectable(Thing, {
   },
   value: (props) => {
     return props.thing
+  },
+  selectable: (props) => {
+    if (props.disabled) return false
+    return true
   },
   cacheBounds: true
 })
@@ -72,7 +84,7 @@ class Test extends React.Component {
 }
 
 const changeCallback = (...props) => {
-  console.log(props)
+  console.log('change selection', props)
   return true
 }
 storiesOf('module.Selectable', module)
@@ -90,6 +102,52 @@ storiesOf('module.Selectable', module)
         <SelectableThing thing="foo" index={3} />
       </Sel>
     )
+  })
+
+  .add('selectable, some elements disabled', () => {
+    const Sel = Selection(Test)
+    return (
+      <Sel selectionOptions={{ constant: true, selectable: true }}
+           selectionCallbacks={{
+             onSelectionChange: changeCallback,
+             onFinishSelect: (...props) => console.log('finish', props)
+           }}
+      >
+        <SelectableThing thing="hi" index={1}/>
+        <SelectableThing thing="there" index={2} />
+        <SelectableThing thing="foo" index={3} disabled />
+      </Sel>
+    )
+  })
+
+  .add('selectable, some elements disabled, toggle', () => {
+    const Sel = Selection(Test)
+    class Moo extends React.Component {
+      constructor(props) {
+        super(props)
+        this.state = {
+          disabled: true
+        }
+      }
+      render() {
+        return (
+          <div>
+            <button onClick={() => this.setState({ disabled: !this.state.disabled })}>Toggle Disabled</button>
+            <Sel selectionOptions={{ constant: true, selectable: true }}
+                 selectionCallbacks={{
+                   onSelectionChange: changeCallback,
+                   onFinishSelect: (...props) => console.log('finish', props)
+                 }}
+            >
+              <SelectableThing thing="hi" index={1}/>
+              <SelectableThing thing="there" index={2} />
+              <SelectableThing thing="foo" index={3} disabled={this.state.disabled} />
+            </Sel>
+          </div>
+        )
+      }
+    }
+    return <Moo />
   })
 
   .add('selectable, not constant select', () => {

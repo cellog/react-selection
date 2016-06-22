@@ -191,8 +191,6 @@ describe("Selection", () => {
         </Thing>
       )).render()
       component = stuff[0]
-      const children = stuff.find(SelectableChild)
-      component = stuff[0]
       component.bounds = {hi: 'hi'}
     })
 

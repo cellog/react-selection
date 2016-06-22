@@ -23,7 +23,7 @@ function Selectable(Component, options) {
       super(props, context)
       this.state = {
         selected: false,
-        selectable: true
+        selectable: options.selectable ? options.selectable(props) : true
       }
       this.selectItem = this.selectItem.bind(this)
       this.changeSelectable = this.changeSelectable.bind(this)
@@ -35,6 +35,9 @@ function Selectable(Component, options) {
 
     componentWillReceiveProps(props) {
       this.register(props)
+      if (options.selectable) {
+        this.setState({ selectable: options.selectable(props) })
+      }
     }
 
     register(props) {
@@ -71,9 +74,9 @@ function Selectable(Component, options) {
 
     render() {
       if (useContainer) {
-        return <ReferenceableContainer {...this.props} selected={this.state.selected} changeSelectable={this.changeSelectable} />
+        return <ReferenceableContainer {...this.props} {...this.state} changeSelectable={this.changeSelectable} />
       }
-      return <Component {...this.props} selected={this.state.selected} changeSelectable={this.changeSelectable} />
+      return <Component {...this.props} {...this.state} changeSelectable={this.changeSelectable} />
     }
   }
 }
