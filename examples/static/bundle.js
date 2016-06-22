@@ -453,8 +453,8 @@
 	        }
 	        var onSelectionChange = this.props.selectionCallbacks.onSelectionChange;
 	        if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
-	          var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList);
-	          if (!result) {
+	          var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor);
+	          if (result === false) {
 	            this.selectedList.revert();
 	          } else if (result !== true) {
 	            this.selectedList.setSelection(result);
@@ -20694,16 +20694,59 @@
 	    this.removed = [];
 	    this.added = [];
 	    this.transaction = {};
+
+	    var _this = this;
+	    this.accessor = {
+	      nodes: function nodes() {
+	        return [].concat(_toConsumableArray(_this.nodes));
+	      },
+	      selectedIndices: function selectedIndices() {
+	        return [].concat(_toConsumableArray(_this.selectedIndices));
+	      },
+	      selectedNodeList: function selectedNodeList() {
+	        var _this2 = this;
+
+	        return _this.selectedIndices.map(function (idx) {
+	          return _this2.nodes[idx].component;
+	        });
+	      },
+	      selectedValueList: function selectedValueList() {
+	        var _this3 = this;
+
+	        return _this.selectedIndices.map(function (idx) {
+	          return _this3.nodes[idx].value;
+	        });
+	      },
+	      selectedNodes: function selectedNodes() {
+	        var _this4 = this;
+
+	        return _this.selectedIndices.reduce(function (val, idx) {
+	          val[_this4.nodes[idx].key] = {
+	            node: _this4.nodes[idx].component,
+	            bounds: _this4.bounds[idx]
+	          };
+	          return val;
+	        }, {});
+	      },
+	      selectedValues: function selectedValues() {
+	        var _this5 = this;
+
+	        return _this.selectedIndices.reduce(function (val, idx) {
+	          val[_this5.nodes[idx].key] = _this5.nodes[idx].value;
+	          return val;
+	        }, {});
+	      }
+	    };
 	  }
 
 	  _createClass(selectList, [{
 	    key: 'setNodes',
 	    value: function setNodes(nodes) {
-	      var _this = this;
+	      var _this6 = this;
 
 	      this.nodes = nodes;
 	      this.nodes.forEach(function (node, idx) {
-	        return _this.indices[node.key] = idx;
+	        return _this6.indices[node.key] = idx;
 	      });
 	    }
 	  }, {
@@ -20848,29 +20891,29 @@
 	  }, {
 	    key: 'xor',
 	    value: function xor(newSelected, prevSelected) {
-	      var _this2 = this;
+	      var _this7 = this;
 
 	      var ret = [].concat(_toConsumableArray(prevSelected));
 	      newSelected.forEach(function (idx) {
-	        return prevSelected.indexOf(idx) === -1 ? _this2.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1);
+	        return prevSelected.indexOf(idx) === -1 ? _this7.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1);
 	      });
 	      return ret;
 	    }
 	  }, {
 	    key: 'or',
 	    value: function or(newSelected, prevSelected) {
-	      var _this3 = this;
+	      var _this8 = this;
 
 	      var ret = [].concat(_toConsumableArray(prevSelected));
 	      newSelected.forEach(function (idx) {
-	        return prevSelected.indexOf(idx) === -1 ? _this3.addItem(idx, ret) : null;
+	        return prevSelected.indexOf(idx) === -1 ? _this8.addItem(idx, ret) : null;
 	      });
 	      return ret;
 	    }
 	  }, {
 	    key: 'selectItemsInRectangle',
 	    value: function selectItemsInRectangle(selectionRectangle, props) {
-	      var _this4 = this;
+	      var _this9 = this;
 
 	      var findit = arguments.length <= 2 || arguments[2] === undefined ? _reactDom.findDOMNode : arguments[2];
 	      var mouse = arguments.length <= 3 || arguments[3] === undefined ? _mouseMath2.default : arguments[3];
@@ -20891,8 +20934,8 @@
 	      var options = props.selectionOptions;
 	      if (options.inBetween && this.selectedIndices.length) {
 	        (function () {
-	          var min = Math.min.apply(Math, _toConsumableArray(_this4.selectedIndices));
-	          var max = Math.max.apply(Math, _toConsumableArray(_this4.selectedIndices));
+	          var min = Math.min.apply(Math, _toConsumableArray(_this9.selectedIndices));
+	          var max = Math.max.apply(Math, _toConsumableArray(_this9.selectedIndices));
 	          var filled = Array.apply(min, Array(max - min)).map(function (x, y) {
 	            return min + y + 1;
 	          });
@@ -20901,7 +20944,7 @@
 	            _debug2.default.log('gaps to fill', filled);
 	          }
 	          filled.forEach(function (idx) {
-	            return _this4.selectItem(idx);
+	            return _this9.selectItem(idx);
 	          });
 	        })();
 	      }
@@ -20915,7 +20958,7 @@
 
 	      if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
 	        if (this.selectedIndices.every(function (idx, i) {
-	          return _this4.transaction.mostRecentSelection[i] === idx;
+	          return _this9.transaction.mostRecentSelection[i] === idx;
 	        })) return false;
 	      }
 	      this.removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection);
@@ -20927,90 +20970,39 @@
 	  }, {
 	    key: 'notifyChangedNodes',
 	    value: function notifyChangedNodes() {
-	      var _this5 = this;
+	      var _this10 = this;
 
 	      this.removed.map(function (idx) {
-	        return _this5.nodes[idx].callback ? _this5.nodes[idx].callback(false) : null;
+	        return _this10.nodes[idx].callback ? _this10.nodes[idx].callback(false) : null;
 	      });
 	      this.added.map(function (idx) {
-	        return _this5.nodes[idx].callback ? _this5.nodes[idx].callback(true) : null;
+	        return _this10.nodes[idx].callback ? _this10.nodes[idx].callback(true) : null;
 	      });
 	    }
 	  }, {
 	    key: 'clear',
 	    value: function clear() {
-	      var _this6 = this;
+	      var _this11 = this;
 
 	      if (this.selectedIndices.length === 0) return false;
 	      this.selectedIndices.forEach(function (idx) {
-	        return _this6.nodes[idx].callback && _this6.nodes[idx].callback(false);
+	        return _this11.nodes[idx].callback && _this11.nodes[idx].callback(false);
 	      });
 	      return true;
 	    }
 	  }, {
-	    key: 'nodes',
-	    value: function nodes() {
-	      return this.nodes;
-	    }
-	  }, {
-	    key: 'selectedIndices',
-	    value: function selectedIndices() {
-	      return this.selectedIndices;
-	    }
-	  }, {
-	    key: 'selectedNodeList',
-	    value: function selectedNodeList() {
-	      var _this7 = this;
-
-	      return this.selectedIndices.map(function (idx) {
-	        return _this7.nodes[idx].component;
-	      });
-	    }
-	  }, {
-	    key: 'selectedValueList',
-	    value: function selectedValueList() {
-	      var _this8 = this;
-
-	      return this.selectedIndices.map(function (idx) {
-	        return _this8.nodes[idx].value;
-	      });
-	    }
-	  }, {
-	    key: 'selectedNodes',
-	    value: function selectedNodes() {
-	      var _this9 = this;
-
-	      return this.selectedIndices.reduce(function (val, idx) {
-	        val[_this9.nodes[idx].key] = {
-	          node: _this9.nodes[idx].component,
-	          bounds: _this9.bounds[idx]
-	        };
-	        return val;
-	      }, {});
-	    }
-	  }, {
-	    key: 'selectedValues',
-	    value: function selectedValues() {
-	      var _this10 = this;
-
-	      return this.selectedIndices.reduce(function (val, idx) {
-	        val[_this10.nodes[idx].key] = _this10.nodes[idx].value;
-	        return val;
-	      }, {});
-	    }
-	  }, {
 	    key: 'revert',
 	    value: function revert() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      var add = this.removed;
 	      var remove = this.added;
 
 	      add.forEach(function (idx) {
-	        return _this11.addItem(idx, _this11.selectedIndices);
+	        return _this12.addItem(idx, _this12.selectedIndices);
 	      });
 	      remove.forEach(function (idx) {
-	        return _this11.removeItem(idx, _this11.selectedIndices);
+	        return _this12.removeItem(idx, _this12.selectedIndices);
 	      });
 	    }
 	  }, {

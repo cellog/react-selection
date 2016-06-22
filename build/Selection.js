@@ -96,8 +96,8 @@ function makeSelectable(Component) {
         }
         var onSelectionChange = this.props.selectionCallbacks.onSelectionChange;
         if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
-          var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList);
-          if (!result) {
+          var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor);
+          if (result === false) {
             this.selectedList.revert();
           } else if (result !== true) {
             this.selectedList.setSelection(result);

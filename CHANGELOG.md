@@ -1,4 +1,4 @@
-0.4.0 / 2016-??-??
+0.4.0 / 2016-06-22
 ==================
 - BREAKING CHANGE: all selection options are now part of a map, selectionOptions
 - BREAKING CHANGE: selectIntermediates renamed "selectionOptions.inBetween"
