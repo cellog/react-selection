@@ -24,6 +24,10 @@ var _verifyComponent = require('./verifyComponent.js');
 
 var _verifyComponent2 = _interopRequireDefault(_verifyComponent);
 
+var _selectedList = require('./selectedList.js');
+
+var _selectedList2 = _interopRequireDefault(_selectedList);
+
 var _ReferenceableContainer = require('./ReferenceableContainer.jsx');
 
 var _ReferenceableContainer2 = _interopRequireDefault(_ReferenceableContainer);
@@ -32,7 +36,15 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactDom = require('react-dom');
+
+var _mouseMath = require('./mouseMath.js');
+
+var _mouseMath2 = _interopRequireDefault(_mouseMath);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -44,16 +56,8 @@ function makeSelectable(Component) {
   var _class, _temp;
 
   var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-  var _options$sorter = options.sorter;
-  var sorter = _options$sorter === undefined ? function (a, b) {
-    return a - b;
-  } : _options$sorter;
-  var _options$nodevalue = options.nodevalue;
-  var nodevalue = _options$nodevalue === undefined ? function (node) {
-    return node.props.value;
-  } : _options$nodevalue;
-  // always force a containerDiv if a stateless functional component is passed in
 
+  // always force a ReferenceableContainer if a stateless functional component is passed in
   var useContainer = (0, _verifyComponent2.default)(Component);
   var componentDisplayName = Component.displayName || Component.name || 'Component';
   var displayName = void 0;
@@ -75,85 +79,61 @@ function makeSelectable(Component) {
 
       _this.state = {
         selecting: false,
-        selectedNodes: {},
-        selectedNodeList: [],
-        selectedValues: {},
-        selectedValueList: []
+        selectedIndices: []
       };
-      _this.selectionManager = new _SelectionManager2.default(_this, props);
+      _this.selectedList = new _selectedList2.default();
+      _this.selectionManager = new _SelectionManager2.default(_this, _this.selectedList, props);
       _this.makeInputManager = _this.makeInputManager.bind(_this);
+      _this.cancelSelection = _this.cancelSelection.bind(_this);
       return _this;
     }
 
     _createClass(_class, [{
       key: 'updateState',
-      value: function updateState(selecting, nodes, values) {
-        var _this2 = this;
-
+      value: function updateState(selecting) {
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-          _debug2.default.log('updatestate: ', selecting, nodes, values);
+          _debug2.default.log('updatestate: ', selecting);
         }
-        var newnodes = nodes === null ? this.state.selectedNodes : nodes;
-        var newvalues = values === null ? this.state.selectedValues : values;
+        var onSelectionChange = this.props.selectionCallbacks.onSelectionChange;
+        if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
+          var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList);
+          if (!result) {
+            this.selectedList.revert();
+          } else if (result !== true) {
+            this.selectedList.setSelection(result);
+          }
+        }
+        // we are ok to notify
+        this.selectedList.notifyChangedNodes();
+
         this.setState({
           selecting: selecting === null ? this.state.selecting : selecting,
-          selectedNodes: newnodes,
-          selectedValues: newvalues,
+          selectedIndices: [].concat(_toConsumableArray(this.selectedList.selectedIndices)),
           containerBounds: this.bounds
         });
-        if (this.props.selectionCallbacks.onSelectItem && this.props.selectionOptions.constant) {
-          (function () {
-            var nodelist = Object.keys(newnodes).map(function (key) {
-              return newnodes[key];
-            }).sort(function (a, b) {
-              return nodevalue(a.node) - nodevalue(b.node);
-            });
-            var valuelist = Object.keys(newvalues).map(function (key) {
-              return newvalues[key];
-            }).sort(sorter);
-            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-              _debug2.default.log('updatestate onSelectItem', values, nodes, valuelist, nodelist, _this2.bounds);
-            }
-            if (_this2.props.onSelectSlot) {
-              _this2.props.onSelectSlot(values, function () {
-                return nodes;
-              }, valuelist, function () {
-                return nodelist;
-              }, _this2.bounds);
-            }
-          })();
-        }
+        return true;
+      }
+    }, {
+      key: 'cancelSelection',
+      value: function cancelSelection(items) {
+        this.selectionManager.cancelSelection(items);
       }
     }, {
       key: 'propagateFinishedSelect',
       value: function propagateFinishedSelect() {
         if (!this.props.selectionCallbacks.onFinishSelect) return;
-        var newnodes = this.state.selectedNodes;
-        var newvalues = this.state.selectedValues;
-        var nodelist = Object.keys(newnodes).map(function (key) {
-          return newnodes[key];
-        }).sort(function (a, b) {
-          return sorter(nodevalue(a.node), nodevalue(b.node));
-        });
-        var valuelist = Object.keys(newvalues).map(function (key) {
-          return newvalues[key];
-        }).sort(sorter);
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-          _debug2.default.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds);
+          _debug2.default.log('finishselect', this.state.selectedIndices, this.bounds);
         }
-        this.props.onFinishSelect(newvalues, function () {
-          return newnodes;
-        }, valuelist, function () {
-          return nodelist;
-        }, this.bounds);
+        this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList, this.bounds);
       }
     }, {
       key: 'getChildContext',
       value: function getChildContext() {
         return {
           selectionManager: this.selectionManager,
-          selectedNodes: this.state.selectedNodes,
-          selectedValues: this.state.selectedValues
+          selectedIndices: this.state.selectedIndices,
+          nodeList: this.selectedList
         };
       }
     }, {
@@ -181,42 +161,65 @@ function makeSelectable(Component) {
       value: function start(bounds, mouseDownData, selectionRectangle) {
         this.bounds = bounds;
         this.mouseDownData = mouseDownData;
+        if (!this.props.selectionOptions.additive) {
+          this.selectionManager.deselect();
+        }
+        this.selectionManager.begin(this.props);
         if (this.props.selectionOptions.constant) {
-          this.selectionManager.select(selectionRectangle, this.state, this.props);
-        } else {
-          this.selectionManager.deselect(this.state);
+          if (this.selectionManager.select({ selectionRectangle: selectionRectangle, props: this.props })) {
+            this.updateState(null);
+          }
         }
       }
     }, {
       key: 'cancel',
       value: function cancel() {
-        this.selectionManager.deselect(this.state);
-        this.propagateFinishedSelect();
+        this.selectionManager.commit();
+        this.selectionManager.deselect();
         this.setState({ selecting: false });
       }
     }, {
       key: 'end',
       value: function end(e, mouseDownData, selectionRectangle) {
-        if (this.props.selectionOptions.constant && !this.props.selectionOptions.preserve) {
+        if (this.props.selectionOptions.constant && !(this.props.selectionOptions.preserve || this.props.selectionOptions.additive)) {
           this.propagateFinishedSelect();
-          this.selectionManager.deselect(this.state);
+          this.selectionManager.commit();
+          this.selectionManager.deselect();
+          this.updateState(false);
+          this.setState({ selecting: false });
           return;
         }
-        this.selectionManager.select(selectionRectangle, this.state, this.props);
-        this.propagateFinishedSelect();
+        this.selectionManager.select({ selectionRectangle: selectionRectangle, props: this.props });
+        if (this.updateState(null)) {
+          this.propagateFinishedSelect();
+        }
+        this.selectionManager.commit();
+        this.setState({ selecting: false });
       }
     }, {
       key: 'change',
       value: function change(selectionRectangle) {
+        var findit = arguments.length <= 1 || arguments[1] === undefined ? _reactDom.findDOMNode : arguments[1];
+        var mouse = arguments.length <= 2 || arguments[2] === undefined ? _mouseMath2.default : arguments[2];
+
         var old = this.state.selecting;
 
         if (!old) {
           this.setState({ selecting: true });
         }
 
-        if (this.props.selectionOptions.constantSelect) {
-          this.selectionManager.select(selectionRectangle, this.state, this.props);
+        if (this.props.selectionOptions.constant) {
+          if (this.selectionManager.select({ selectionRectangle: selectionRectangle, props: this.props }, findit, mouse)) {
+            if (!this.updateState(null)) {
+              this.cancel();
+            }
+          }
         }
+      }
+    }, {
+      key: 'click',
+      value: function click(e, mouseDownData, selectionRectangle) {
+        this.end(e, mouseDownData, selectionRectangle);
       }
     }, {
       key: 'makeInputManager',
@@ -246,24 +249,34 @@ function makeSelectable(Component) {
     return _class;
   }(_react2.default.Component), _class.displayName = displayName, _class.propTypes = {
     clickTolerance: _react.PropTypes.number,
-    constantSelect: _react.PropTypes.bool,
-    selectable: _react.PropTypes.bool,
-    preserveSelection: _react.PropTypes.bool,
-    selectIntermediates: _react.PropTypes.bool,
-    onSelectSlot: _react.PropTypes.func,
-    onFinishSelect: _react.PropTypes.func,
+    selectionOptions: _react.PropTypes.shape({
+      constant: _react.PropTypes.bool,
+      additive: _react.PropTypes.bool,
+      selectable: _react.PropTypes.bool,
+      preserve: _react.PropTypes.bool,
+      inBetween: _react.PropTypes.bool,
+      acceptedTypes: _react.PropTypes.array
+    }),
+    selectionCallbacks: _react.PropTypes.shape({
+      onSelectionChange: _react.PropTypes.func,
+      onFinishSelect: _react.PropTypes.func,
+      onSelectStart: _react.PropTypes.func
+    }),
     onMouseDown: _react.PropTypes.func,
     onTouchStart: _react.PropTypes.func
   }, _class.defaultProps = {
     clickTolerance: 2,
-    constantSelect: false,
-    selectable: false,
-    preserveSelection: false,
-    selectIntermediates: false
+    selectionOptions: {
+      constant: false,
+      selectable: false,
+      preserve: false,
+      inBetween: false
+    },
+    selectionCallbacks: {}
   }, _class.childContextTypes = {
     selectionManager: _react.PropTypes.object,
-    selectedNodes: _react.PropTypes.object,
-    selectedValues: _react.PropTypes.object
+    selectedIndices: _react.PropTypes.array,
+    nodeList: _react.PropTypes.object
   }, _temp;
 }
 

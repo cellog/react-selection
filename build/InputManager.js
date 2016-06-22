@@ -90,7 +90,7 @@ var InputManager = function () {
   }, {
     key: 'validSelectStart',
     value: function validSelectStart(e) {
-      var invalid = e && e.touches && e.touches.length > 1 || e.which === 3 || e.button === 2 || !this.component.props.selectable;
+      var invalid = e && e.touches && e.touches.length > 1 || e.which === 3 || e.button === 2 || !this.component.props.selectionOptions.selectable;
       return !invalid;
     }
   }, {

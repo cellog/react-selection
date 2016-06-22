@@ -54,18 +54,40 @@ function Selectable(Component, options) {
       var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, props, context));
 
       _this.state = {
-        selected: false
+        selected: false,
+        selectable: options.selectable ? options.selectable(props) : true
       };
       _this.selectItem = _this.selectItem.bind(_this);
+      _this.changeSelectable = _this.changeSelectable.bind(_this);
       return _this;
     }
 
     _createClass(_class, [{
+      key: 'componentWillReceiveProps',
+      value: function componentWillReceiveProps(props) {
+        this.register(props);
+        if (options.selectable) {
+          this.setState({ selectable: options.selectable(props) });
+        }
+      }
+    }, {
+      key: 'register',
+      value: function register(props) {
+        this.context.selectionManager.registerSelectable(this, {
+          key: options.key(this.props),
+          selectable: options.selectable ? options.selectable(props) : true,
+          types: options.types ? options.types : ['default'],
+          value: options.value(props),
+          callback: this.selectItem,
+          cacheBounds: options.cacheBounds
+        });
+      }
+    }, {
       key: 'componentDidMount',
       value: function componentDidMount() {
         if (!this.context || !this.context.selectionManager) return;
         var key = options.key(this.props);
-        this.context.selectionManager.registerSelectable(this, key, options.value(this.props), this.selectItem, options.cacheBounds);
+        this.register(this.props);
         unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key);
       }
     }, {
@@ -82,12 +104,18 @@ function Selectable(Component, options) {
         this.setState({ selected: value });
       }
     }, {
+      key: 'changeSelectable',
+      value: function changeSelectable(selectable) {
+        this.context.selectionManager.changeSelectable(options.key(this.props), selectable);
+        this.setState({ selectable: selectable });
+      }
+    }, {
       key: 'render',
       value: function render() {
         if (useContainer) {
-          return _react2.default.createElement(ReferenceableContainer, _extends({}, this.props, { selected: this.state.selected }));
+          return _react2.default.createElement(ReferenceableContainer, _extends({}, this.props, this.state, { changeSelectable: this.changeSelectable }));
         }
-        return _react2.default.createElement(Component, _extends({}, this.props, { selected: this.state.selected }));
+        return _react2.default.createElement(Component, _extends({}, this.props, this.state, { changeSelectable: this.changeSelectable }));
       }
     }]);
 

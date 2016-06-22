@@ -52,7 +52,7 @@
 
 	var _reactSelectionHoc = __webpack_require__(1);
 
-	var _react = __webpack_require__(166);
+	var _react = __webpack_require__(167);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -140,7 +140,7 @@
 
 	_reactDom2.default.render(_react2.default.createElement(
 	  Sel,
-	  { constantSelect: true, selectable: true },
+	  { selectionOptions: { constant: true, selectable: true } },
 	  _react2.default.createElement(SelectableThing, { thing: 'hi', index: 1 }),
 	  _react2.default.createElement(SelectableThing, { thing: 'there', index: 2 }),
 	  _react2.default.createElement(SelectableThing, { thing: 'foo', index: 3 })
@@ -195,7 +195,7 @@
 
 	_reactDom2.default.render(_react2.default.createElement(
 	  Sel2,
-	  { selectable: true, constantSelect: true, selectIntermediates: true, style: { display: 'flex', flexFlow: 'row wrap', width: '100%' } },
+	  { selectionOptions: { selectable: true, constant: true, inBetween: true }, style: { display: 'flex', flexFlow: 'row wrap', width: '100%' } },
 	  things
 	), document.getElementById('example2'));
 
@@ -208,10 +208,12 @@
 	    var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(Demo).call(this, props));
 
 	    _this3.state = {
-	      constantSelect: false,
-	      selectable: true,
-	      preserveSelection: false,
-	      selectIntermediates: false
+	      selectionOptions: {
+	        constant: false,
+	        selectable: true,
+	        preserve: false,
+	        inBetween: false
+	      }
 	    };
 	    return _this3;
 	  }
@@ -235,14 +237,14 @@
 	            name,
 	            ' ',
 	            _react2.default.createElement('input', { type: 'checkbox', value: checked, checked: checked, onChange: function onChange() {
-	                return _this4.setState(_defineProperty({}, name, !_this4.state[name]));
+	                return _this4.setState({ selectionOptions: _defineProperty({}, name, !_this4.state[name]) });
 	              } })
 	          )
 	        );
 	      };
 	      var ret = [];
 
-	      for (var name in this.state) {
+	      for (var name in this.state.selectionOptions) {
 	        ret.push(_react2.default.createElement(Checkbox, { name: name, checked: this.state[name] }));
 	      }
 	      return ret;
@@ -283,7 +285,7 @@
 
 	var _Selection2 = _interopRequireDefault(_Selection);
 
-	var _Selectable = __webpack_require__(172);
+	var _Selectable = __webpack_require__(173);
 
 	var _Selectable2 = _interopRequireDefault(_Selectable);
 
@@ -357,16 +359,36 @@
 
 	var _verifyComponent2 = _interopRequireDefault(_verifyComponent);
 
-	var _ReferenceableContainer = __webpack_require__(165);
+	var _selectedList = __webpack_require__(165);
+
+	var _selectedList2 = _interopRequireDefault(_selectedList);
+
+	var _ReferenceableContainer = __webpack_require__(166);
 
 	var _ReferenceableContainer2 = _interopRequireDefault(_ReferenceableContainer);
 
-	var _react = __webpack_require__(166);
+	var _react = __webpack_require__(167);
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactDom = __webpack_require__(5);
+
+	var _mouseMath = __webpack_require__(162);
+
+	var _mouseMath2 = _interopRequireDefault(_mouseMath);
+
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { default: obj };
+	}
+
+	function _toConsumableArray(arr) {
+	  if (Array.isArray(arr)) {
+	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+	      arr2[i] = arr[i];
+	    }return arr2;
+	  } else {
+	    return Array.from(arr);
+	  }
 	}
 
 	function _classCallCheck(instance, Constructor) {
@@ -391,16 +413,8 @@
 	  var _class, _temp;
 
 	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-	  var _options$sorter = options.sorter;
-	  var sorter = _options$sorter === undefined ? function (a, b) {
-	    return a - b;
-	  } : _options$sorter;
-	  var _options$nodevalue = options.nodevalue;
-	  var nodevalue = _options$nodevalue === undefined ? function (node) {
-	    return node.props.value;
-	  } : _options$nodevalue;
-	  // always force a containerDiv if a stateless functional component is passed in
 
+	  // always force a ReferenceableContainer if a stateless functional component is passed in
 	  var useContainer = (0, _verifyComponent2.default)(Component);
 	  var componentDisplayName = Component.displayName || Component.name || 'Component';
 	  var displayName = void 0;
@@ -422,85 +436,61 @@
 
 	      _this.state = {
 	        selecting: false,
-	        selectedNodes: {},
-	        selectedNodeList: [],
-	        selectedValues: {},
-	        selectedValueList: []
+	        selectedIndices: []
 	      };
-	      _this.selectionManager = new _SelectionManager2.default(_this, props);
+	      _this.selectedList = new _selectedList2.default();
+	      _this.selectionManager = new _SelectionManager2.default(_this, _this.selectedList, props);
 	      _this.makeInputManager = _this.makeInputManager.bind(_this);
+	      _this.cancelSelection = _this.cancelSelection.bind(_this);
 	      return _this;
 	    }
 
 	    _createClass(_class, [{
 	      key: 'updateState',
-	      value: function updateState(selecting, nodes, values) {
-	        var _this2 = this;
-
+	      value: function updateState(selecting) {
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	          _debug2.default.log('updatestate: ', selecting, nodes, values);
+	          _debug2.default.log('updatestate: ', selecting);
 	        }
-	        var newnodes = nodes === null ? this.state.selectedNodes : nodes;
-	        var newvalues = values === null ? this.state.selectedValues : values;
+	        var onSelectionChange = this.props.selectionCallbacks.onSelectionChange;
+	        if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
+	          var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList);
+	          if (!result) {
+	            this.selectedList.revert();
+	          } else if (result !== true) {
+	            this.selectedList.setSelection(result);
+	          }
+	        }
+	        // we are ok to notify
+	        this.selectedList.notifyChangedNodes();
+
 	        this.setState({
 	          selecting: selecting === null ? this.state.selecting : selecting,
-	          selectedNodes: newnodes,
-	          selectedValues: newvalues,
+	          selectedIndices: [].concat(_toConsumableArray(this.selectedList.selectedIndices)),
 	          containerBounds: this.bounds
 	        });
-	        if (this.props.onSelectSlot && this.props.constantSelect) {
-	          (function () {
-	            var nodelist = Object.keys(newnodes).map(function (key) {
-	              return newnodes[key];
-	            }).sort(function (a, b) {
-	              return nodevalue(a.node) - nodevalue(b.node);
-	            });
-	            var valuelist = Object.keys(newvalues).map(function (key) {
-	              return newvalues[key];
-	            }).sort(sorter);
-	            if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	              _debug2.default.log('updatestate onSelectSlot', values, nodes, valuelist, nodelist, _this2.bounds);
-	            }
-	            if (_this2.props.onSelectSlot) {
-	              _this2.props.onSelectSlot(values, function () {
-	                return nodes;
-	              }, valuelist, function () {
-	                return nodelist;
-	              }, _this2.bounds);
-	            }
-	          })();
-	        }
+	        return true;
+	      }
+	    }, {
+	      key: 'cancelSelection',
+	      value: function cancelSelection(items) {
+	        this.selectionManager.cancelSelection(items);
 	      }
 	    }, {
 	      key: 'propagateFinishedSelect',
 	      value: function propagateFinishedSelect() {
-	        if (!this.props.onFinishSelect) return;
-	        var newnodes = this.state.selectedNodes;
-	        var newvalues = this.state.selectedValues;
-	        var nodelist = Object.keys(newnodes).map(function (key) {
-	          return newnodes[key];
-	        }).sort(function (a, b) {
-	          return sorter(nodevalue(a.node), nodevalue(b.node));
-	        });
-	        var valuelist = Object.keys(newvalues).map(function (key) {
-	          return newvalues[key];
-	        }).sort(sorter);
+	        if (!this.props.selectionCallbacks.onFinishSelect) return;
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	          _debug2.default.log('finishselect', newvalues, newnodes, valuelist, nodelist, this.bounds);
+	          _debug2.default.log('finishselect', this.state.selectedIndices, this.bounds);
 	        }
-	        this.props.onFinishSelect(newvalues, function () {
-	          return newnodes;
-	        }, valuelist, function () {
-	          return nodelist;
-	        }, this.bounds);
+	        this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList, this.bounds);
 	      }
 	    }, {
 	      key: 'getChildContext',
 	      value: function getChildContext() {
 	        return {
 	          selectionManager: this.selectionManager,
-	          selectedNodes: this.state.selectedNodes,
-	          selectedValues: this.state.selectedValues
+	          selectedIndices: this.state.selectedIndices,
+	          nodeList: this.selectedList
 	        };
 	      }
 	    }, {
@@ -528,42 +518,65 @@
 	      value: function start(bounds, mouseDownData, selectionRectangle) {
 	        this.bounds = bounds;
 	        this.mouseDownData = mouseDownData;
-	        if (this.props.constantSelect) {
-	          this.selectionManager.select(selectionRectangle, this.state, this.props);
-	        } else {
-	          this.selectionManager.deselect(this.state);
+	        if (!this.props.selectionOptions.additive) {
+	          this.selectionManager.deselect();
+	        }
+	        this.selectionManager.begin(this.props);
+	        if (this.props.selectionOptions.constant) {
+	          if (this.selectionManager.select({ selectionRectangle: selectionRectangle, props: this.props })) {
+	            this.updateState(null);
+	          }
 	        }
 	      }
 	    }, {
 	      key: 'cancel',
 	      value: function cancel() {
-	        this.selectionManager.deselect(this.state);
-	        this.propagateFinishedSelect();
+	        this.selectionManager.commit();
+	        this.selectionManager.deselect();
 	        this.setState({ selecting: false });
 	      }
 	    }, {
 	      key: 'end',
 	      value: function end(e, mouseDownData, selectionRectangle) {
-	        if (this.props.constantSelect && !this.props.preserveSelection) {
+	        if (this.props.selectionOptions.constant && !(this.props.selectionOptions.preserve || this.props.selectionOptions.additive)) {
 	          this.propagateFinishedSelect();
-	          this.selectionManager.deselect(this.state);
+	          this.selectionManager.commit();
+	          this.selectionManager.deselect();
+	          this.updateState(false);
+	          this.setState({ selecting: false });
 	          return;
 	        }
-	        this.selectionManager.select(selectionRectangle, this.state, this.props);
-	        this.propagateFinishedSelect();
+	        this.selectionManager.select({ selectionRectangle: selectionRectangle, props: this.props });
+	        if (this.updateState(null)) {
+	          this.propagateFinishedSelect();
+	        }
+	        this.selectionManager.commit();
+	        this.setState({ selecting: false });
 	      }
 	    }, {
 	      key: 'change',
 	      value: function change(selectionRectangle) {
+	        var findit = arguments.length <= 1 || arguments[1] === undefined ? _reactDom.findDOMNode : arguments[1];
+	        var mouse = arguments.length <= 2 || arguments[2] === undefined ? _mouseMath2.default : arguments[2];
+
 	        var old = this.state.selecting;
 
 	        if (!old) {
 	          this.setState({ selecting: true });
 	        }
 
-	        if (this.props.constantSelect) {
-	          this.selectionManager.select(selectionRectangle, this.state, this.props);
+	        if (this.props.selectionOptions.constant) {
+	          if (this.selectionManager.select({ selectionRectangle: selectionRectangle, props: this.props }, findit, mouse)) {
+	            if (!this.updateState(null)) {
+	              this.cancel();
+	            }
+	          }
 	        }
+	      }
+	    }, {
+	      key: 'click',
+	      value: function click(e, mouseDownData, selectionRectangle) {
+	        this.end(e, mouseDownData, selectionRectangle);
 	      }
 	    }, {
 	      key: 'makeInputManager',
@@ -593,24 +606,34 @@
 	    return _class;
 	  }(_react2.default.Component), _class.displayName = displayName, _class.propTypes = {
 	    clickTolerance: _react.PropTypes.number,
-	    constantSelect: _react.PropTypes.bool,
-	    selectable: _react.PropTypes.bool,
-	    preserveSelection: _react.PropTypes.bool,
-	    selectIntermediates: _react.PropTypes.bool,
-	    onSelectSlot: _react.PropTypes.func,
-	    onFinishSelect: _react.PropTypes.func,
+	    selectionOptions: _react.PropTypes.shape({
+	      constant: _react.PropTypes.bool,
+	      additive: _react.PropTypes.bool,
+	      selectable: _react.PropTypes.bool,
+	      preserve: _react.PropTypes.bool,
+	      inBetween: _react.PropTypes.bool,
+	      acceptedTypes: _react.PropTypes.array
+	    }),
+	    selectionCallbacks: _react.PropTypes.shape({
+	      onSelectionChange: _react.PropTypes.func,
+	      onFinishSelect: _react.PropTypes.func,
+	      onSelectStart: _react.PropTypes.func
+	    }),
 	    onMouseDown: _react.PropTypes.func,
 	    onTouchStart: _react.PropTypes.func
 	  }, _class.defaultProps = {
 	    clickTolerance: 2,
-	    constantSelect: false,
-	    selectable: false,
-	    preserveSelection: false,
-	    selectIntermediates: false
+	    selectionOptions: {
+	      constant: false,
+	      selectable: false,
+	      preserve: false,
+	      inBetween: false
+	    },
+	    selectionCallbacks: {}
 	  }, _class.childContextTypes = {
 	    selectionManager: _react.PropTypes.object,
-	    selectedNodes: _react.PropTypes.object,
-	    selectedValues: _react.PropTypes.object
+	    selectedIndices: _react.PropTypes.array,
+	    nodeList: _react.PropTypes.object
 	  }, _temp;
 	}
 
@@ -870,7 +893,7 @@
 	  }, {
 	    key: 'validSelectStart',
 	    value: function validSelectStart(e) {
-	      var invalid = e && e.touches && e.touches.length > 1 || e.which === 3 || e.button === 2 || !this.component.props.selectable;
+	      var invalid = e && e.touches && e.touches.length > 1 || e.which === 3 || e.button === 2 || !this.component.props.selectionOptions.selectable;
 	      return !invalid;
 	    }
 	  }, {
@@ -20430,6 +20453,8 @@
 	  };
 	}();
 
+	var _reactDom = __webpack_require__(5);
+
 	var _mouseMath = __webpack_require__(162);
 
 	var _mouseMath2 = _interopRequireDefault(_mouseMath);
@@ -20437,8 +20462,6 @@
 	var _debug = __webpack_require__(3);
 
 	var _debug2 = _interopRequireDefault(_debug);
-
-	var _reactDom = __webpack_require__(5);
 
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { default: obj };
@@ -20451,137 +20474,128 @@
 	}
 
 	var SelectionManager = function () {
-	  function SelectionManager(notify, props) {
+	  function SelectionManager(notify, list, props) {
 	    _classCallCheck(this, SelectionManager);
 
+	    this.selectedList = list;
 	    this.clickTolerance = props.clickTolerance;
+	    this.selecting = false;
 	    this.selectables = {};
-	    this.selectableKeys = [];
 	    this.sortedNodes = [];
-	    this.selectedNodes = {};
-	    this.selectedValues = {};
+	    this.indexMap = {};
 	    this.notify = notify;
 	  }
 
 	  _createClass(SelectionManager, [{
+	    key: 'changeType',
+	    value: function changeType(key, types) {
+	      this.selectables[key].types = types;
+	      this.sortedNodes[this.indexMap[key]].types = types;
+	      this.selectedList.setNodes(this.sortedNodes);
+	    }
+	  }, {
+	    key: 'changeSelectable',
+	    value: function changeSelectable(key, selectable) {
+	      this.selectables[key].selectable = selectable;
+	      this.sortedNodes[this.indexMap[key]].selectable = selectable;
+	      this.selectedList.setNodes(this.sortedNodes);
+	    }
+	  }, {
 	    key: 'registerSelectable',
-	    value: function registerSelectable(component, key, value, callback, cacheBounds) {
-	      var mouse = arguments.length <= 5 || arguments[5] === undefined ? _mouseMath2.default : arguments[5];
-	      var findit = arguments.length <= 6 || arguments[6] === undefined ? _reactDom.findDOMNode : arguments[6];
+	    value: function registerSelectable(component, _ref) {
+	      var key = _ref.key;
+	      var value = _ref.value;
+	      var types = _ref.types;
+	      var selectable = _ref.selectable;
+	      var callback = _ref.callback;
+	      var cacheBounds = _ref.cacheBounds;
+	      var mouse = arguments.length <= 2 || arguments[2] === undefined ? _mouseMath2.default : arguments[2];
+	      var findit = arguments.length <= 3 || arguments[3] === undefined ? _reactDom.findDOMNode : arguments[3];
 
+	      if (key === undefined) {
+	        throw new Error('component registered with undefined key, value is ' + JSON.stringify(value));
+	      }
 	      var bounds = cacheBounds ? mouse.getBoundsForNode(findit(component)) : null;
-	      if (!this.selectables.hasOwnProperty(key)) {
-	        this.selectableKeys.push(key);
-	        this.sortedNodes.push({ component: component, key: key, value: value, callback: callback, bounds: bounds });
+	      var info = { component: component, selectable: selectable, key: key, value: value, types: types, callback: callback, bounds: bounds };
+	      if (this.selectables.hasOwnProperty(key)) {
+	        // this allows us to dynamically update a component if it changes
+	        // its type, or its value
+	        this.sortedNodes[this.indexMap[key]] = info;
+	      } else {
+	        this.indexMap[key] = this.sortedNodes.length;
+	        this.sortedNodes.push(info);
 	      }
 	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.registration) {
 	        _debug2.default.log('registered: ' + key, value);
 	      }
-	      this.selectables[key] = { component: component, value: value, callback: callback, bounds: bounds };
+	      this.selectables[key] = info;
+	      this.selectedList.setNodes(this.sortedNodes);
 	    }
 	  }, {
 	    key: 'unregisterSelectable',
 	    value: function unregisterSelectable(component, key) {
 	      delete this.selectables[key];
-	      this.selectableKeys = this.selectableKeys.filter(function (itemKey) {
-	        return itemKey !== key;
-	      });
+	      var index = this.indexMap[key];
 	      this.sortedNodes = this.sortedNodes.filter(function (item) {
 	        return item.key !== key;
 	      });
-	      if (this.selectedNodes[key]) {
-	        var nodes = this.selectedNodes;
-	        var values = this.selectedValues;
-	        delete nodes[key];
-	        delete values[key];
-	        this.notify.updateState(null, nodes, values);
+	      this.selectedList.setNodes(this.sortedNodes);
+	      if (this.selectedList.selectedIndices.indexOf(index) !== -1) {
+	        this.selectedList.selectedIndices.splice(index, 1);
+	        this.notify.updateState(null);
 	      }
-	    }
-	  }, {
-	    key: 'saveNode',
-	    value: function saveNode(changedNodes, node, bounds) {
-	      if (this.selectedNodes[node.key] !== undefined) return;
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	        _debug2.default.log('select: ' + node.key);
-	      }
-	      this.selectedNodes[node.key] = { node: node.component, bounds: bounds };
-	      this.selectedValues[node.key] = node.value;
-	      changedNodes.push([true, node]);
-	    }
-	  }, {
-	    key: 'walkNodes',
-	    value: function walkNodes(selectionRectangle, selectedIndices, changedNodes, findit, mouse, node, idx) {
-	      var domnode = findit(node.component);
-	      var key = node.key;
-	      var bounds = node.bounds ? node.bounds : mouse.getBoundsForNode(domnode);
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	        _debug2.default.log('node ' + key + ' bounds', bounds);
-	      }
-	      if (!domnode || !mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, key)) {
-	        if (!this.selectedNodes.hasOwnProperty(key)) return;
-	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	          _debug2.default.log('deselect: ' + key);
-	        }
-	        delete this.selectedNodes[key];
-	        delete this.selectedValues[key];
-	        changedNodes.push([false, node]);
-	        return;
-	      }
-	      selectedIndices.push(idx);
-	      this.saveNode(changedNodes, node, bounds);
 	    }
 	  }, {
 	    key: 'select',
-	    value: function select(selectionRectangle, currentState, props) {
-	      var _this = this;
+	    value: function select(_ref2) {
+	      var selectionRectangle = _ref2.selectionRectangle;
+	      var props = _ref2.props;
+	      var findit = arguments.length <= 1 || arguments[1] === undefined ? _reactDom.findDOMNode : arguments[1];
+	      var mouse = arguments.length <= 2 || arguments[2] === undefined ? _mouseMath2.default : arguments[2];
 
-	      var findit = arguments.length <= 3 || arguments[3] === undefined ? _reactDom.findDOMNode : arguments[3];
-	      var mouse = arguments.length <= 4 || arguments[4] === undefined ? _mouseMath2.default : arguments[4];
+	      return this.selectedList.selectItemsInRectangle(selectionRectangle, props, findit, mouse);
+	    }
+	  }, {
+	    key: 'cancelSelection',
+	    value: function cancelSelection(_ref3) {
+	      var _ref3$indices = _ref3.indices;
+	      var indices = _ref3$indices === undefined ? undefined : _ref3$indices;
+	      var _ref3$nodes = _ref3.nodes;
+	      var nodes = _ref3$nodes === undefined ? undefined : _ref3$nodes;
+	      var _ref3$values = _ref3.values;
+	      var values = _ref3$values === undefined ? undefined : _ref3$values;
 
-	      this.selectedNodes = currentState.selectedNodes;
-	      this.selectedValues = currentState.selectedValues;
-	      var changedNodes = [];
-	      var selectedIndices = [];
-
-	      this.sortedNodes.forEach(this.walkNodes.bind(this, selectionRectangle, selectedIndices, changedNodes, findit, mouse), this);
-	      if (props.selectIntermediates) {
-	        (function () {
-	          var min = Math.min.apply(Math, selectedIndices);
-	          var max = Math.max.apply(Math, selectedIndices);
-	          var filled = Array.apply(min, Array(max - min)).map(function (x, y) {
-	            return min + y + 1;
-	          });
-	          filled.unshift(min);
-	          var diff = filled.filter(function (val) {
-	            return selectedIndices.indexOf(val) === -1;
-	          });
-	          diff.forEach(function (idx) {
-	            return _this.saveNode(changedNodes, _this.sortedNodes[idx], _this.sortedNodes[idx].bounds ? _this.sortedNodes[idx].bounds : mouse.getBoundsForNode(findit(_this.sortedNodes[idx].component)));
-	          });
-	        })();
+	      if (indices) {
+	        return this.selectedList.cancelIndices(indices);
 	      }
-	      if (changedNodes.length) {
-	        changedNodes.forEach(function (item) {
-	          item[1].callback(item[0], _this.selectedNodes, _this.selectedValues);
-	        });
-	        this.notify.updateState(null, this.selectedNodes, this.selectedValues);
+	      if (nodes) {
+	        return this.selectedList.removeNodes(nodes);
+	      }
+	      if (values) {
+	        return this.selectedList.removeValues(values);
 	      }
 	    }
 	  }, {
 	    key: 'deselect',
-	    value: function deselect(currentState) {
-	      var _this2 = this;
-
-	      var changed = false;
-	      Object.keys(currentState.selectedNodes).forEach(function (key) {
-	        changed = true;
-	        _this2.selectables[key].callback(false, {}, {});
-	      });
-	      if (changed) {
-	        this.selectedNodes = {};
-	        this.selectedValues = {};
-	        this.notify.updateState(false, {}, {});
-	      }
+	    value: function deselect() {
+	      if (!this.selectedList.clear()) return;
+	    }
+	  }, {
+	    key: 'begin',
+	    value: function begin(props) {
+	      this.selectedList.begin(props.selectionOptions.additive ? this.selectedList.selectedIndices : [], props);
+	      this.selecting = true;
+	    }
+	  }, {
+	    key: 'commit',
+	    value: function commit() {
+	      this.selectedList.commit();
+	      this.selecting = false;
+	    }
+	  }, {
+	    key: 'isSelecting',
+	    value: function isSelecting() {
+	      return this.selecting;
 	    }
 	  }]);
 
@@ -20625,6 +20639,401 @@
 
 	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () {
+	  function defineProperties(target, props) {
+	    for (var i = 0; i < props.length; i++) {
+	      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+	    }
+	  }return function (Constructor, protoProps, staticProps) {
+	    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+	  };
+	}();
+
+	var _reactDom = __webpack_require__(5);
+
+	var _mouseMath = __webpack_require__(162);
+
+	var _mouseMath2 = _interopRequireDefault(_mouseMath);
+
+	var _debug = __webpack_require__(3);
+
+	var _debug2 = _interopRequireDefault(_debug);
+
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
+
+	function _toConsumableArray(arr) {
+	  if (Array.isArray(arr)) {
+	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+	      arr2[i] = arr[i];
+	    }return arr2;
+	  } else {
+	    return Array.from(arr);
+	  }
+	}
+
+	function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	}
+
+	var selectList = function () {
+	  function selectList() {
+	    _classCallCheck(this, selectList);
+
+	    this.nodes = [];
+	    this.bounds = [];
+	    this.indices = {};
+	    this.selectedIndices = [];
+	    this.removed = [];
+	    this.added = [];
+	    this.transaction = {};
+	  }
+
+	  _createClass(selectList, [{
+	    key: 'setNodes',
+	    value: function setNodes(nodes) {
+	      var _this = this;
+
+	      this.nodes = nodes;
+	      this.nodes.forEach(function (node, idx) {
+	        return _this.indices[node.key] = idx;
+	      });
+	    }
+	  }, {
+	    key: 'begin',
+	    value: function begin(selectedIndices, props) {
+	      this.transaction = {
+	        previousSelection: [].concat(_toConsumableArray(selectedIndices)),
+	        mostRecentSelection: [].concat(_toConsumableArray(selectedIndices)),
+	        firstNode: false
+	      };
+
+	      this.selectedIndices = [];
+	      this.removed = [];
+	      this.added = [];
+	      this.props = props;
+	    }
+	  }, {
+	    key: 'commit',
+	    value: function commit() {
+	      this.transaction = {};
+	    }
+	  }, {
+	    key: 'addItem',
+	    value: function addItem(idx) {
+	      var selectedIndices = arguments.length <= 1 || arguments[1] === undefined ? this.selectedIndices : arguments[1];
+
+	      if (!this.transaction.firstNode) {
+	        this.transaction.firstNode = this.nodes[idx];
+	      }
+	      var si = selectedIndices;
+	      // determine how to insert the value prior to insertion sort
+	      if (!si.length || idx > si[si.len - 1]) {
+	        si.push(idx);
+	        return;
+	      }
+	      if (idx < si[0]) {
+	        si.unshift(idx);
+	        return;
+	      }
+	      var len = si.length;
+	      // if the index is closer to one end than the other, start there
+	      if (si[len - 1] - idx <= idx - si[0]) {
+	        si.push(idx);
+	        var curIdx = len;
+	        // insertion sort from end
+	        while (curIdx >= 1 && si[curIdx - 1] > idx) {
+	          si[curIdx] = si[curIdx - 1];
+	          si[--curIdx] = idx;
+	        }
+	      } else {
+	        si.unshift(idx);
+	        var _curIdx = 0;
+	        // insertion sort from start
+	        while (_curIdx <= len && si[_curIdx + 1] < idx) {
+	          si[_curIdx] = si[_curIdx + 1];
+	          si[++_curIdx] = idx;
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'removeItem',
+	    value: function removeItem(idx) {
+	      var index = this.selectedIndices.indexOf(idx);
+	      if (index === -1) return;
+	      this.selectedIndices.splice(index, 1);
+	    }
+	  }, {
+	    key: 'selectItem',
+	    value: function selectItem(idx) {
+	      // first check to see if this index is the same type as the first node selected
+	      var node = this.nodes[idx];
+	      if (!node.selectable) return;
+	      if (this.props.hasOwnProperty('acceptedTypes')) {
+	        // by default we accept all types, this prop restricts types accepted
+	        if (!this.props.acceptedTypes.reduce(function (last, type) {
+	          return last || node.types.indexOf(type) !== -1;
+	        }, false)) {
+	          return;
+	        }
+	      }
+	      if (this.transaction.firstNode) {
+	        // does this node share any types in common with the first selected node?
+	        if (!this.transaction.firstNode.types.reduce(function (last, type) {
+	          return last || node.types.indexOf(type) !== -1;
+	        }, false)) {
+	          // no
+	          return;
+	        }
+	      }
+	      if (this.selectedIndices.indexOf(idx) !== -1) return;
+	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
+	        _debug2.default.log('select new node', this.nodes[idx].key);
+	      }
+	      this.addItem(idx);
+	    }
+	  }, {
+	    key: 'deselectItem',
+	    value: function deselectItem(idx) {
+	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
+	        _debug2.default.log('deselect node', this.nodes[idx].key);
+	      }
+	      this.removeItem(idx);
+	    }
+	  }, {
+	    key: 'testNodes',
+	    value: function testNodes(_ref, node, idx) {
+	      var selectionRectangle = _ref.selectionRectangle;
+	      var props = _ref.props;
+	      var findit = _ref.findit;
+	      var mouse = _ref.mouse;
+
+	      var bounds = void 0;
+	      if (node.bounds) {
+	        bounds = node.bounds;
+	      } else {
+	        var domnode = findit(node.component);
+	        bounds = domnode ? mouse.getBoundsForNode(domnode) : false;
+	      }
+	      this.bounds[idx] = bounds;
+
+	      if (bounds && mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, node.key)) {
+	        // node is in the selection rectangle
+	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
+	          _debug2.default.log('node is in selection rectangle', node.key);
+	        }
+	        this.selectItem(idx);
+	      } else {
+	        // node is not in the selection rectangle
+	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
+	          _debug2.default.log('node is not in selection rectangle', node.key);
+	        }
+	        this.deselectItem(idx);
+	      }
+	    }
+	  }, {
+	    key: 'changed',
+	    value: function changed(newSelected, prevSelected) {
+	      return prevSelected.filter(function (idx) {
+	        return newSelected.indexOf(idx) === -1;
+	      });
+	    }
+	  }, {
+	    key: 'xor',
+	    value: function xor(newSelected, prevSelected) {
+	      var _this2 = this;
+
+	      var ret = [].concat(_toConsumableArray(prevSelected));
+	      newSelected.forEach(function (idx) {
+	        return prevSelected.indexOf(idx) === -1 ? _this2.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1);
+	      });
+	      return ret;
+	    }
+	  }, {
+	    key: 'or',
+	    value: function or(newSelected, prevSelected) {
+	      var _this3 = this;
+
+	      var ret = [].concat(_toConsumableArray(prevSelected));
+	      newSelected.forEach(function (idx) {
+	        return prevSelected.indexOf(idx) === -1 ? _this3.addItem(idx, ret) : null;
+	      });
+	      return ret;
+	    }
+	  }, {
+	    key: 'selectItemsInRectangle',
+	    value: function selectItemsInRectangle(selectionRectangle, props) {
+	      var _this4 = this;
+
+	      var findit = arguments.length <= 2 || arguments[2] === undefined ? _reactDom.findDOMNode : arguments[2];
+	      var mouse = arguments.length <= 3 || arguments[3] === undefined ? _mouseMath2.default : arguments[3];
+
+	      if (!this.transaction.previousSelection) {
+	        // fail-safe
+	        this.begin([]);
+	      }
+	      this.selectedIndices = [];
+	      this.props = props;
+	      this.removed = [];
+	      this.added = [];
+
+	      // get a list of all nodes that are potential selects from the selection rectangle
+	      this.nodes.forEach(this.testNodes.bind(this, { selectionRectangle: selectionRectangle, props: props, findit: findit, mouse: mouse }));
+
+	      // add the nodes that are logically selected in-between
+	      var options = props.selectionOptions;
+	      if (options.inBetween && this.selectedIndices.length) {
+	        (function () {
+	          var min = Math.min.apply(Math, _toConsumableArray(_this4.selectedIndices));
+	          var max = Math.max.apply(Math, _toConsumableArray(_this4.selectedIndices));
+	          var filled = Array.apply(min, Array(max - min)).map(function (x, y) {
+	            return min + y + 1;
+	          });
+	          filled.unshift(min);
+	          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
+	            _debug2.default.log('gaps to fill', filled);
+	          }
+	          filled.forEach(function (idx) {
+	            return _this4.selectItem(idx);
+	          });
+	        })();
+	      }
+
+	      // for additive, we will use xor
+	      if (options.additive) {
+	        this.selectedIndices = this.xor(this.selectedIndices, this.transaction.previousSelection);
+	      } else {
+	        this.selectedIndices = this.or(this.selectedIndices, this.transaction.previousSelection);
+	      }
+
+	      if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
+	        if (this.selectedIndices.every(function (idx, i) {
+	          return _this4.transaction.mostRecentSelection[i] === idx;
+	        })) return false;
+	      }
+	      this.removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection);
+	      this.added = this.changed(this.transaction.mostRecentSelection, this.selectedIndices);
+	      this.transaction.previousMostRecentSelection = [].concat(_toConsumableArray(this.transaction.mostRecentSelection));
+	      this.transaction.mostRecentSelection = [].concat(_toConsumableArray(this.selectedIndices));
+	      return true;
+	    }
+	  }, {
+	    key: 'notifyChangedNodes',
+	    value: function notifyChangedNodes() {
+	      var _this5 = this;
+
+	      this.removed.map(function (idx) {
+	        return _this5.nodes[idx].callback ? _this5.nodes[idx].callback(false) : null;
+	      });
+	      this.added.map(function (idx) {
+	        return _this5.nodes[idx].callback ? _this5.nodes[idx].callback(true) : null;
+	      });
+	    }
+	  }, {
+	    key: 'clear',
+	    value: function clear() {
+	      var _this6 = this;
+
+	      if (this.selectedIndices.length === 0) return false;
+	      this.selectedIndices.forEach(function (idx) {
+	        return _this6.nodes[idx].callback && _this6.nodes[idx].callback(false);
+	      });
+	      return true;
+	    }
+	  }, {
+	    key: 'nodes',
+	    value: function nodes() {
+	      return this.nodes;
+	    }
+	  }, {
+	    key: 'selectedIndices',
+	    value: function selectedIndices() {
+	      return this.selectedIndices;
+	    }
+	  }, {
+	    key: 'selectedNodeList',
+	    value: function selectedNodeList() {
+	      var _this7 = this;
+
+	      return this.selectedIndices.map(function (idx) {
+	        return _this7.nodes[idx].component;
+	      });
+	    }
+	  }, {
+	    key: 'selectedValueList',
+	    value: function selectedValueList() {
+	      var _this8 = this;
+
+	      return this.selectedIndices.map(function (idx) {
+	        return _this8.nodes[idx].value;
+	      });
+	    }
+	  }, {
+	    key: 'selectedNodes',
+	    value: function selectedNodes() {
+	      var _this9 = this;
+
+	      return this.selectedIndices.reduce(function (val, idx) {
+	        val[_this9.nodes[idx].key] = {
+	          node: _this9.nodes[idx].component,
+	          bounds: _this9.bounds[idx]
+	        };
+	        return val;
+	      }, {});
+	    }
+	  }, {
+	    key: 'selectedValues',
+	    value: function selectedValues() {
+	      var _this10 = this;
+
+	      return this.selectedIndices.reduce(function (val, idx) {
+	        val[_this10.nodes[idx].key] = _this10.nodes[idx].value;
+	        return val;
+	      }, {});
+	    }
+	  }, {
+	    key: 'revert',
+	    value: function revert() {
+	      var _this11 = this;
+
+	      var add = this.removed;
+	      var remove = this.added;
+
+	      add.forEach(function (idx) {
+	        return _this11.addItem(idx, _this11.selectedIndices);
+	      });
+	      remove.forEach(function (idx) {
+	        return _this11.removeItem(idx, _this11.selectedIndices);
+	      });
+	    }
+	  }, {
+	    key: 'setSelection',
+	    value: function setSelection(indices) {
+	      this.selectedIndices = indices;
+	      this.removed = this.changed(this.selectedIndices, this.transaction.previousMostRecentSelection);
+	      this.added = this.changed(this.transaction.previousMostRecentSelection, this.selectedIndices);
+	    }
+	  }]);
+
+	  return selectList;
+	}();
+
+	exports.default = selectList;
+	module.exports = exports['default'];
+
+/***/ },
+/* 166 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	Object.defineProperty(exports, "__esModule", {
@@ -20643,7 +21052,7 @@
 
 	exports.default = makeReferenceableContainer;
 
-	var _react = __webpack_require__(166);
+	var _react = __webpack_require__(167);
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -20707,16 +21116,16 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 166 */
+/* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(167);
+	module.exports = __webpack_require__(168);
 
 
 /***/ },
-/* 167 */
+/* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20737,13 +21146,13 @@
 	var ReactChildren = __webpack_require__(100);
 	var ReactComponent = __webpack_require__(130);
 	var ReactClass = __webpack_require__(129);
-	var ReactDOMFactories = __webpack_require__(168);
+	var ReactDOMFactories = __webpack_require__(169);
 	var ReactElement = __webpack_require__(93);
-	var ReactElementValidator = __webpack_require__(169);
+	var ReactElementValidator = __webpack_require__(170);
 	var ReactPropTypes = __webpack_require__(92);
 	var ReactVersion = __webpack_require__(158);
 
-	var onlyChild = __webpack_require__(171);
+	var onlyChild = __webpack_require__(172);
 	var warning = __webpack_require__(20);
 
 	var createElement = ReactElement.createElement;
@@ -20808,7 +21217,7 @@
 	module.exports = React;
 
 /***/ },
-/* 168 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20825,9 +21234,9 @@
 	'use strict';
 
 	var ReactElement = __webpack_require__(93);
-	var ReactElementValidator = __webpack_require__(169);
+	var ReactElementValidator = __webpack_require__(170);
 
-	var mapObject = __webpack_require__(170);
+	var mapObject = __webpack_require__(171);
 
 	/**
 	 * Create a factory that creates HTML tag elements.
@@ -20989,7 +21398,7 @@
 	module.exports = ReactDOMFactories;
 
 /***/ },
-/* 169 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21275,7 +21684,7 @@
 	module.exports = ReactElementValidator;
 
 /***/ },
-/* 170 */
+/* 171 */
 /***/ function(module, exports) {
 
 	/**
@@ -21330,7 +21739,7 @@
 	module.exports = mapObject;
 
 /***/ },
-/* 171 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21371,7 +21780,7 @@
 	module.exports = onlyChild;
 
 /***/ },
-/* 172 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21402,11 +21811,11 @@
 	  };
 	}();
 
-	var _react = __webpack_require__(166);
+	var _react = __webpack_require__(167);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ReferenceableContainer = __webpack_require__(165);
+	var _ReferenceableContainer = __webpack_require__(166);
 
 	var _ReferenceableContainer2 = _interopRequireDefault(_ReferenceableContainer);
 
@@ -21461,18 +21870,40 @@
 	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, props, context));
 
 	      _this.state = {
-	        selected: false
+	        selected: false,
+	        selectable: options.selectable ? options.selectable(props) : true
 	      };
 	      _this.selectItem = _this.selectItem.bind(_this);
+	      _this.changeSelectable = _this.changeSelectable.bind(_this);
 	      return _this;
 	    }
 
 	    _createClass(_class, [{
+	      key: 'componentWillReceiveProps',
+	      value: function componentWillReceiveProps(props) {
+	        this.register(props);
+	        if (options.selectable) {
+	          this.setState({ selectable: options.selectable(props) });
+	        }
+	      }
+	    }, {
+	      key: 'register',
+	      value: function register(props) {
+	        this.context.selectionManager.registerSelectable(this, {
+	          key: options.key(this.props),
+	          selectable: options.selectable ? options.selectable(props) : true,
+	          types: options.types ? options.types : ['default'],
+	          value: options.value(props),
+	          callback: this.selectItem,
+	          cacheBounds: options.cacheBounds
+	        });
+	      }
+	    }, {
 	      key: 'componentDidMount',
 	      value: function componentDidMount() {
 	        if (!this.context || !this.context.selectionManager) return;
 	        var key = options.key(this.props);
-	        this.context.selectionManager.registerSelectable(this, key, options.value(this.props), this.selectItem, options.cacheBounds);
+	        this.register(this.props);
 	        unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key);
 	      }
 	    }, {
@@ -21489,12 +21920,18 @@
 	        this.setState({ selected: value });
 	      }
 	    }, {
+	      key: 'changeSelectable',
+	      value: function changeSelectable(selectable) {
+	        this.context.selectionManager.changeSelectable(options.key(this.props), selectable);
+	        this.setState({ selectable: selectable });
+	      }
+	    }, {
 	      key: 'render',
 	      value: function render() {
 	        if (useContainer) {
-	          return _react2.default.createElement(ReferenceableContainer, _extends({}, this.props, { selected: this.state.selected }));
+	          return _react2.default.createElement(ReferenceableContainer, _extends({}, this.props, this.state, { changeSelectable: this.changeSelectable }));
 	        }
-	        return _react2.default.createElement(Component, _extends({}, this.props, { selected: this.state.selected }));
+	        return _react2.default.createElement(Component, _extends({}, this.props, this.state, { changeSelectable: this.changeSelectable }));
 	      }
 	    }]);
 
