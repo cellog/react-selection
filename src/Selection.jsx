@@ -80,7 +80,7 @@ function makeSelectable( Component, options = {}) {
       const onSelectionChange = this.props.selectionCallbacks.onSelectionChange
       if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
         const result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList)
-        if (!result) {
+        if (result === false) {
           this.selectedList.revert()
         } else if (result !== true) {
           this.selectedList.setSelection(result)
