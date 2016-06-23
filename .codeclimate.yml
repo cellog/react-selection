@@ -12,11 +12,6 @@ engines:
       extensions:
       - ".js"
       - ".jsx"
-    exclude_paths:
-    - "browserstack.svg"
-    - "node_modules/"
-    - "test/"
-    - "build/"
     checks:
       complexity:
         enabled: true
@@ -31,3 +26,4 @@ exclude_paths:
 - "node_modules/"
 - ".storybook/"
 - "test/"
+- "examples/"
