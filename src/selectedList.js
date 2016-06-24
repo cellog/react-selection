@@ -26,7 +26,7 @@ export default class selectList {
 
       nodeIndicesOfType(types) {
         const mytypes = [].concat(types)
-        return _this.nodes.filter(node => mytypes.every(type => types.indexOf(type) !== -1)).map(node => _this.nodes.indexOf(node))
+        return _this.nodes.filter(node => mytypes.every(type => node.types.indexOf(type) !== -1)).map(node => _this.nodes.indexOf(node))
       },
 
       selectedIndices() {
