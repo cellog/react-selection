@@ -23,6 +23,6 @@ table td {
 table td.disabled {
     background-color: gray;
 }
-table td.selected {
+table td.selected, table tr.selected td {
     background-color: yellow;
 }

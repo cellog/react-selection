@@ -322,14 +322,17 @@ storiesOf('module.Selectable', module)
       return <td className={classes}>{children}</td>
     }
     const Td = Selectable(Tdraw, {
-      key: (props) => `${props.children} td`,
+      key: (props) => `${props.children} td ${props.type}`,
       value: (props) => props.children,
       types: (props) => [props.type]
     })
-    const Tr = Selectable(({ row, name, sales, leads, mostPopular }) => {
+    const Tr = Selectable(({ row, name, sales, leads, mostPopular, selected, selectable }) => {
+      let classes = ''
+      if (selected) classes += 'selected'
+      if (!selectable) classes += ' disabled'
       return (
-        <tr>
-          <td>{row}</td>
+        <tr className={classes}>
+          <Td type="row">{row}</Td>
           <Td type="name">{name}</Td>
           <Td type="sales">{sales}</Td>
           <Td type="leads">{leads}</Td>
@@ -337,7 +340,7 @@ storiesOf('module.Selectable', module)
         </tr>
       )
     }, {
-      key: (props) => `${props.row} row`,
+      key: (props) => `${props.row} row list`,
       value: ({ name, sales, leads, mostPopular }) => {return { name, sales, leads, mostPopular }},
       types: ['row']
     })
@@ -394,5 +397,6 @@ storiesOf('module.Selectable', module)
       selectable: true,
       constant: true,
       acceptedTypes: ['row', 'cell']
-    }} data={data} />
+    }} data={data}
+    />
   })
