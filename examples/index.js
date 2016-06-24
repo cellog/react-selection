@@ -104,6 +104,7 @@ class Demo extends Component {
 
     this.state = {
       selectionOptions: {
+        additive: false,
         constant: false,
         selectable: true,
         preserve: false,

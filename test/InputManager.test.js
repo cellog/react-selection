@@ -598,7 +598,7 @@ describe("InputManager", function() {
     const Test = class extends React.Component {
       render() {
         return (
-          <div style={{height: 50, width: 50, position: 'absolute', top: 0}}
+          <div style={{height: 50, width: 50, position: 'absolute', top: 0, left: 0}}
                ref={(ref) => {
                  if (ref) {
                    manager = new InputManager(ref,
@@ -607,7 +607,7 @@ describe("InputManager", function() {
                  this.ref = ref
                }}
           >
-            hi
+            hi2
           </div>
         )
       }

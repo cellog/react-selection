@@ -4,7 +4,7 @@ var karma = require('./karma-common.conf.js')
 
 module.exports = function(config) {
   return karma(config, {
-    browsers: ['Chrome'],
+    browsers: ['Chrome', 'Safari'],
     singleRun: false
   })
 }

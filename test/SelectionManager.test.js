@@ -298,11 +298,6 @@ describe("SelectionManager", function() {
       }, findit, mouse)
 
       manager.selectedList.selectedIndices.should.eql([0, 1, 3])
-      const selectedNodes = manager.selectedList.selectedNodes()
-
-      selectedNodes[1].should.eql({bounds: 1, node: 1})
-      selectedNodes[2].should.eql({bounds: 2, node: 2})
-      selectedNodes[4].should.eql({bounds: 4, node: 4})
     })
 
     it("should select 4 values with inBetween", () => {
@@ -314,13 +309,6 @@ describe("SelectionManager", function() {
       }, findit, mouse)
 
       manager.selectedList.selectedIndices.should.eql([0, 1, 2, 3])
-
-      const selectedNodes = manager.selectedList.selectedNodes()
-
-      selectedNodes[1].should.eql({bounds: 1, node: 1})
-      selectedNodes[2].should.eql({bounds: 2, node: 2})
-      selectedNodes[3].should.eql({bounds: 3, node: 3})
-      selectedNodes[4].should.eql({bounds: 4, node: 4})
     })
   })
 

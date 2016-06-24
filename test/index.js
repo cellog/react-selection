@@ -1,6 +1,5 @@
-import './mouseMath.test.js'
-import './selectedList.test.js'
-import './Selection.test.js'
-import './Selectable.test.js'
-import './SelectionManager.test.js'
-import './InputManager.test.js'
+/* eslint-disable */
+const testsContext = require.context('.', true, /\.test\.js$/)
+
+testsContext.keys().forEach(testsContext)
+//# sourceMappingURL=index.js.map

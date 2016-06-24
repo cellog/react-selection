@@ -2,15 +2,40 @@
 require('babel-register')
 
 var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
-var reporters = ['mocha', 'saucelabs']
+var reporters = ['mocha', 'saucelabs', 'coverage']
 var singleRun = true
 
 var sauceParams = {
   testName: "react-selection-hoc unit tests",
   username: process.env.SAUCEUSER,
-  accessKey: process.env.ACCESSSAUCE
+  accessKey: process.env.ACCESSSAUCE,
+  connectOptions: {
+    logfile: 'sauce_connect.log'
+  }
 }
 
+var coverageReporter = isCI ? {
+  reporters: [
+    {
+      type: 'lcov',
+      dir: 'coverage'
+    },
+    {
+      type: 'text'
+    }
+  ]
+} : {
+  reporters: [
+    {
+      type: 'lcov',
+      dir: 'coverage'
+    },
+    {
+      type: 'text'
+    }
+  ]
+}
+const frameworks = ['mocha', 'sinon-chai']
 if (isCI) {
   sauceParams.build = process.env.TRAVIS_BUILD_NUMBER
 } else {
@@ -23,18 +48,14 @@ module.exports = function(config, extraoptions) {
 
     basePath: '',
 
-    frameworks: [
-      'mocha-debug',
-      'mocha',
-      'sinon-chai'
-    ],
+    frameworks,
 
     files: [
-      'test/index.js'
+      'test/*.test.js'
     ],
 
     preprocessors: {
-      'test/index.js': ['webpack', 'sourcemap']
+      'test/*.test.js': ['webpack'],
     },
 
     webpack: require('./test/test.config.es6.js'),
@@ -59,8 +80,10 @@ module.exports = function(config, extraoptions) {
 
     sauceLabs: sauceParams,
 
-    captureTimeout: 1200000,
-    browserNoActivityTimeout: 45000,
+    coverageReporter,
+
+    captureTimeout: 2400000,
+    browserNoActivityTimeout: 240000,
 
     singleRun,
 

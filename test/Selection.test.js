@@ -17,7 +17,7 @@ describe("Selection", () => {
     render() {
       return (
         <div {...this.props} style={{position: 'absolute', top: 0, height: 50, width: 50}}>
-          <p>hi {this.props.name}</p>
+          <p>hi! {this.props.name}</p>
           {this.props.children}
         </div>
       )
@@ -26,7 +26,7 @@ describe("Selection", () => {
   const Blah2 = ({ name, children }) => {
     return (
       <div style={{position: 'absolute', top: 0, height: 50, width: 50}}>
-        <p>hi {name}</p>
+        <p>hi... {name}</p>
         {children}
       </div>
     )
@@ -57,13 +57,15 @@ describe("Selection", () => {
       const Thing = Selection(Blah)
       Thing.displayName.should.be.eql('Selection(A)')
 
-      const stuff = $(<Thing><div className="foo">hi</div></Thing>).render()
+      const stuff = $(<Thing><div className="foo">high</div></Thing>).render()
 
-      stuff.find('.foo').text().should.eql('hi')
+      stuff.find('.foo').text().should.eql('high')
 
       const nextstuff = $(<Thing name="Greg" />).render()
 
-      nextstuff.find('p').text().should.eql('hi Greg')
+      nextstuff.find('p').text().should.eql('hi! Greg')
+      stuff.unmount()
+      nextstuff.unmount()
     })
 
     it("should error if a non-component is passed in", () => {
@@ -126,6 +128,7 @@ describe("Selection", () => {
 
     it("should call onSelectionChange if selectionOptions.constant is enabled", () => {
       const spy = sinon.spy()
+      stuff.unmount()
       stuff = $((
         <Thing selectionOptions={{ selectable: true, constant: true }} selectionCallbacks={{
           onSelectionChange: (...args) => {
@@ -151,11 +154,12 @@ describe("Selection", () => {
       spy.args[0].should.have.length(3)
       spy.args[0][0].should.be.eql([0])
       spy.args[0][1].should.be.eql([2])
-      spy.args[0][2].should.equal(component.selectedList)
+      spy.args[0][2].should.equal(component.selectedList.accessor)
     })
 
     it("should not call onSelectionChange if selectionOptions.constant is disabled", () => {
       const spy = sinon.spy()
+      stuff.unmount()
       stuff = $((
         <Thing selectionOptions={{selectable: true}} selectionCallbacks={{
           onSelectionChange: spy
@@ -373,6 +377,7 @@ describe("Selection", () => {
       component.setState.args[0][0].should.eql({
         selecting: true
       })
+      stuff.unmount()
     })
     it("should call select if selectionOptions.constant is enabled", () => {
       const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }} />).render()
@@ -382,6 +387,7 @@ describe("Selection", () => {
       component.change(1)
 
       expect(component.selectionManager.select.called).to.be.true
+      stuff.unmount()
     })
     it("should call updateState if the selection changed, constant is enabled", () => {
       const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }}>
@@ -400,6 +406,7 @@ describe("Selection", () => {
         x: 1, y: 1, top: 2, left: 2
       }, findit, mouse)
       expect(component.updateState.called).to.be.true
+      stuff.unmount()
     })
   })
 
@@ -476,7 +483,8 @@ describe("Selection", () => {
     it("should pass in all props", () => {
       const Thing = Selection(Blah)
 
-      const component = $(<Thing another="hi" />).render(true).find(Blah)[0]
+      const stuff = $(<Thing another="hi" />).render(true)
+      const component = stuff.find(Blah)[0]
 
       component.props.should.eql({
         clickTolerance: 2,
@@ -491,6 +499,7 @@ describe("Selection", () => {
         selecting: false,
         another: "hi"
       })
+      stuff.unmount()
     })
     describe("(stateful) React Class-based Component", () => {
       const Thing = Selection(Blah)
