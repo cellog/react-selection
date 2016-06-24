@@ -82,7 +82,7 @@ function makeSelectable( Component, options = {}) {
         const result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor)
         if (result === false) {
           this.selectedList.revert()
-        } else if (result !== true) {
+        } else if (result && result !== true) {
           this.selectedList.setSelection(result)
         }
       }
@@ -106,7 +106,7 @@ function makeSelectable( Component, options = {}) {
       if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
         Debug.log('finishselect', this.state.selectedIndices, this.bounds)
       }
-      this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList, this.bounds)
+      this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList.accessor, this.bounds)
     }
 
     getChildContext() {
