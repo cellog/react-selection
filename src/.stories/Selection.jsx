@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf, action, linkTo } from '@kadira/storybook';
 import Selectable from '../Selectable.jsx'
 import Selection from '../Selection.jsx'
-
+import './example.css'
 class Thing extends React.Component {
   static propTypes = {
     index: React.PropTypes.number.isRequired,
@@ -314,3 +314,85 @@ storiesOf('module.Selectable', module)
     )
   })
 
+  .add('selectable table', () => {
+    const Tdraw = ({ children, selected, selectable }) => {
+      let classes = ''
+      if (selected) classes += 'selected'
+      if (!selectable) classes += ' disabled'
+      return <td className={classes}>{children}</td>
+    }
+    const Td = Selectable(Tdraw, {
+      key: (props) => `${props.children} td`,
+      value: (props) => props.children,
+      types: (props) => [props.type]
+    })
+    const Tr = Selectable(({ row, name, sales, leads, mostPopular }) => {
+      return (
+        <tr>
+          <td>{row}</td>
+          <Td type="name">{name}</Td>
+          <Td type="sales">{sales}</Td>
+          <Td type="leads">{leads}</Td>
+          <Td type="popular">{mostPopular}</Td>
+        </tr>
+      )
+    }, {
+      key: (props) => `${props.row} row`,
+      value: ({ name, sales, leads, mostPopular }) => {return { name, sales, leads, mostPopular }},
+      types: ['row']
+    })
+    const Tbody = ({ data }) => {
+      return (
+        <tbody>
+          {data.map((person, row) => <Tr key={person.name} row={row} {...person} />)}
+        </tbody>
+      )
+    }
+    const Table = Selection(({ data }) => {
+      return (
+        <table style={{borderWidth: 1, borderColor: '#000', borderCollapse: 'collapse'}}>
+          <thead>
+          <tr>
+            <th></th>
+            <th>People</th>
+            <th>Sales</th>
+            <th>Leads</th>
+            <th>Most Popular Item</th>
+          </tr>
+          </thead>
+          <Tbody data={data} />
+        </table>
+      )
+    })
+    const data = [
+      {
+        name: 'George',
+        sales: 15,
+        leads: 12,
+        mostPopular: 'Sandbox'
+      },
+      {
+        name: 'Samantha',
+        sales: 230,
+        leads: 5,
+        mostPopular: 'Tricycle'
+      },
+      {
+        name: 'Biff',
+        sales: 3,
+        leads: 25,
+        mostPopular: 'Magazines'
+      },
+      {
+        name: 'Marty',
+        sales: 35,
+        leads: 2,
+        mostPopular: 'Tuna Melt'
+      },
+    ]
+    return <Table selectionOptions={{
+      selectable: true,
+      constant: true,
+      acceptedTypes: ['row', 'cell']
+    }} data={data} />
+  })

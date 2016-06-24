@@ -41,10 +41,18 @@ function Selectable(Component, options) {
     }
 
     register(props) {
+      let types = ['default']
+      if (options.types) {
+        if (options.types instanceof Function) {
+          types = options.types(props)
+        } else {
+          types = options.types
+        }
+      } 
       this.context.selectionManager.registerSelectable(this, {
         key: options.key(this.props),
         selectable: options.selectable ? options.selectable(props) : true,
-        types: options.types ? options.types : ['default'],
+        types: types,
         value: options.value(props),
         callback: this.selectItem,
         cacheBounds: options.cacheBounds

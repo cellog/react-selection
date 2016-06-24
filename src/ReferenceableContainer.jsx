@@ -4,7 +4,7 @@ export default function makeReferenceableContainer(Component, componentDisplayNa
   return class extends React.Component {
     static displayName = `ReferenceableContainer(${componentDisplayName})`
     static propTypes = {
-      children: PropTypes.element
+      children: PropTypes.any
     }
     render() {
       const {children, ...props} = this.props
