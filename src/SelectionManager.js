@@ -45,7 +45,6 @@ export default class SelectionManager {
       Debug.log(`registered: ${key}`, value)
     }
     this.selectables[key] = info
-    this.selectedList.setNodes(this.sortedNodes)
   }
 
   unregisterSelectable(component, key) {

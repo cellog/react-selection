@@ -3,6 +3,8 @@ import React, { PropTypes } from 'react'
 
 import makeReferenceableContainer from './ReferenceableContainer.jsx'
 import verifyComponent from './verifyComponent.js'
+import shallowEqual from './shallowEqual.js'
+import shallowEqualScalar from './shallowEqualScalar.js'
 
 function Selectable(Component, options) {
   const useContainer = verifyComponent(Component)
@@ -48,9 +50,10 @@ function Selectable(Component, options) {
         } else {
           types = options.types
         }
-      } 
+      }
+      this.key = options.key(this.props)
       this.context.selectionManager.registerSelectable(this, {
-        key: options.key(this.props),
+        key: this.key,
         selectable: options.selectable ? options.selectable(props) : true,
         types: types,
         value: options.value(props),
@@ -61,9 +64,8 @@ function Selectable(Component, options) {
 
     componentDidMount() {
       if (!this.context || !this.context.selectionManager) return
-      const key = options.key(this.props)
       this.register(this.props)
-      unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key)
+      unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, this.key)
     }
 
     componentWillUnmount() {
@@ -72,12 +74,19 @@ function Selectable(Component, options) {
     }
 
     selectItem(value) {
+      if (value === this.state.selected) return
       this.setState({ selected: value })
+      this.forceUpdate()
     }
 
     changeSelectable(selectable) {
       this.context.selectionManager.changeSelectable(options.key(this.props), selectable)
       this.setState({ selectable })
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+      return !shallowEqualScalar(nextProps, this.props) ||
+        !shallowEqual(nextState, this.state)
     }
 
     render() {

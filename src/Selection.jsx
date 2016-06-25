@@ -117,6 +117,14 @@ function makeSelectable( Component, options = {}) {
       }
     }
 
+    componentDidMount() {
+      this.selectedList.setNodes(this.selectionManager.sortedNodes)
+    }
+
+    componentDidUpdate() {
+      this.selectedList.setNodes(this.selectionManager.sortedNodes)
+    }
+
     componentWillUnmount() {
       if (this.inputManager) {
         this.inputManager.unmount()

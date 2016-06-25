@@ -69,6 +69,7 @@ export default class selectList {
     this.transaction = {
       previousSelection: [...selectedIndices],
       mostRecentSelection: [...selectedIndices],
+      additionalSelectionMap: {},
       firstNode: false
     }
 
@@ -228,6 +229,10 @@ export default class selectList {
       this.selectedIndices = this.or(this.selectedIndices, this.transaction.previousSelection)
     }
 
+    const test = this.transaction.additionalSelectionMap[this.keyize(this.selectedIndices)]
+    if (test) {
+      this.selectedIndices = test
+    }
     if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
       if (this.selectedIndices.every((idx, i) => this.transaction.mostRecentSelection[i] === idx)) return false
     }
@@ -244,8 +249,11 @@ export default class selectList {
   }
 
   clear() {
+    this.added = []
+    this.removed = []
     if (this.selectedIndices.length === 0) return false
     this.selectedIndices.forEach(idx => this.nodes[idx].callback && this.nodes[idx].callback(false))
+    this.selectedIndices = []
     return true
   }
 
@@ -257,9 +265,15 @@ export default class selectList {
     remove.forEach(idx => this.removeItem(idx, this.selectedIndices))
   }
 
+  keyize(indices) {
+    return indices.toString()
+  }
+
   setSelection(indices) {
+    this.transaction.additionalSelectionMap[this.keyize(this.selectedIndices)] = indices
     this.selectedIndices = indices
     this.removed = this.changed(this.selectedIndices, this.transaction.previousMostRecentSelection)
     this.added = this.changed(this.transaction.previousMostRecentSelection, this.selectedIndices)
+    this.mostRecentSelection = indices
   }
 }

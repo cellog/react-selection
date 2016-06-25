@@ -4,6 +4,7 @@ The MIT License (MIT)
 Copyright (c) 2016 Gregory Beaver
 
 Portions based on react-big-calendar Jason Quense (c) 2015
+Portions based on react-dnd Dan Abramov (c) 2014
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
