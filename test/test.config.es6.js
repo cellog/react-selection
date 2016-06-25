@@ -1,4 +1,7 @@
 const stuff = {
+  node: {
+    fs: false
+  },
 
   output: {
     pathinfo: true
