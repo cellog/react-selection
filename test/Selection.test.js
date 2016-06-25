@@ -212,7 +212,7 @@ describe("Selection", () => {
 
       spy.args[0].should.have.length(3)
       spy.args[0][0].should.be.eql([0, 1, 2])
-      expect(spy.args[0][1]).to.equal(component.selectedList)
+      expect(spy.args[0][1]).to.equal(component.selectedList.accessor)
       expect(spy.args[0][2]).to.equal(component.bounds)
     })
   })
