@@ -26,3 +26,8 @@ table td.disabled {
 table td.selected, table tr.selected td {
     background-color: yellow;
 }
+
+table tr th.selected {
+    border-width: 2px;
+    background-color: lightgray;
+}

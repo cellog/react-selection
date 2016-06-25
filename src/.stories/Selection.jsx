@@ -315,58 +315,6 @@ storiesOf('module.Selectable', module)
   })
 
   .add('selectable table', () => {
-    const Tdraw = ({ children, selected, selectable }) => {
-      let classes = ''
-      if (selected) classes += 'selected'
-      if (!selectable) classes += ' disabled'
-      return <td className={classes}>{children}</td>
-    }
-    const Td = Selectable(Tdraw, {
-      key: (props) => `${props.children} td ${props.type}`,
-      value: (props) => props.children,
-      types: (props) => [props.type]
-    })
-    const Tr = Selectable(({ row, name, sales, leads, mostPopular, selected, selectable }) => {
-      let classes = ''
-      if (selected) classes += 'selected'
-      if (!selectable) classes += ' disabled'
-      return (
-        <tr className={classes}>
-          <Td type="row">{row}</Td>
-          <Td type="name">{name}</Td>
-          <Td type="sales">{sales}</Td>
-          <Td type="leads">{leads}</Td>
-          <Td type="popular">{mostPopular}</Td>
-        </tr>
-      )
-    }, {
-      key: (props) => `${props.row} row list`,
-      value: ({ name, sales, leads, mostPopular }) => {return { name, sales, leads, mostPopular }},
-      types: ['row']
-    })
-    const Tbody = ({ data }) => {
-      return (
-        <tbody>
-          {data.map((person, row) => <Tr key={person.name} row={row} {...person} />)}
-        </tbody>
-      )
-    }
-    const Table = Selection(({ data }) => {
-      return (
-        <table style={{borderWidth: 1, borderColor: '#000', borderCollapse: 'collapse'}}>
-          <thead>
-          <tr>
-            <th></th>
-            <th>People</th>
-            <th>Sales</th>
-            <th>Leads</th>
-            <th>Most Popular Item</th>
-          </tr>
-          </thead>
-          <Tbody data={data} />
-        </table>
-      )
-    })
     const data = [
       {
         name: 'George',
@@ -393,10 +341,163 @@ storiesOf('module.Selectable', module)
         mostPopular: 'Tuna Melt'
       },
     ]
-    return <Table selectionOptions={{
-      selectable: true,
-      constant: true,
-      acceptedTypes: ['row', 'cell']
-    }} data={data}
-    />
+    const Tdraw = ({ children, selected, selectable }) => {
+      let classes = ''
+      if (selected) classes += 'selected'
+      if (!selectable) classes += ' disabled'
+      return <td className={classes}>{children}</td>
+    }
+    const Td = Selectable(Tdraw, {
+      key: (props) => `${props.children} td ${props.type}`,
+      value: (props) => props.children,
+      types: (props) => [props.type]
+    })
+    const Tr = Selectable(({ row, name, sales, leads, mostPopular, selected, selectable }) => {
+      let classes = ''
+      if (selected) classes += 'selected'
+      if (!selectable) classes += ' disabled'
+      return (
+        <tr className={classes}>
+          <Td type="row">{row}</Td>
+          <Td type="name">{name}</Td>
+          <Td type="sales">{sales}</Td>
+          <Td type="leads">{leads}</Td>
+          <Td type="most popular items">{mostPopular}</Td>
+        </tr>
+      )
+    }, {
+      key: (props) => `${props.row} row list`,
+      value: ({ name, sales, leads, mostPopular }) => {return { name, sales, leads, mostPopular }},
+      types: ['row']
+    })
+    const Tbody = ({ data }) => {
+      return (
+        <tbody>
+          {data.map((person, row) => <Tr key={person.name} row={row} {...person} />)}
+        </tbody>
+      )
+    }
+    const th = ({ type, selected }) => (
+      <th className={selected ? 'selected' : ''}>{type.split(' ')
+        .map(st => st ? st[0].toUpperCase() + st.slice(1) : st)
+        .reduce((tot, st) => tot ? tot + ' ' + st : st, '')}</th>
+    )
+    const Th = Selectable(th, {
+      key: (props) => `th.${props.type}`,
+      value: (props) => props.value || props.type,
+      types: (props) => ['header', props.value || props.type]
+    })
+    const WholeTh = Selectable(th, {
+      key: () => 'th.wholetable',
+      value: () => data,
+      types: ['table']
+    })
+    const Table = Selection(({ data }) => {
+      return (
+        <table style={{borderWidth: 1, borderColor: '#000', borderCollapse: 'collapse'}}>
+          <thead>
+          <tr>
+            <WholeTh type={""} />
+            <Th type="people" value="name" />
+            <Th type="sales" />
+            <Th type="leads" />
+            <Th type="most popular items" />
+          </tr>
+          </thead>
+          <Tbody data={data} />
+        </table>
+      )
+    })
+
+    const FullThing = class Foo extends React.Component {
+      constructor(props) {
+        super(props)
+        this.state = {
+          thing: ''
+        }
+        this.doSelect = this.doSelect.bind(this)
+        this.finishSelect = this.finishSelect.bind(this)
+      }
+
+      doSelect(removed, added, acc) {
+        let ret = undefined
+        let other
+        this.setState({ thing: '' })
+        let info = 'Selection: '
+        const nodes = acc.nodes()
+        let nodeinfo = acc.selectedIndices().map(idx => nodes[idx])
+        if (!nodeinfo.length) {
+          return
+        }
+        const type = nodeinfo[0].types[0]
+        switch (type) {
+        case 'row' :
+          info += 'Row: '
+          info += nodeinfo.reduce((total, { value }) => total ? total + ' ' + JSON.stringify(value) : JSON.stringify(value), '')
+          break
+        case 'header' :
+        case 'table' :
+          if (type === 'table') {
+            other = nodes.map((node, idx) => idx)
+          } else {
+            other = nodeinfo
+              .map(node => acc.nodeIndicesOfType(node.types[1]))
+              .reduce((total, indices) => total.concat(indices), [])
+            nodeinfo = other.map(idx => nodes[idx])
+          }
+          ret = other
+        case 'name' :
+        case 'sales' :
+        case 'leads' :
+        case 'most popular items' :
+        default:
+          info += `${type}: `
+          let specifics = nodeinfo.reduce((inf, { value }) => inf ? inf + ',' + JSON.stringify(value) : JSON.stringify(value), '')
+          if (type === 'sales' || type === 'leads') {
+            const total = nodeinfo.reduce((mytotal, { value }) => mytotal + value, 0)
+            const average = total / nodeinfo.length
+            specifics += ` Total: ${total}, Average: ${average}`
+          }
+          info += specifics
+          break
+        }
+        this.setState({ thing: info})
+        return ret
+      }
+
+      finishSelect() {
+        if (this.selectDelay) {
+          window.clearTimeout(this.selectDelay)
+        }
+        this.selectDelay = setTimeout(() => {
+          this.setState({ thing: '' })
+        }, 1000)
+      }
+
+      render() {
+        return (
+          <div style={{display: 'flex', flexFlow: 'row nowrap'}}>
+            <Table
+              selectionOptions={{
+                selectable: true,
+                constant: true,
+                acceptedTypes: ['row', 'name', 'sales', 'leads', 'most popular items']
+              }}
+              data={data}
+              selectionCallbacks={{
+                onSelectionChange: this.doSelect,
+                onFinishSelect: this.finishSelect,
+              }}
+            />
+            <div style={{paddingLeft: 20}}>
+              <h1>Stuff</h1>
+              <div id="hi">
+                {this.state.thing}
+              </div>
+            </div>
+          </div>
+        )
+      }
+    }
+    return <FullThing />
   })
