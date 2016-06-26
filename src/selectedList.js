@@ -1,7 +1,6 @@
 import { findDOMNode } from 'react-dom'
 
 import mouseMath from './mouseMath.js'
-import Debug from './debug.js'
 
 export default class selectList {
   nodes = []
