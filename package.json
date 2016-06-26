@@ -12,7 +12,8 @@
   "scripts": {
     "clean": "rimraf build",
     "clean:examples": "rimraf examples/static",
-    "test": "./node_modules/karma/bin/karma start karma.noie.conf.js && ./node_modules/karma/bin/karma start karma.ie.conf.js && ./node_modules/.bin/lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info' && ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+    "test": "./node_modules/karma/bin/karma start karma.noie.conf.js && ./node_modules/karma/bin/karma start karma.ie.conf.js",
+    "old-test": "./node_modules/karma/bin/karma start karma.noie.conf.js && ./node_modules/karma/bin/karma start karma.ie.conf.js && ./node_modules/.bin/lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info' && ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
     "local-test": "./local-test.env",
     "test-cov": "babel-node isparta cover --report html --report text node_modules/.bin/_mocha",
     "build": "npm run clean && babel src --out-dir build",
@@ -29,6 +30,7 @@
     "babel-cli": "^6.9.0",
     "babel-core": "^6.1.21",
     "babel-eslint": "^4.1.8",
+    "babel-plugin-__coverage__": "^11.0.0",
     "babel-plugin-transform-es2015-spread": "^6.8.0",
     "babel-plugin-transform-object-assign": "^6.8.0",
     "babel-plugin-transform-runtime": "^6.9.0",

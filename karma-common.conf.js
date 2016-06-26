@@ -51,11 +51,11 @@ module.exports = function(config, extraoptions) {
     frameworks,
 
     files: [
-      'test/boo.test.js'
+      'test/*.test.js'
     ],
 
     preprocessors: {
-      'test/boo.test.js': ['webpack'],
+      'test/*.test.js': ['webpack'],
     },
 
     webpack: require('./test/test.config.es6.js'),

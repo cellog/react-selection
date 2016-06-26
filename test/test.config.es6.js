@@ -1,19 +1,11 @@
 const stuff = {
-  node: {
-    fs: false
-  },
-
   output: {
     pathinfo: true
   },
 
   module: {
-    preLoaders: [
-      { test: /\.js$/, loader: 'isparta', include: /src/, exclude: 'index.js' },
-      { test: /\.jsx$/, loader: 'isparta', include: /src/}
-    ],
     loaders: [
-      { test: /\.js/, loader: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.jsx?$/, loader: 'babel-loader', include: /(src|test)/ },
     ]
   },
 

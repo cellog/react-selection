@@ -17,7 +17,6 @@ export default class selectList {
   //   const _this = this
   //   this.accessor = {
   //     nodes() {
-  //       return [..._this.nodes]
   //     },
   //
   //     node(idx) {
