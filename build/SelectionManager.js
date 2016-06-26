@@ -12,10 +12,6 @@ var _mouseMath = require('./mouseMath.js');
 
 var _mouseMath2 = _interopRequireDefault(_mouseMath);
 
-var _debug = require('./debug.js');
-
-var _debug2 = _interopRequireDefault(_debug);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34,20 +30,6 @@ var SelectionManager = function () {
   }
 
   _createClass(SelectionManager, [{
-    key: 'changeType',
-    value: function changeType(key, types) {
-      this.selectables[key].types = types;
-      this.sortedNodes[this.indexMap[key]].types = types;
-      this.selectedList.setNodes(this.sortedNodes);
-    }
-  }, {
-    key: 'changeSelectable',
-    value: function changeSelectable(key, selectable) {
-      this.selectables[key].selectable = selectable;
-      this.sortedNodes[this.indexMap[key]].selectable = selectable;
-      this.selectedList.setNodes(this.sortedNodes);
-    }
-  }, {
     key: 'registerSelectable',
     value: function registerSelectable(component, _ref) {
       var key = _ref.key;
@@ -72,11 +54,7 @@ var SelectionManager = function () {
         this.indexMap[key] = this.sortedNodes.length;
         this.sortedNodes.push(info);
       }
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.registration) {
-        _debug2.default.log('registered: ' + key, value);
-      }
       this.selectables[key] = info;
-      this.selectedList.setNodes(this.sortedNodes);
     }
   }, {
     key: 'unregisterSelectable',
@@ -105,21 +83,14 @@ var SelectionManager = function () {
   }, {
     key: 'cancelSelection',
     value: function cancelSelection(_ref3) {
-      var _ref3$indices = _ref3.indices;
-      var indices = _ref3$indices === undefined ? undefined : _ref3$indices;
-      var _ref3$nodes = _ref3.nodes;
-      var nodes = _ref3$nodes === undefined ? undefined : _ref3$nodes;
-      var _ref3$values = _ref3.values;
-      var values = _ref3$values === undefined ? undefined : _ref3$values;
+      var indices = _ref3.indices;
+      var nodes = _ref3.nodes;
 
       if (indices) {
         return this.selectedList.cancelIndices(indices);
       }
       if (nodes) {
         return this.selectedList.removeNodes(nodes);
-      }
-      if (values) {
-        return this.selectedList.removeValues(values);
       }
     }
   }, {

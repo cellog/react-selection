@@ -6,12 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _debug = require('./debug.js');
-
-var _debug2 = _interopRequireDefault(_debug);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -64,9 +58,8 @@ var mouseMath = function () {
     }
   }, {
     key: 'objectsCollide',
-    value: function objectsCollide(nodeA, nodeB) {
+    value: function objectsCollide(nodeA, nodeB) /* , key = '(unknown)' */{
       var tolerance = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
-      var key = arguments.length <= 3 || arguments[3] === undefined ? '(unknown)' : arguments[3];
 
       var _mouseMath$getBoundsF = mouseMath.getBoundsForNode(nodeA);
 
@@ -86,9 +79,6 @@ var mouseMath = function () {
       var _mouseMath$getBoundsF6 = _mouseMath$getBoundsF4.bottom;
       var bBottom = _mouseMath$getBoundsF6 === undefined ? bTop : _mouseMath$getBoundsF6;
 
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-        _debug2.default.debugBounds(mouseMath.getBoundsForNode, nodeA, nodeB, key, tolerance);
-      }
 
       return !(
       // 'a' bottom doesn't touch 'b' top

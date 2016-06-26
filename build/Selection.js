@@ -99,7 +99,7 @@ function makeSelectable(Component) {
           var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor);
           if (result === false) {
             this.selectedList.revert();
-          } else if (result !== true) {
+          } else if (result && result !== true) {
             this.selectedList.setSelection(result);
           }
         }
@@ -125,7 +125,7 @@ function makeSelectable(Component) {
         if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
           _debug2.default.log('finishselect', this.state.selectedIndices, this.bounds);
         }
-        this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList, this.bounds);
+        this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList.accessor, this.bounds);
       }
     }, {
       key: 'getChildContext',
@@ -135,6 +135,16 @@ function makeSelectable(Component) {
           selectedIndices: this.state.selectedIndices,
           nodeList: this.selectedList
         };
+      }
+    }, {
+      key: 'componentDidMount',
+      value: function componentDidMount() {
+        this.selectedList.setNodes(this.selectionManager.sortedNodes);
+      }
+    }, {
+      key: 'componentDidUpdate',
+      value: function componentDidUpdate() {
+        this.selectedList.setNodes(this.selectionManager.sortedNodes);
       }
     }, {
       key: 'componentWillUnmount',

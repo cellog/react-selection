@@ -20,6 +20,14 @@ var _verifyComponent = require('./verifyComponent.js');
 
 var _verifyComponent2 = _interopRequireDefault(_verifyComponent);
 
+var _shallowEqual = require('./shallowEqual.js');
+
+var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
+
+var _shallowEqualScalar = require('./shallowEqualScalar.js');
+
+var _shallowEqualScalar2 = _interopRequireDefault(_shallowEqualScalar);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -73,10 +81,19 @@ function Selectable(Component, options) {
     }, {
       key: 'register',
       value: function register(props) {
+        var types = ['default'];
+        if (options.types) {
+          if (options.types instanceof Function) {
+            types = options.types(props);
+          } else {
+            types = options.types;
+          }
+        }
+        this.key = options.key(this.props);
         this.context.selectionManager.registerSelectable(this, {
-          key: options.key(this.props),
+          key: this.key,
           selectable: options.selectable ? options.selectable(props) : true,
-          types: options.types ? options.types : ['default'],
+          types: types,
           value: options.value(props),
           callback: this.selectItem,
           cacheBounds: options.cacheBounds
@@ -86,9 +103,8 @@ function Selectable(Component, options) {
       key: 'componentDidMount',
       value: function componentDidMount() {
         if (!this.context || !this.context.selectionManager) return;
-        var key = options.key(this.props);
         this.register(this.props);
-        unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key);
+        unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, this.key);
       }
     }, {
       key: 'componentWillUnmount',
@@ -101,13 +117,20 @@ function Selectable(Component, options) {
     }, {
       key: 'selectItem',
       value: function selectItem(value) {
+        if (value === this.state.selected) return;
         this.setState({ selected: value });
+        this.forceUpdate();
       }
     }, {
       key: 'changeSelectable',
       value: function changeSelectable(selectable) {
         this.context.selectionManager.changeSelectable(options.key(this.props), selectable);
         this.setState({ selectable: selectable });
+      }
+    }, {
+      key: 'shouldComponentUpdate',
+      value: function shouldComponentUpdate(nextProps, nextState) {
+        return !(0, _shallowEqualScalar2.default)(nextProps, this.props) || !(0, _shallowEqual2.default)(nextState, this.state);
       }
     }, {
       key: 'render',

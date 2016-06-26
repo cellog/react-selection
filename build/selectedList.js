@@ -39,39 +39,44 @@ var selectList = function () {
       nodes: function nodes() {
         return [].concat(_toConsumableArray(_this.nodes));
       },
+      node: function node(idx) {
+        return _this.nodes[idx];
+      },
+      nodeIndicesOfType: function nodeIndicesOfType(types) {
+        var mytypes = [].concat(types);
+        return _this.nodes.filter(function (node) {
+          return mytypes.every(function (type) {
+            return node.types.indexOf(type) !== -1;
+          });
+        }).map(function (node) {
+          return _this.nodes.indexOf(node);
+        });
+      },
       selectedIndices: function selectedIndices() {
         return [].concat(_toConsumableArray(_this.selectedIndices));
       },
       selectedNodeList: function selectedNodeList() {
-        var _this2 = this;
-
         return _this.selectedIndices.map(function (idx) {
-          return _this2.nodes[idx].component;
+          return _this.nodes[idx].component;
         });
       },
       selectedValueList: function selectedValueList() {
-        var _this3 = this;
-
         return _this.selectedIndices.map(function (idx) {
-          return _this3.nodes[idx].value;
+          return _this.nodes[idx].value;
         });
       },
       selectedNodes: function selectedNodes() {
-        var _this4 = this;
-
         return _this.selectedIndices.reduce(function (val, idx) {
-          val[_this4.nodes[idx].key] = {
-            node: _this4.nodes[idx].component,
-            bounds: _this4.bounds[idx]
+          val[_this.nodes[idx].key] = {
+            node: _this.nodes[idx].component,
+            bounds: _this.bounds[idx]
           };
           return val;
         }, {});
       },
       selectedValues: function selectedValues() {
-        var _this5 = this;
-
         return _this.selectedIndices.reduce(function (val, idx) {
-          val[_this5.nodes[idx].key] = _this5.nodes[idx].value;
+          val[_this.nodes[idx].key] = _this.nodes[idx].value;
           return val;
         }, {});
       }
@@ -81,11 +86,11 @@ var selectList = function () {
   _createClass(selectList, [{
     key: 'setNodes',
     value: function setNodes(nodes) {
-      var _this6 = this;
+      var _this2 = this;
 
       this.nodes = nodes;
       this.nodes.forEach(function (node, idx) {
-        return _this6.indices[node.key] = idx;
+        return _this2.indices[node.key] = idx;
       });
     }
   }, {
@@ -94,6 +99,7 @@ var selectList = function () {
       this.transaction = {
         previousSelection: [].concat(_toConsumableArray(selectedIndices)),
         mostRecentSelection: [].concat(_toConsumableArray(selectedIndices)),
+        additionalSelectionMap: {},
         firstNode: false
       };
 
@@ -176,17 +182,11 @@ var selectList = function () {
         }
       }
       if (this.selectedIndices.indexOf(idx) !== -1) return;
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-        _debug2.default.log('select new node', this.nodes[idx].key);
-      }
       this.addItem(idx);
     }
   }, {
     key: 'deselectItem',
     value: function deselectItem(idx) {
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-        _debug2.default.log('deselect node', this.nodes[idx].key);
-      }
       this.removeItem(idx);
     }
   }, {
@@ -208,15 +208,9 @@ var selectList = function () {
 
       if (bounds && mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, node.key)) {
         // node is in the selection rectangle
-        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-          _debug2.default.log('node is in selection rectangle', node.key);
-        }
         this.selectItem(idx);
       } else {
         // node is not in the selection rectangle
-        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-          _debug2.default.log('node is not in selection rectangle', node.key);
-        }
         this.deselectItem(idx);
       }
     }
@@ -230,29 +224,29 @@ var selectList = function () {
   }, {
     key: 'xor',
     value: function xor(newSelected, prevSelected) {
-      var _this7 = this;
+      var _this3 = this;
 
       var ret = [].concat(_toConsumableArray(prevSelected));
       newSelected.forEach(function (idx) {
-        return prevSelected.indexOf(idx) === -1 ? _this7.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1);
+        return prevSelected.indexOf(idx) === -1 ? _this3.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1);
       });
       return ret;
     }
   }, {
     key: 'or',
     value: function or(newSelected, prevSelected) {
-      var _this8 = this;
+      var _this4 = this;
 
       var ret = [].concat(_toConsumableArray(prevSelected));
       newSelected.forEach(function (idx) {
-        return prevSelected.indexOf(idx) === -1 ? _this8.addItem(idx, ret) : null;
+        return prevSelected.indexOf(idx) === -1 ? _this4.addItem(idx, ret) : null;
       });
       return ret;
     }
   }, {
     key: 'selectItemsInRectangle',
     value: function selectItemsInRectangle(selectionRectangle, props) {
-      var _this9 = this;
+      var _this5 = this;
 
       var findit = arguments.length <= 2 || arguments[2] === undefined ? _reactDom.findDOMNode : arguments[2];
       var mouse = arguments.length <= 3 || arguments[3] === undefined ? _mouseMath2.default : arguments[3];
@@ -273,8 +267,8 @@ var selectList = function () {
       var options = props.selectionOptions;
       if (options.inBetween && this.selectedIndices.length) {
         (function () {
-          var min = Math.min.apply(Math, _toConsumableArray(_this9.selectedIndices));
-          var max = Math.max.apply(Math, _toConsumableArray(_this9.selectedIndices));
+          var min = Math.min.apply(Math, _toConsumableArray(_this5.selectedIndices));
+          var max = Math.max.apply(Math, _toConsumableArray(_this5.selectedIndices));
           var filled = Array.apply(min, Array(max - min)).map(function (x, y) {
             return min + y + 1;
           });
@@ -283,7 +277,7 @@ var selectList = function () {
             _debug2.default.log('gaps to fill', filled);
           }
           filled.forEach(function (idx) {
-            return _this9.selectItem(idx);
+            return _this5.selectItem(idx);
           });
         })();
       }
@@ -295,9 +289,13 @@ var selectList = function () {
         this.selectedIndices = this.or(this.selectedIndices, this.transaction.previousSelection);
       }
 
+      var test = this.transaction.additionalSelectionMap[this.keyize(this.selectedIndices)];
+      if (test) {
+        this.selectedIndices = test;
+      }
       if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
         if (this.selectedIndices.every(function (idx, i) {
-          return _this9.transaction.mostRecentSelection[i] === idx;
+          return _this5.transaction.mostRecentSelection[i] === idx;
         })) return false;
       }
       this.removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection);
@@ -309,47 +307,57 @@ var selectList = function () {
   }, {
     key: 'notifyChangedNodes',
     value: function notifyChangedNodes() {
-      var _this10 = this;
+      var _this6 = this;
 
       this.removed.map(function (idx) {
-        return _this10.nodes[idx].callback ? _this10.nodes[idx].callback(false) : null;
+        return _this6.nodes[idx].callback ? _this6.nodes[idx].callback(false) : null;
       });
       this.added.map(function (idx) {
-        return _this10.nodes[idx].callback ? _this10.nodes[idx].callback(true) : null;
+        return _this6.nodes[idx].callback ? _this6.nodes[idx].callback(true) : null;
       });
     }
   }, {
     key: 'clear',
     value: function clear() {
-      var _this11 = this;
+      var _this7 = this;
 
+      this.added = [];
+      this.removed = [];
       if (this.selectedIndices.length === 0) return false;
       this.selectedIndices.forEach(function (idx) {
-        return _this11.nodes[idx].callback && _this11.nodes[idx].callback(false);
+        return _this7.nodes[idx].callback && _this7.nodes[idx].callback(false);
       });
+      this.selectedIndices = [];
       return true;
     }
   }, {
     key: 'revert',
     value: function revert() {
-      var _this12 = this;
+      var _this8 = this;
 
       var add = this.removed;
       var remove = this.added;
 
       add.forEach(function (idx) {
-        return _this12.addItem(idx, _this12.selectedIndices);
+        return _this8.addItem(idx, _this8.selectedIndices);
       });
       remove.forEach(function (idx) {
-        return _this12.removeItem(idx, _this12.selectedIndices);
+        return _this8.removeItem(idx, _this8.selectedIndices);
       });
+    }
+  }, {
+    key: 'keyize',
+    value: function keyize(indices) {
+      return indices.toString();
     }
   }, {
     key: 'setSelection',
     value: function setSelection(indices) {
-      this.selectedIndices = indices;
+      this.transaction.additionalSelectionMap[this.keyize(this.selectedIndices)] = indices;
+      this.selectedIndices = [].concat(_toConsumableArray(indices));
       this.removed = this.changed(this.selectedIndices, this.transaction.previousMostRecentSelection);
       this.added = this.changed(this.transaction.previousMostRecentSelection, this.selectedIndices);
+      this.mostRecentSelection = [].concat(_toConsumableArray(indices));
     }
   }]);
 

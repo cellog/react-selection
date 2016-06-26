@@ -13,10 +13,6 @@ var _mouseMath = require('./mouseMath.js');
 
 var _mouseMath2 = _interopRequireDefault(_mouseMath);
 
-var _debug = require('./debug.js');
-
-var _debug2 = _interopRequireDefault(_debug);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -141,36 +137,15 @@ var InputManager = function () {
       var findit = arguments.length <= 2 || arguments[2] === undefined ? _reactDom.findDOMNode : arguments[2];
       var mouse = arguments.length <= 3 || arguments[3] === undefined ? _mouseMath2.default : arguments[3];
 
-      // if (!this.node) { // pretty sure this is unneeded.  Keep just in case
-      //   this.node = findit(this.ref)
-      //   this.bounds = mouse.getBoundsForNode(this.node)
-      //   if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-      //     Debug.log(`${eventname}: got bounds`, this.bounds)
-      //   }
-      // }
-
       var coords = mouse.getCoordinates(e, e.touches && e.touches[0].identifier);
       if (!mouse.contains(this.node, coords.clientX, coords.clientY)) {
-        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-          _debug2.default.log(eventname + ': not contained');
-        }
         return;
-      }
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-        _debug2.default.log(eventname + ': click/tap start');
-      }
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-        _debug2.default.log(eventname + ': bounds', this.bounds, e.pageY, e.pageX);
       }
 
       if (!mouse.objectsCollide(this.bounds, {
         top: coords.pageY,
         left: coords.pageX
       })) return;
-
-      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-        _debug2.default.log(eventname + ': maybe select');
-      }
 
       this.mouseDownData = {
         x: coords.pageX,

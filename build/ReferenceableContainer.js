@@ -52,7 +52,7 @@ function makeReferenceableContainer(Component, componentDisplayName) {
 
     return _class;
   }(_react2.default.Component), _class.displayName = 'ReferenceableContainer(' + componentDisplayName + ')', _class.propTypes = {
-    children: _react.PropTypes.element
+    children: _react.PropTypes.any
   }, _temp;
 }
 module.exports = exports['default'];

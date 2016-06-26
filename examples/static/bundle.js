@@ -209,6 +209,7 @@
 
 	    _this3.state = {
 	      selectionOptions: {
+	        additive: false,
 	        constant: false,
 	        selectable: true,
 	        preserve: false,
@@ -456,7 +457,7 @@
 	          var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor);
 	          if (result === false) {
 	            this.selectedList.revert();
-	          } else if (result !== true) {
+	          } else if (result && result !== true) {
 	            this.selectedList.setSelection(result);
 	          }
 	        }
@@ -482,7 +483,7 @@
 	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
 	          _debug2.default.log('finishselect', this.state.selectedIndices, this.bounds);
 	        }
-	        this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList, this.bounds);
+	        this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList.accessor, this.bounds);
 	      }
 	    }, {
 	      key: 'getChildContext',
@@ -492,6 +493,16 @@
 	          selectedIndices: this.state.selectedIndices,
 	          nodeList: this.selectedList
 	        };
+	      }
+	    }, {
+	      key: 'componentDidMount',
+	      value: function componentDidMount() {
+	        this.selectedList.setNodes(this.selectionManager.sortedNodes);
+	      }
+	    }, {
+	      key: 'componentDidUpdate',
+	      value: function componentDidUpdate() {
+	        this.selectedList.setNodes(this.selectionManager.sortedNodes);
 	      }
 	    }, {
 	      key: 'componentWillUnmount',
@@ -810,10 +821,6 @@
 
 	var _mouseMath2 = _interopRequireDefault(_mouseMath);
 
-	var _debug = __webpack_require__(3);
-
-	var _debug2 = _interopRequireDefault(_debug);
-
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { default: obj };
 	}
@@ -944,36 +951,15 @@
 	      var findit = arguments.length <= 2 || arguments[2] === undefined ? _reactDom.findDOMNode : arguments[2];
 	      var mouse = arguments.length <= 3 || arguments[3] === undefined ? _mouseMath2.default : arguments[3];
 
-	      // if (!this.node) { // pretty sure this is unneeded.  Keep just in case
-	      //   this.node = findit(this.ref)
-	      //   this.bounds = mouse.getBoundsForNode(this.node)
-	      //   if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-	      //     Debug.log(`${eventname}: got bounds`, this.bounds)
-	      //   }
-	      // }
-
 	      var coords = mouse.getCoordinates(e, e.touches && e.touches[0].identifier);
 	      if (!mouse.contains(this.node, coords.clientX, coords.clientY)) {
-	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	          _debug2.default.log(eventname + ': not contained');
-	        }
 	        return;
-	      }
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	        _debug2.default.log(eventname + ': click/tap start');
-	      }
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	        _debug2.default.log(eventname + ': bounds', this.bounds, e.pageY, e.pageX);
 	      }
 
 	      if (!mouse.objectsCollide(this.bounds, {
 	        top: coords.pageY,
 	        left: coords.pageX
 	      })) return;
-
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.clicks) {
-	        _debug2.default.log(eventname + ': maybe select');
-	      }
 
 	      this.mouseDownData = {
 	        x: coords.pageX,
@@ -20232,7 +20218,7 @@
 
 /***/ },
 /* 162 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	'use strict';
 
@@ -20249,14 +20235,6 @@
 	    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
 	  };
 	}();
-
-	var _debug = __webpack_require__(3);
-
-	var _debug2 = _interopRequireDefault(_debug);
-
-	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { default: obj };
-	}
 
 	function _classCallCheck(instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
@@ -20314,9 +20292,8 @@
 	    }
 	  }, {
 	    key: 'objectsCollide',
-	    value: function objectsCollide(nodeA, nodeB) {
+	    value: function objectsCollide(nodeA, nodeB) /* , key = '(unknown)' */{
 	      var tolerance = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
-	      var key = arguments.length <= 3 || arguments[3] === undefined ? '(unknown)' : arguments[3];
 
 	      var _mouseMath$getBoundsF = mouseMath.getBoundsForNode(nodeA);
 
@@ -20335,10 +20312,6 @@
 	      var bRight = _mouseMath$getBoundsF5 === undefined ? bLeft : _mouseMath$getBoundsF5;
 	      var _mouseMath$getBoundsF6 = _mouseMath$getBoundsF4.bottom;
 	      var bBottom = _mouseMath$getBoundsF6 === undefined ? bTop : _mouseMath$getBoundsF6;
-
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.bounds) {
-	        _debug2.default.debugBounds(mouseMath.getBoundsForNode, nodeA, nodeB, key, tolerance);
-	      }
 
 	      return !(
 	      // 'a' bottom doesn't touch 'b' top
@@ -20459,10 +20432,6 @@
 
 	var _mouseMath2 = _interopRequireDefault(_mouseMath);
 
-	var _debug = __webpack_require__(3);
-
-	var _debug2 = _interopRequireDefault(_debug);
-
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { default: obj };
 	}
@@ -20487,20 +20456,6 @@
 	  }
 
 	  _createClass(SelectionManager, [{
-	    key: 'changeType',
-	    value: function changeType(key, types) {
-	      this.selectables[key].types = types;
-	      this.sortedNodes[this.indexMap[key]].types = types;
-	      this.selectedList.setNodes(this.sortedNodes);
-	    }
-	  }, {
-	    key: 'changeSelectable',
-	    value: function changeSelectable(key, selectable) {
-	      this.selectables[key].selectable = selectable;
-	      this.sortedNodes[this.indexMap[key]].selectable = selectable;
-	      this.selectedList.setNodes(this.sortedNodes);
-	    }
-	  }, {
 	    key: 'registerSelectable',
 	    value: function registerSelectable(component, _ref) {
 	      var key = _ref.key;
@@ -20525,11 +20480,7 @@
 	        this.indexMap[key] = this.sortedNodes.length;
 	        this.sortedNodes.push(info);
 	      }
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.registration) {
-	        _debug2.default.log('registered: ' + key, value);
-	      }
 	      this.selectables[key] = info;
-	      this.selectedList.setNodes(this.sortedNodes);
 	    }
 	  }, {
 	    key: 'unregisterSelectable',
@@ -20558,21 +20509,14 @@
 	  }, {
 	    key: 'cancelSelection',
 	    value: function cancelSelection(_ref3) {
-	      var _ref3$indices = _ref3.indices;
-	      var indices = _ref3$indices === undefined ? undefined : _ref3$indices;
-	      var _ref3$nodes = _ref3.nodes;
-	      var nodes = _ref3$nodes === undefined ? undefined : _ref3$nodes;
-	      var _ref3$values = _ref3.values;
-	      var values = _ref3$values === undefined ? undefined : _ref3$values;
+	      var indices = _ref3.indices;
+	      var nodes = _ref3.nodes;
 
 	      if (indices) {
 	        return this.selectedList.cancelIndices(indices);
 	      }
 	      if (nodes) {
 	        return this.selectedList.removeNodes(nodes);
-	      }
-	      if (values) {
-	        return this.selectedList.removeValues(values);
 	      }
 	    }
 	  }, {
@@ -20700,39 +20644,44 @@
 	      nodes: function nodes() {
 	        return [].concat(_toConsumableArray(_this.nodes));
 	      },
+	      node: function node(idx) {
+	        return _this.nodes[idx];
+	      },
+	      nodeIndicesOfType: function nodeIndicesOfType(types) {
+	        var mytypes = [].concat(types);
+	        return _this.nodes.filter(function (node) {
+	          return mytypes.every(function (type) {
+	            return node.types.indexOf(type) !== -1;
+	          });
+	        }).map(function (node) {
+	          return _this.nodes.indexOf(node);
+	        });
+	      },
 	      selectedIndices: function selectedIndices() {
 	        return [].concat(_toConsumableArray(_this.selectedIndices));
 	      },
 	      selectedNodeList: function selectedNodeList() {
-	        var _this2 = this;
-
 	        return _this.selectedIndices.map(function (idx) {
-	          return _this2.nodes[idx].component;
+	          return _this.nodes[idx].component;
 	        });
 	      },
 	      selectedValueList: function selectedValueList() {
-	        var _this3 = this;
-
 	        return _this.selectedIndices.map(function (idx) {
-	          return _this3.nodes[idx].value;
+	          return _this.nodes[idx].value;
 	        });
 	      },
 	      selectedNodes: function selectedNodes() {
-	        var _this4 = this;
-
 	        return _this.selectedIndices.reduce(function (val, idx) {
-	          val[_this4.nodes[idx].key] = {
-	            node: _this4.nodes[idx].component,
-	            bounds: _this4.bounds[idx]
+	          val[_this.nodes[idx].key] = {
+	            node: _this.nodes[idx].component,
+	            bounds: _this.bounds[idx]
 	          };
 	          return val;
 	        }, {});
 	      },
 	      selectedValues: function selectedValues() {
-	        var _this5 = this;
-
 	        return _this.selectedIndices.reduce(function (val, idx) {
-	          val[_this5.nodes[idx].key] = _this5.nodes[idx].value;
+	          val[_this.nodes[idx].key] = _this.nodes[idx].value;
 	          return val;
 	        }, {});
 	      }
@@ -20742,11 +20691,11 @@
 	  _createClass(selectList, [{
 	    key: 'setNodes',
 	    value: function setNodes(nodes) {
-	      var _this6 = this;
+	      var _this2 = this;
 
 	      this.nodes = nodes;
 	      this.nodes.forEach(function (node, idx) {
-	        return _this6.indices[node.key] = idx;
+	        return _this2.indices[node.key] = idx;
 	      });
 	    }
 	  }, {
@@ -20755,6 +20704,7 @@
 	      this.transaction = {
 	        previousSelection: [].concat(_toConsumableArray(selectedIndices)),
 	        mostRecentSelection: [].concat(_toConsumableArray(selectedIndices)),
+	        additionalSelectionMap: {},
 	        firstNode: false
 	      };
 
@@ -20837,17 +20787,11 @@
 	        }
 	      }
 	      if (this.selectedIndices.indexOf(idx) !== -1) return;
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	        _debug2.default.log('select new node', this.nodes[idx].key);
-	      }
 	      this.addItem(idx);
 	    }
 	  }, {
 	    key: 'deselectItem',
 	    value: function deselectItem(idx) {
-	      if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	        _debug2.default.log('deselect node', this.nodes[idx].key);
-	      }
 	      this.removeItem(idx);
 	    }
 	  }, {
@@ -20869,15 +20813,9 @@
 
 	      if (bounds && mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, node.key)) {
 	        // node is in the selection rectangle
-	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	          _debug2.default.log('node is in selection rectangle', node.key);
-	        }
 	        this.selectItem(idx);
 	      } else {
 	        // node is not in the selection rectangle
-	        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-	          _debug2.default.log('node is not in selection rectangle', node.key);
-	        }
 	        this.deselectItem(idx);
 	      }
 	    }
@@ -20891,29 +20829,29 @@
 	  }, {
 	    key: 'xor',
 	    value: function xor(newSelected, prevSelected) {
-	      var _this7 = this;
+	      var _this3 = this;
 
 	      var ret = [].concat(_toConsumableArray(prevSelected));
 	      newSelected.forEach(function (idx) {
-	        return prevSelected.indexOf(idx) === -1 ? _this7.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1);
+	        return prevSelected.indexOf(idx) === -1 ? _this3.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1);
 	      });
 	      return ret;
 	    }
 	  }, {
 	    key: 'or',
 	    value: function or(newSelected, prevSelected) {
-	      var _this8 = this;
+	      var _this4 = this;
 
 	      var ret = [].concat(_toConsumableArray(prevSelected));
 	      newSelected.forEach(function (idx) {
-	        return prevSelected.indexOf(idx) === -1 ? _this8.addItem(idx, ret) : null;
+	        return prevSelected.indexOf(idx) === -1 ? _this4.addItem(idx, ret) : null;
 	      });
 	      return ret;
 	    }
 	  }, {
 	    key: 'selectItemsInRectangle',
 	    value: function selectItemsInRectangle(selectionRectangle, props) {
-	      var _this9 = this;
+	      var _this5 = this;
 
 	      var findit = arguments.length <= 2 || arguments[2] === undefined ? _reactDom.findDOMNode : arguments[2];
 	      var mouse = arguments.length <= 3 || arguments[3] === undefined ? _mouseMath2.default : arguments[3];
@@ -20934,8 +20872,8 @@
 	      var options = props.selectionOptions;
 	      if (options.inBetween && this.selectedIndices.length) {
 	        (function () {
-	          var min = Math.min.apply(Math, _toConsumableArray(_this9.selectedIndices));
-	          var max = Math.max.apply(Math, _toConsumableArray(_this9.selectedIndices));
+	          var min = Math.min.apply(Math, _toConsumableArray(_this5.selectedIndices));
+	          var max = Math.max.apply(Math, _toConsumableArray(_this5.selectedIndices));
 	          var filled = Array.apply(min, Array(max - min)).map(function (x, y) {
 	            return min + y + 1;
 	          });
@@ -20944,7 +20882,7 @@
 	            _debug2.default.log('gaps to fill', filled);
 	          }
 	          filled.forEach(function (idx) {
-	            return _this9.selectItem(idx);
+	            return _this5.selectItem(idx);
 	          });
 	        })();
 	      }
@@ -20956,9 +20894,13 @@
 	        this.selectedIndices = this.or(this.selectedIndices, this.transaction.previousSelection);
 	      }
 
+	      var test = this.transaction.additionalSelectionMap[this.keyize(this.selectedIndices)];
+	      if (test) {
+	        this.selectedIndices = test;
+	      }
 	      if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
 	        if (this.selectedIndices.every(function (idx, i) {
-	          return _this9.transaction.mostRecentSelection[i] === idx;
+	          return _this5.transaction.mostRecentSelection[i] === idx;
 	        })) return false;
 	      }
 	      this.removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection);
@@ -20970,47 +20912,57 @@
 	  }, {
 	    key: 'notifyChangedNodes',
 	    value: function notifyChangedNodes() {
-	      var _this10 = this;
+	      var _this6 = this;
 
 	      this.removed.map(function (idx) {
-	        return _this10.nodes[idx].callback ? _this10.nodes[idx].callback(false) : null;
+	        return _this6.nodes[idx].callback ? _this6.nodes[idx].callback(false) : null;
 	      });
 	      this.added.map(function (idx) {
-	        return _this10.nodes[idx].callback ? _this10.nodes[idx].callback(true) : null;
+	        return _this6.nodes[idx].callback ? _this6.nodes[idx].callback(true) : null;
 	      });
 	    }
 	  }, {
 	    key: 'clear',
 	    value: function clear() {
-	      var _this11 = this;
+	      var _this7 = this;
 
+	      this.added = [];
+	      this.removed = [];
 	      if (this.selectedIndices.length === 0) return false;
 	      this.selectedIndices.forEach(function (idx) {
-	        return _this11.nodes[idx].callback && _this11.nodes[idx].callback(false);
+	        return _this7.nodes[idx].callback && _this7.nodes[idx].callback(false);
 	      });
+	      this.selectedIndices = [];
 	      return true;
 	    }
 	  }, {
 	    key: 'revert',
 	    value: function revert() {
-	      var _this12 = this;
+	      var _this8 = this;
 
 	      var add = this.removed;
 	      var remove = this.added;
 
 	      add.forEach(function (idx) {
-	        return _this12.addItem(idx, _this12.selectedIndices);
+	        return _this8.addItem(idx, _this8.selectedIndices);
 	      });
 	      remove.forEach(function (idx) {
-	        return _this12.removeItem(idx, _this12.selectedIndices);
+	        return _this8.removeItem(idx, _this8.selectedIndices);
 	      });
+	    }
+	  }, {
+	    key: 'keyize',
+	    value: function keyize(indices) {
+	      return indices.toString();
 	    }
 	  }, {
 	    key: 'setSelection',
 	    value: function setSelection(indices) {
-	      this.selectedIndices = indices;
+	      this.transaction.additionalSelectionMap[this.keyize(this.selectedIndices)] = indices;
+	      this.selectedIndices = [].concat(_toConsumableArray(indices));
 	      this.removed = this.changed(this.selectedIndices, this.transaction.previousMostRecentSelection);
 	      this.added = this.changed(this.transaction.previousMostRecentSelection, this.selectedIndices);
+	      this.mostRecentSelection = [].concat(_toConsumableArray(indices));
 	    }
 	  }]);
 
@@ -21102,7 +21054,7 @@
 
 	    return _class;
 	  }(_react2.default.Component), _class.displayName = 'ReferenceableContainer(' + componentDisplayName + ')', _class.propTypes = {
-	    children: _react.PropTypes.element
+	    children: _react.PropTypes.any
 	  }, _temp;
 	}
 	module.exports = exports['default'];
@@ -21815,6 +21767,14 @@
 
 	var _verifyComponent2 = _interopRequireDefault(_verifyComponent);
 
+	var _shallowEqual = __webpack_require__(174);
+
+	var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
+
+	var _shallowEqualScalar = __webpack_require__(175);
+
+	var _shallowEqualScalar2 = _interopRequireDefault(_shallowEqualScalar);
+
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { default: obj };
 	}
@@ -21881,10 +21841,19 @@
 	    }, {
 	      key: 'register',
 	      value: function register(props) {
+	        var types = ['default'];
+	        if (options.types) {
+	          if (options.types instanceof Function) {
+	            types = options.types(props);
+	          } else {
+	            types = options.types;
+	          }
+	        }
+	        this.key = options.key(this.props);
 	        this.context.selectionManager.registerSelectable(this, {
-	          key: options.key(this.props),
+	          key: this.key,
 	          selectable: options.selectable ? options.selectable(props) : true,
-	          types: options.types ? options.types : ['default'],
+	          types: types,
 	          value: options.value(props),
 	          callback: this.selectItem,
 	          cacheBounds: options.cacheBounds
@@ -21894,9 +21863,8 @@
 	      key: 'componentDidMount',
 	      value: function componentDidMount() {
 	        if (!this.context || !this.context.selectionManager) return;
-	        var key = options.key(this.props);
 	        this.register(this.props);
-	        unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, key);
+	        unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, this.key);
 	      }
 	    }, {
 	      key: 'componentWillUnmount',
@@ -21909,13 +21877,20 @@
 	    }, {
 	      key: 'selectItem',
 	      value: function selectItem(value) {
+	        if (value === this.state.selected) return;
 	        this.setState({ selected: value });
+	        this.forceUpdate();
 	      }
 	    }, {
 	      key: 'changeSelectable',
 	      value: function changeSelectable(selectable) {
 	        this.context.selectionManager.changeSelectable(options.key(this.props), selectable);
 	        this.setState({ selectable: selectable });
+	      }
+	    }, {
+	      key: 'shouldComponentUpdate',
+	      value: function shouldComponentUpdate(nextProps, nextState) {
+	        return !(0, _shallowEqualScalar2.default)(nextProps, this.props) || !(0, _shallowEqual2.default)(nextState, this.state);
 	      }
 	    }, {
 	      key: 'render',
@@ -21934,6 +21909,101 @@
 	}
 
 	exports.default = Selectable;
+	module.exports = exports['default'];
+
+/***/ },
+/* 174 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = shallowEqual;
+	function shallowEqual(objA, objB) {
+	  if (objA === objB) {
+	    return true;
+	  }
+
+	  var keysA = Object.keys(objA);
+	  var keysB = Object.keys(objB);
+
+	  if (keysA.length !== keysB.length) {
+	    return false;
+	  }
+
+	  // Test for A's keys different from B.
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  for (var i = 0; i < keysA.length; i++) {
+	    if (!hasOwn.call(objB, keysA[i]) || objA[keysA[i]] !== objB[keysA[i]]) {
+	      return false;
+	    }
+
+	    var valA = objA[keysA[i]];
+	    var valB = objB[keysA[i]];
+
+	    if (valA !== valB) {
+	      return false;
+	    }
+	  }
+
+	  return true;
+	}
+	module.exports = exports["default"];
+
+/***/ },
+/* 175 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
+	  return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+	} : function (obj) {
+	  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+	};
+
+	exports.default = shallowEqualScalar;
+	function shallowEqualScalar(objA, objB) {
+	  if (objA === objB) {
+	    return true;
+	  }
+
+	  if ((typeof objA === 'undefined' ? 'undefined' : _typeof(objA)) !== 'object' || objA === null || (typeof objB === 'undefined' ? 'undefined' : _typeof(objB)) !== 'object' || objB === null) {
+	    return false;
+	  }
+
+	  var keysA = Object.keys(objA);
+	  var keysB = Object.keys(objB);
+
+	  if (keysA.length !== keysB.length) {
+	    return false;
+	  }
+
+	  // Test for A's keys different from B.
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  for (var i = 0; i < keysA.length; i++) {
+	    if (!hasOwn.call(objB, keysA[i])) {
+	      return false;
+	    }
+
+	    var valA = objA[keysA[i]];
+	    var valB = objB[keysA[i]];
+
+	    if (valA !== valB || (typeof valA === 'undefined' ? 'undefined' : _typeof(valA)) === 'object' || (typeof valB === 'undefined' ? 'undefined' : _typeof(valB)) === 'object') {
+	      return false;
+	    }
+	  }
+
+	  return true;
+	}
 	module.exports = exports['default'];
 
 /***/ }

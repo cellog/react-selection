@@ -1,3 +1,12 @@
+0.4.1 / 2016-06-26
+------------------
+- fix the accessor passed to an onSelectionChange callback
+- allow the "types" option passed to Selectable to be a function for dynamic typing
+- fix strictness in ReferenceableContainer that broke real-world examples
+- new accessors "node" and "nodeIndicesOfType"
+- fix broken onSelectionChange callback
+- minor performance improvements
+
 0.4.0 / 2016-06-22
 ==================
 - BREAKING CHANGE: all selection options are now part of a map, selectionOptions
