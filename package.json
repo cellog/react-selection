@@ -13,7 +13,7 @@
     "clean": "rimraf build",
     "clean:examples": "rimraf examples/static",
     "test": "./node_modules/karma/bin/karma start karma.noie.conf.js && ./node_modules/karma/bin/karma start karma.ie.conf.js",
-    "old-test": "./node_modules/karma/bin/karma start karma.noie.conf.js && ./node_modules/karma/bin/karma start karma.ie.conf.js && ./node_modules/.bin/lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info' && ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+    "old-test": "NODE_ENV=test ./node_modules/karma/bin/karma start karma.noie.conf.js && NODE_ENV=test ./node_modules/karma/bin/karma start karma.ie.conf.js && ./node_modules/.bin/lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info' && ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
     "local-test": "./local-test.env",
     "test-cov": "babel-node isparta cover --report html --report text node_modules/.bin/_mocha",
     "build": "npm run clean && babel src --out-dir build",
