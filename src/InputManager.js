@@ -88,13 +88,6 @@ export default class InputManager {
   }
 
   start(e, eventname, findit = findDOMNode, mouse = mouseMath) {
-    // if (!this.node) { // pretty sure this is unneeded.  Keep just in case
-    //   this.node = findit(this.ref)
-    //   this.bounds = mouse.getBoundsForNode(this.node)
-    //   if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-    //     Debug.log(`${eventname}: got bounds`, this.bounds)
-    //   }
-    // }
 
     const coords = mouse.getCoordinates(e, e.touches && e.touches[0].identifier)
     if (!mouse.contains(this.node, coords.clientX, coords.clientY)) {

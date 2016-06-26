@@ -986,4 +986,38 @@ describe("InputManager", function() {
       expect(notify.click.called, 'click called').to.be.false
     })
   })
+
+  describe("addListener", () => {
+    const node = {
+      addEventListener: sinon.spy(),
+      removeEventListener: sinon.spy()
+    }
+    const findit = () => {
+      return {
+        addEventListener: () => null
+      }
+    }
+    const mouse = {
+      getBoundsForNode() {
+        return null
+      }
+    }
+    const manager = new InputManager(1, {}, {}, findit, mouse)
+    it("should setup stop handler and stop handler should remove event listener", () => {
+      const remove = manager.addListener(node, 'foo', 12)
+
+      expect(node.addEventListener.called).to.be.true
+      expect(node.removeEventListener.called).to.be.false
+      expect(manager.handlers.stopfoo).to.exist.and.be.instanceOf(Function)
+
+      node.addEventListener.args[0][0].should.eql('foo')
+      node.addEventListener.args[0][1].should.eql(12)
+
+      manager.handlers.stopfoo()
+      expect(node.removeEventListener.called).to.be.true
+      node.removeEventListener.args[0][0].should.eql('foo')
+      node.removeEventListener.args[0][1].should.eql(12)
+      expect(manager.handlers.stopfoo()).to.be.null
+    })
+  })
 })
