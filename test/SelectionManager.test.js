@@ -675,4 +675,33 @@ describe("SelectionManager", function() {
       expect(spy.callback.called).to.be.true
     })
   })
+
+  describe("cancelSelection", () => {
+    let selectedList
+    let manager
+    beforeEach(() => {
+      selectedList = {
+        cancelIndices: sinon.spy(),
+        removeNodes: sinon.spy()
+      }
+      manager = new SelectionManager({}, selectedList, {
+        clickTolerance: 5
+      })
+    })
+
+    it("should call cancelIndices if indices is passed", () => {
+      manager.cancelSelection({ indices: [2]})
+
+      expect(selectedList.cancelIndices.called).to.be.true
+      expect(selectedList.removeNodes.called).to.be.false
+      selectedList.cancelIndices.args[0][0].should.eql([2])
+    })
+    it("should call removeNodes if indices is not passed and nodes is", () => {
+      manager.cancelSelection({ nodes: [2]})
+
+      expect(selectedList.cancelIndices.called).to.be.false
+      expect(selectedList.removeNodes.called).to.be.true
+      selectedList.removeNodes.args[0][0].should.eql([2])
+    })
+  })
 })

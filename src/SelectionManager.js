@@ -1,7 +1,6 @@
 import { findDOMNode } from 'react-dom'
 
 import mouseMath from './mouseMath.js'
-import Debug from './debug.js'
 
 export default class SelectionManager {
   constructor(notify, list, props) {
@@ -29,9 +28,6 @@ export default class SelectionManager {
       this.indexMap[key] = this.sortedNodes.length
       this.sortedNodes.push(info)
     }
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.registration) {
-      Debug.log(`registered: ${key}`, value)
-    }
     this.selectables[key] = info
   }
 
@@ -50,15 +46,12 @@ export default class SelectionManager {
     return this.selectedList.selectItemsInRectangle(selectionRectangle, props, findit, mouse)
   }
 
-  cancelSelection({ indices = undefined, nodes = undefined, values = undefined }) {
+  cancelSelection({ indices, nodes }) {
     if (indices) {
       return this.selectedList.cancelIndices(indices)
     }
     if (nodes) {
       return this.selectedList.removeNodes(nodes)
-    }
-    if (values) {
-      return this.selectedList.removeValues(values)
     }
   }
 
