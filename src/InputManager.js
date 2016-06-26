@@ -1,7 +1,6 @@
 import { findDOMNode } from 'react-dom'
 
 import mouseMath from './mouseMath.js'
-import Debug from './debug.js'
 const spies = {
   mouseDown: false,
   touchStart: false
@@ -88,7 +87,6 @@ export default class InputManager {
   }
 
   start(e, eventname, findit = findDOMNode, mouse = mouseMath) {
-
     const coords = mouse.getCoordinates(e, e.touches && e.touches[0].identifier)
     if (!mouse.contains(this.node, coords.clientX, coords.clientY)) {
       return

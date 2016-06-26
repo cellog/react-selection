@@ -1,5 +1,3 @@
-import Debug from './debug.js'
-
 const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
 
 export default class mouseMath {
@@ -38,7 +36,7 @@ export default class mouseMath {
     }
   }
 
-  static objectsCollide(nodeA, nodeB, tolerance = 0, key = '(unknown)') {
+  static objectsCollide(nodeA, nodeB, tolerance = 0 /* , key = '(unknown)' */) {
     const {
       top: aTop,
       left: aLeft,
@@ -51,9 +49,6 @@ export default class mouseMath {
       right: bRight = bLeft,
       bottom: bBottom = bTop
     } = mouseMath.getBoundsForNode(nodeB)
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-      Debug.debugBounds(mouseMath.getBoundsForNode, nodeA, nodeB, key, tolerance)
-    }
 
     return !(
       // 'a' bottom doesn't touch 'b' top

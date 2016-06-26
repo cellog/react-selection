@@ -30,6 +30,12 @@ describe("SelectionManager", function() {
       manager = new SelectionManager(notify, new selectedList, props)
     })
 
+    it("should throw if attempting to register a component with no key", () => {
+      expect(() => {
+        manager.registerSelectable({}, { value: 'hi' })
+      }).to.throw(`component registered with undefined key, value is ${JSON.stringify('hi')}`)
+    })
+
     it("should add the component to our lists, no bounds cached", () => {
       const thing = {}
       const callback = () => null

@@ -1004,7 +1004,7 @@ describe("InputManager", function() {
     }
     const manager = new InputManager(1, {}, {}, findit, mouse)
     it("should setup stop handler and stop handler should remove event listener", () => {
-      const remove = manager.addListener(node, 'foo', 12)
+      manager.addListener(node, 'foo', 12)
 
       expect(node.addEventListener.called).to.be.true
       expect(node.removeEventListener.called).to.be.false
