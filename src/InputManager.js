@@ -91,26 +91,13 @@ export default class InputManager {
 
     const coords = mouse.getCoordinates(e, e.touches && e.touches[0].identifier)
     if (!mouse.contains(this.node, coords.clientX, coords.clientY)) {
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-        Debug.log(`${eventname}: not contained`)
-      }
       return
-    }
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-      Debug.log(`${eventname}: click/tap start`)
-    }
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.bounds) {
-      Debug.log(`${eventname}: bounds`, this.bounds, e.pageY, e.pageX)
     }
 
     if (!mouse.objectsCollide(this.bounds, {
       top: coords.pageY,
       left: coords.pageX
     })) return
-
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.clicks) {
-      Debug.log(`${eventname}: maybe select`)
-    }
 
     this.mouseDownData = {
       x: coords.pageX,
