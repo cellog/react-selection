@@ -34,18 +34,18 @@ export default class selectList {
       },
 
       selectedNodeList() {
-        return _this.selectedIndices.map(idx => this.nodes[idx].component)
+        return _this.selectedIndices.map(idx => _this.nodes[idx].component)
       },
 
       selectedValueList() {
-        return _this.selectedIndices.map(idx => this.nodes[idx].value)
+        return _this.selectedIndices.map(idx => _this.nodes[idx].value)
       },
 
       selectedNodes() {
         return _this.selectedIndices.reduce((val, idx) => {
-          val[this.nodes[idx].key] = {
-            node: this.nodes[idx].component,
-            bounds: this.bounds[idx]
+          val[_this.nodes[idx].key] = {
+            node: _this.nodes[idx].component,
+            bounds: _this.bounds[idx]
           }
           return val
         }, {})
@@ -53,7 +53,7 @@ export default class selectList {
 
       selectedValues() {
         return _this.selectedIndices.reduce((val, idx) => {
-          val[this.nodes[idx].key] = this.nodes[idx].value
+          val[_this.nodes[idx].key] = _this.nodes[idx].value
           return val
         }, {})
       }
@@ -142,16 +142,10 @@ export default class selectList {
       }
     }
     if (this.selectedIndices.indexOf(idx) !== -1) return
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-      Debug.log('select new node', this.nodes[idx].key)
-    }
     this.addItem(idx)
   }
 
   deselectItem(idx) {
-    if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-      Debug.log('deselect node', this.nodes[idx].key)
-    }
     this.removeItem(idx)
   }
 
@@ -167,15 +161,9 @@ export default class selectList {
 
     if (bounds && mouse.objectsCollide(selectionRectangle, bounds, this.clickTolerance, node.key)) {
       // node is in the selection rectangle
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log('node is in selection rectangle', node.key)
-      }
       this.selectItem(idx)
     } else {
       // node is not in the selection rectangle
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log('node is not in selection rectangle', node.key)
-      }
       this.deselectItem(idx)
     }
   }
@@ -271,9 +259,9 @@ export default class selectList {
 
   setSelection(indices) {
     this.transaction.additionalSelectionMap[this.keyize(this.selectedIndices)] = indices
-    this.selectedIndices = indices
+    this.selectedIndices = [...indices]
     this.removed = this.changed(this.selectedIndices, this.transaction.previousMostRecentSelection)
     this.added = this.changed(this.transaction.previousMostRecentSelection, this.selectedIndices)
-    this.mostRecentSelection = indices
+    this.mostRecentSelection = [...indices]
   }
 }
