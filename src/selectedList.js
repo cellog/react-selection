@@ -204,9 +204,6 @@ export default class selectList {
       const max = Math.max(...this.selectedIndices)
       const filled = Array.apply(min, Array(max - min)).map((x, y) => min + y + 1)
       filled.unshift(min)
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log('gaps to fill', filled)
-      }
       filled.forEach((idx) => this.selectItem(idx))
     }
 
