@@ -25,7 +25,7 @@ export default function shallowEqualScalar(objA, objB) {
     const valA = objA[keysA[i]]
     const valB = objB[keysA[i]]
 
-    if (valA !== valB || typeof valA === 'object' || typeof valB === 'object') {
+    if (valA !== valB || typeof valA === 'object') {
       return false
     }
   }
