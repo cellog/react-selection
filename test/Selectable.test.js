@@ -339,7 +339,7 @@ describe("Selectable", () => {
       component.context = {
         selectionManager: manager
       }
-      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.context.selectionManager.registerSelectable = sinon.spy()
       component.register(component.props)
 
       expect(keyspy.called).to.be.true
@@ -363,7 +363,7 @@ describe("Selectable", () => {
       component.context = {
         selectionManager: manager
       }
-      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.context.selectionManager.registerSelectable = sinon.spy()
       component.register(component.props)
 
       expect(valuespy.called).to.be.true
