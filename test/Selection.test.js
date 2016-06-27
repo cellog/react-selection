@@ -136,13 +136,13 @@ describe("Selection", () => {
             return true
           }
         }}>
-          <SelectableChild value="hi" id={1} />
-          <SelectableChild value="hi2" id={2} />
-          <SelectableChild value="hi3" id={3} />
+          <SelectableChild value="hi" id={1}/>
+          <SelectableChild value="hi2" id={2}/>
+          <SelectableChild value="hi3" id={3}/>
         </Thing>
-          )).render()
+      )).render()
       component = stuff[0]
-      component.bounds = { hi: 'hi' }
+      component.bounds = {hi: 'hi'}
 
       component.selectionManager.selecting = true
       component.selectedList.removed = [0]
@@ -164,17 +164,72 @@ describe("Selection", () => {
         <Thing selectionOptions={{selectable: true}} selectionCallbacks={{
           onSelectionChange: spy
         }}>
-          <SelectableChild value="hi" id={1} />
-          <SelectableChild value="hi2" id={2} />
-          <SelectableChild value="hi3" id={3} />
+          <SelectableChild value="hi" id={1}/>
+          <SelectableChild value="hi2" id={2}/>
+          <SelectableChild value="hi3" id={3}/>
         </Thing>
       )).render()
       component = stuff[0]
-      component.bounds = { hi: 'hi' }
+      component.bounds = {hi: 'hi'}
 
       component.updateState(null)
 
       expect(spy.called).to.be.false
+    })
+  })
+  describe("updateState with onSelectionChange", () => {
+    const Thing = Selection(Blah)
+    let stuff
+    afterEach(() => {
+      if (stuff) stuff.unmount()
+    })
+    it("should do nothing if onSelectionChange returns nothing or true", () => {
+      const spy = sinon.spy()
+      stuff = $(<Thing
+        selectionOptions={{constant: true}}
+        selectionCallbacks={{
+          onSelectionChange: () => {spy()}
+        }} />).render()
+      const component = stuff[0]
+      component.selectionManager.selecting = true
+      component.selectedList.revert = sinon.spy()
+      component.selectedList.setSelection = sinon.spy()
+      component.updateState(true)
+
+      expect(spy.called).to.be.true
+      expect(component.selectedList.revert.called).to.be.false
+      expect(component.selectedList.setSelection.called).to.be.false
+    })
+    it("should call revert of the selection if onSelectionChange returns false", () => {
+      stuff = $(<Thing
+        selectionOptions={{constant: true}}
+        selectionCallbacks={{
+          onSelectionChange: () => false
+        }} />).render()
+      const component = stuff[0]
+      component.selectionManager.selecting = true
+      component.selectedList.revert = sinon.spy()
+      component.selectedList.setSelection = sinon.spy()
+      component.updateState(true)
+
+      expect(component.selectedList.revert.called).to.be.true
+      expect(component.selectedList.setSelection.called).to.be.false
+    })
+    it("should explicitly set the selection if onSelectionChange returns an array of indices", () => {
+      stuff = $(<Thing
+        selectionOptions={{constant: true}}
+        selectionCallbacks={{
+          onSelectionChange: () => [0, 1, 2]
+        }} />).render()
+      const component = stuff[0]
+      component.selectionManager.selecting = true
+      component.selectedList.revert = sinon.spy()
+      component.selectedList.setSelection = sinon.spy()
+      component.updateState(true)
+
+      expect(component.selectedList.revert.called).to.be.false
+      expect(component.selectedList.setSelection.called).to.be.true
+      component.selectedList.setSelection.args[0][0].should.eql([0, 1, 2])
     })
   })
 
@@ -214,6 +269,19 @@ describe("Selection", () => {
       spy.args[0][0].should.be.eql([0, 1, 2])
       expect(spy.args[0][1]).to.equal(component.selectedList.accessor)
       expect(spy.args[0][2]).to.equal(component.bounds)
+    })
+    it("should not call if callback is not set", () => {
+      stuff.unmount()
+      stuff = $((
+        <Thing selectionOptions={{ selectable: true, constant: true }}>
+          <SelectableChild value="hi" id={1}/>
+          <SelectableChild value="hi2" id={2}/>
+          <SelectableChild value="hi3" id={3}/>
+        </Thing>
+      )).render()
+      component = stuff[0]
+      // this is for coverage only
+      component.propagateFinishedSelect()
     })
   })
 
@@ -279,6 +347,17 @@ describe("Selection", () => {
 
       expect(spy.called).to.be.true
     })
+    it("should call updateState with null if selectionManager.select returns true", () => {
+      stuff = $(<Thing selectionOptions={{ constant: true }} />).render()
+
+      component = stuff[0]
+      component.selectionManager.select = () => true
+      component.updateState = sinon.spy()
+      component.start()
+      
+      expect(component.updateState.called).to.be.true
+      component.updateState.args[0].should.eql([null])
+    })
   })
 
   describe("cancel", () => {
@@ -341,6 +420,19 @@ describe("Selection", () => {
 
       expect(component.propagateFinishedSelect.called).to.be.true
       expect(component.selectionManager.select.called).to.be.true
+    })
+  })
+
+  describe("click", () => {
+    it("should call end with args", () => {
+      const Thing = Selection(Blah)
+      const stuff = $(<Thing />).render()
+      const component = stuff[0]
+      component.end = sinon.spy()
+      component.click(1, 2, 3)
+      expect(component.end.called).to.be.true
+      component.end.args[0].should.eql([1, 2, 3])
+      stuff.unmount()
     })
   })
 
@@ -552,6 +644,18 @@ describe("Selection", () => {
         dispatchEvent(element, ev)
         expect(spies.touchStart.called).to.be.true
       })
+    })
+  })
+
+  describe("cancelSelection", () => {
+    it("should call selectionManager.cancelSelection", () => {
+      const Thing = Selection(Blah)
+
+      const stuff = $(<Thing another="hi" />).render(true)
+      const component = stuff[0]
+      component.selectionManager.cancelSelection = sinon.spy()
+      component.cancelSelection()
+      expect(component.selectionManager.cancelSelection.called).to.be.true
     })
   })
 })

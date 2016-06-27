@@ -8,7 +8,7 @@ import React, { PropTypes } from 'react'
 import { findDOMNode } from 'react-dom'
 import mouseMath from './mouseMath.js'
 
-function makeSelectable( Component, options = {}) {
+function makeSelectable( Component) {
   // always force a ReferenceableContainer if a stateless functional component is passed in
   const useContainer = verifyComponent(Component)
   const componentDisplayName = Component.displayName || Component.name || 'Component'
