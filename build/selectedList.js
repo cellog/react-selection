@@ -12,10 +12,6 @@ var _mouseMath = require('./mouseMath.js');
 
 var _mouseMath2 = _interopRequireDefault(_mouseMath);
 
-var _debug = require('./debug.js');
-
-var _debug2 = _interopRequireDefault(_debug);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -273,9 +269,6 @@ var selectList = function () {
             return min + y + 1;
           });
           filled.unshift(min);
-          if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-            _debug2.default.log('gaps to fill', filled);
-          }
           filled.forEach(function (idx) {
             return _this5.selectItem(idx);
           });

@@ -8,10 +8,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _debug = require('./debug.js');
-
-var _debug2 = _interopRequireDefault(_debug);
-
 var _InputManager = require('./InputManager.js');
 
 var _InputManager2 = _interopRequireDefault(_InputManager);
@@ -55,8 +51,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function makeSelectable(Component) {
   var _class, _temp;
 
-  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
   // always force a ReferenceableContainer if a stateless functional component is passed in
   var useContainer = (0, _verifyComponent2.default)(Component);
   var componentDisplayName = Component.displayName || Component.name || 'Component';
@@ -91,9 +85,6 @@ function makeSelectable(Component) {
     _createClass(_class, [{
       key: 'updateState',
       value: function updateState(selecting) {
-        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-          _debug2.default.log('updatestate: ', selecting);
-        }
         var onSelectionChange = this.props.selectionCallbacks.onSelectionChange;
         if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
           var result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor);
@@ -122,9 +113,6 @@ function makeSelectable(Component) {
       key: 'propagateFinishedSelect',
       value: function propagateFinishedSelect() {
         if (!this.props.selectionCallbacks.onFinishSelect) return;
-        if (_debug2.default.DEBUGGING.debug && _debug2.default.DEBUGGING.selection) {
-          _debug2.default.log('finishselect', this.state.selectedIndices, this.bounds);
-        }
         this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList.accessor, this.bounds);
       }
     }, {

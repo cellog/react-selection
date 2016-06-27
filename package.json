@@ -17,6 +17,7 @@
     "local-test": "./local-test.env",
     "test-cov": "babel-node isparta cover --report html --report text node_modules/.bin/_mocha",
     "build": "npm run clean && babel src --out-dir build",
+    "build-coverage": "NODE_ENV=test ./node_modules/babel-cli/bin/babel.js src/*.js* --config test/test.config.es6.js --out-dir coverage-test",
     "build:examples": "npm run clean:examples && webpack --config examples/examples.config.js",
     "lint": "eslint src test",
     "storybook": "start-storybook -p 9001"

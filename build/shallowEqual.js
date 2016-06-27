@@ -22,13 +22,6 @@ function shallowEqual(objA, objB) {
     if (!hasOwn.call(objB, keysA[i]) || objA[keysA[i]] !== objB[keysA[i]]) {
       return false;
     }
-
-    var valA = objA[keysA[i]];
-    var valB = objB[keysA[i]];
-
-    if (valA !== valB) {
-      return false;
-    }
   }
 
   return true;

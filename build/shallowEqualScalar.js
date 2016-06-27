@@ -33,7 +33,7 @@ function shallowEqualScalar(objA, objB) {
     var valA = objA[keysA[i]];
     var valB = objB[keysA[i]];
 
-    if (valA !== valB || (typeof valA === 'undefined' ? 'undefined' : _typeof(valA)) === 'object' || (typeof valB === 'undefined' ? 'undefined' : _typeof(valB)) === 'object') {
+    if (valA !== valB || (typeof valA === 'undefined' ? 'undefined' : _typeof(valA)) === 'object') {
       return false;
     }
   }

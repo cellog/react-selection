@@ -5,9 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = verifyComponent;
 function verifyComponent(Component) {
-  if (!Component instanceof Function) {
-    throw new Error('Component must be a stateful React Class');
-  }
   var test = void 0;
   if (!(Component instanceof Function)) {
     throw new Error('Component is not a class, must be a stateful React Component class');
