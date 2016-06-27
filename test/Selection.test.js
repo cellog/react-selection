@@ -354,7 +354,7 @@ describe("Selection", () => {
       component.selectionManager.select = () => true
       component.updateState = sinon.spy()
       component.start()
-      
+
       expect(component.updateState.called).to.be.true
       component.updateState.args[0].should.eql([null])
     })
