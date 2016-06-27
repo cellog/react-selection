@@ -1,7 +1,4 @@
 export default function verifyComponent(Component) {
-  if (!Component instanceof Function) {
-    throw new Error('Component must be a stateful React Class')
-  }
   let test
   if (!(Component instanceof Function)) {
     throw new Error('Component is not a class, must be a stateful React Component class')
