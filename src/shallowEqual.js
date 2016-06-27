@@ -17,13 +17,6 @@ export default function shallowEqual(objA, objB) {
       objA[keysA[i]] !== objB[keysA[i]]) {
       return false
     }
-
-    const valA = objA[keysA[i]]
-    const valB = objB[keysA[i]]
-
-    if (valA !== valB) {
-      return false
-    }
   }
 
   return true
