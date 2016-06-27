@@ -1,4 +1,3 @@
-import Debug from './debug.js'
 import InputManager from './InputManager.js'
 import SelectionManager from './SelectionManager.js'
 import verifyComponent from './verifyComponent.js'
@@ -74,9 +73,6 @@ function makeSelectable( Component, options = {}) {
     }
 
     updateState(selecting) {
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log('updatestate: ', selecting)
-      }
       const onSelectionChange = this.props.selectionCallbacks.onSelectionChange
       if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
         const result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor)
@@ -103,9 +99,6 @@ function makeSelectable( Component, options = {}) {
 
     propagateFinishedSelect() {
       if (!this.props.selectionCallbacks.onFinishSelect) return
-      if (Debug.DEBUGGING.debug && Debug.DEBUGGING.selection) {
-        Debug.log('finishselect', this.state.selectedIndices, this.bounds)
-      }
       this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList.accessor, this.bounds)
     }
 
