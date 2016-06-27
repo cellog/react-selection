@@ -42,8 +42,8 @@ function Selectable(Component, options) {
       }
     }
 
-    register(props) {
-      let types = ['default']
+    register(props, selectable = null) {
+      let types = ['__default']
       if (options.types) {
         if (options.types instanceof Function) {
           types = options.types(props)
@@ -54,7 +54,7 @@ function Selectable(Component, options) {
       this.key = options.key(this.props)
       this.context.selectionManager.registerSelectable(this, {
         key: this.key,
-        selectable: options.selectable ? options.selectable(props) : true,
+        selectable: selectable !== null ? selectable : (options.selectable ? options.selectable(props) : true),
         types: types,
         value: options.value(props),
         callback: this.selectItem,
@@ -80,7 +80,7 @@ function Selectable(Component, options) {
     }
 
     changeSelectable(selectable) {
-      this.context.selectionManager.changeSelectable(options.key(this.props), selectable)
+      this.register(this.props, selectable)
       this.setState({ selectable })
     }
 

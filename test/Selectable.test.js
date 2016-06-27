@@ -3,6 +3,8 @@ import $ from 'teaspoon'
 import React, { Component, PropTypes } from 'react'
 
 import Selectable from '../src/Selectable.jsx'
+import SelectionManager from '../src/SelectionManager.js'
+import selectedList from '../src/selectedList.js'
 
 describe("Selectable", () => {
   class Blah extends Component {
@@ -226,6 +228,263 @@ describe("Selectable", () => {
       expect(thing[0].selectionManager.unregisterSelectable.called).to.be.false
       thing.unmount()
       expect(thing[0].selectionManager.unregisterSelectable.called).to.be.true
+    })
+  })
+
+  describe("register", () => {
+    let manager
+    const Comp = () => <div>this is it</div>
+    const props = {
+      selectionOptions: {}
+    }
+    beforeEach(() => {
+      manager = new SelectionManager({}, new selectedList, props)
+    })
+    it("should call selectionManager's registerSelectable with the results of options on props passed in", () => {
+      const Sel = Selectable(Comp, {
+        key: (props) => props.id,
+        selectable: (props) => props.canSelect,
+        types: (props) => props.types,
+        value: (props) => props.val
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} types={['one', 'two']} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.register(component.props)
+
+      expect(spy.called).to.be.true
+      spy.args[0][0].should.equal(component)
+      spy.args[0][1].should.eql({
+        cacheBounds: undefined,
+        callback: component.selectItem,
+        key: 'boo',
+        selectable: false,
+        types: ['one', 'two'],
+        value: 'hillbilly'
+      })
+    })
+    it("should use default types of ['__default'] if none is specified", () => {
+      const Sel = Selectable(Comp, {
+        key: (props) => props.id,
+        selectable: (props) => props.canSelect,
+        value: (props) => props.val
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.register(component.props)
+
+      expect(spy.called).to.be.true
+      spy.args[0][1].should.eql({
+        cacheBounds: undefined,
+        callback: component.selectItem,
+        key: 'boo',
+        selectable: false,
+        types: ['__default'],
+        value: 'hillbilly'
+      })
+    })
+    it("should process options['type'] and call function or read value", () => {
+      const Sel = Selectable(Comp, {
+        key: (props) => props.id,
+        selectable: (props) => props.canSelect,
+        value: (props) => props.val,
+        types: ['other']
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.register(component.props)
+
+      expect(spy.called).to.be.true
+      spy.args[0][1].should.eql({
+        cacheBounds: undefined,
+        callback: component.selectItem,
+        key: 'boo',
+        selectable: false,
+        types: ['other'],
+        value: 'hillbilly'
+      })
+    })
+    it("should call options['key']", () => {
+      const keyspy = sinon.spy()
+      const Sel = Selectable(Comp, {
+        key: (props) => {
+          keyspy(props)
+          return props.id
+        },
+        selectable: (props) => props.canSelect,
+        value: (props) => props.val,
+        types: ['other']
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.register(component.props)
+
+      expect(keyspy.called).to.be.true
+      keyspy.args[0][0].should.equal(component.props)
+    })
+    it("should call options['value']", () => {
+      const valuespy = sinon.spy()
+      const Sel = Selectable(Comp, {
+        value: (props) => {
+          valuespy(props)
+          return props.val
+        },
+        selectable: (props) => props.canSelect,
+        key: (props) => props.id,
+        types: ['other']
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.register(component.props)
+
+      expect(valuespy.called).to.be.true
+      valuespy.args[0][0].should.equal(component.props)
+    })
+    it("should use the optional selectable param if it is non-null", () => {
+      const Sel = Selectable(Comp, {
+        key: (props) => props.id,
+        selectable: (props) => props.canSelect,
+        value: (props) => props.val
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.register(component.props, true)
+
+      expect(spy.called).to.be.true
+      spy.args[0][1].should.eql({
+        cacheBounds: undefined,
+        callback: component.selectItem,
+        key: 'boo',
+        selectable: true,
+        types: ['__default'],
+        value: 'hillbilly'
+      })
+    })
+  })
+
+  describe("changeSelectable", () => {
+    let manager
+    const Comp = () => <div>this is it</div>
+    const props = {
+      selectionOptions: {}
+    }
+    beforeEach(() => {
+      manager = new SelectionManager({}, new selectedList, props)
+    })
+
+    it("should re-register with selectionManager and set state", () => {
+      const Sel = Selectable(Comp, {
+        key: (props) => props.id,
+        selectable: (props) => props.canSelect,
+        value: (props) => props.val
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      const spy = component.context.selectionManager.registerSelectable = sinon.spy()
+      component.register(component.props)
+
+      expect(spy.called).to.be.true
+      spy.args[0][1].should.eql({
+        cacheBounds: undefined,
+        callback: component.selectItem,
+        key: 'boo',
+        selectable: false,
+        types: ['__default'],
+        value: 'hillbilly'
+      })
+
+      expect(component.state.selectable).to.be.false
+      component.changeSelectable(true)
+      expect(component.state.selectable).to.be.true
+
+      expect(spy.called).to.be.true
+      spy.args[1][1].should.eql({
+        cacheBounds: undefined,
+        callback: component.selectItem,
+        key: 'boo',
+        selectable: true,
+        types: ['__default'],
+        value: 'hillbilly'
+      })
+    })
+  })
+
+  describe("componentWillReceiveProps", () => {
+    let manager
+    const Comp = () => <div>this is it</div>
+    const props = {
+      selectionOptions: {}
+    }
+    beforeEach(() => {
+      manager = new SelectionManager({}, new selectedList, props)
+    })
+
+    it("should re-call register and set selectable state", () => {
+      const selectableSpy = sinon.spy()
+      const Sel = Selectable(Comp, {
+        key: (props) => props.id,
+        selectable: (props) => {
+          selectableSpy(props)
+          return props.canSelect
+        },
+        value: (props) => props.val
+      })
+
+      const stuff = $(<Sel id="boo" canSelect={false} val="hillbilly" />).render()
+
+      const component = stuff[0]
+      component.context = {
+        selectionManager: manager
+      }
+      component.register = sinon.spy()
+      component.componentWillReceiveProps({
+        id: 'boo',
+        canSelect: true,
+        val: 'hillbilly'
+      })
+      expect(component.state.selectable).to.be.true
+      expect(component.register.called).to.be.true
+      expect(selectableSpy.called).to.be.true
     })
   })
 })
