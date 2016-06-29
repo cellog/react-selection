@@ -32,6 +32,9 @@ var coverageReporter = isCI ? {
     },
     {
       type: 'text'
+    },
+    {
+      type: 'html'
     }
   ]
 }

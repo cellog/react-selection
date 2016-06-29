@@ -1,6 +1,5 @@
 import 'should'
 import mouseMath from '../src/mouseMath.js'
-import Debug from '../src/debug.js'
 
 describe("mouseMath", function() {
   const e = {
@@ -151,6 +150,16 @@ describe("mouseMath", function() {
     it("should throw on incorrect direction", () => {
       (() => mouseMath.pageOffset('foo', mockwin)).should.throw("direction must be one of top or left, was \"foo\"")
     })
+
+    it("should use the parent window if asked to", () => {
+      if ((window.____isjsdom)) return
+      mockwin.parent = {
+        window: {
+          pageXOffset: 123
+        }
+      }
+      expect(mouseMath.pageOffset('left')).to.equal(0)
+    })
   })
 
   describe("browser-specific tests: not scrolling", function() {
@@ -161,7 +170,7 @@ describe("mouseMath", function() {
       div.innerText = 'hi'
       div.id = 'foo'
       document.body.appendChild(div, document.body.firstElementChild)
-      Debug.DOMFlush('foo')
+      mouseMath.DOMFlush('foo')
     })
 
     after(() => {

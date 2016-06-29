@@ -316,6 +316,12 @@ describe("SelectionManager", function() {
 
       manager.selectedList.selectedIndices.should.eql([0, 1, 2, 3])
     })
+
+    it("should call selectedList selectItemsInRectangle", () => {
+      manager.selectedList.selectItemsInRectangle = sinon.spy()
+      manager.select({selectionRectangle: {}, props: {}})
+      expect(manager.selectedList.selectItemsInRectangle.called).to.be.true
+    })
   })
 
   describe("select: selection types", () => {

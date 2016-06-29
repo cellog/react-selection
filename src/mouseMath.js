@@ -122,4 +122,16 @@ export default class mouseMath {
     )
   }
 
+  static DOMFlush(id) {
+    let tmp = 0
+    // flush the DOM in IE
+    // (http://stackoverflow.com/questions/1397478/forcing-a-dom-refresh-in-internet-explorer-after-javascript-dom-manipulation)
+    const elementOnShow = document.getElementById(id)
+    if (navigator.appName === 'Microsoft Internet Explorer') {
+      tmp = `${elementOnShow.parentNode.offsetTop}px`
+    } else {
+      tmp = elementOnShow.offsetTop
+    }
+    return tmp // dummy value, only here to fool eslint
+  }
 }

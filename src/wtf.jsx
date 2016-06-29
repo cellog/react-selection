@@ -1,4 +1,3 @@
-import Debug from './debug.js'
 import InputManager from './InputManager.js'
 import SelectionManager from './SelectionManager.js'
 import verifyComponent from './verifyComponent.js'

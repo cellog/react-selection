@@ -21,10 +21,10 @@ export default class InputManager {
     this.touchStart = this.touchStart.bind(this)
 
     this.handlers = {
-      stopmousedown: () => null,
+      stopmousedown: null,
       stopmouseup: () => null,
       stopmousemove: () => null,
-      stoptouchstart: () => null,
+      stoptouchstart: null,
       stoptouchend: () => null,
       stoptouchmove: () => null,
       stoptouchcancel: () => null
