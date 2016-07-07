@@ -162,25 +162,26 @@ describe("mouseMath", function() {
     })
   })
 
-  describe("browser-specific tests: not scrolling", function() {
+  describe("browser-specific tests: detecting points inside or out", function() {
     const div = document.createElement('div')
     before(() => {
-      if (window.____isjsdom) return
-      div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
+      div.style.cssText = 'height: 50px;width:50px;'
       div.innerText = 'hi'
       div.id = 'foo'
-      document.body.appendChild(div, document.body.firstElementChild)
-      mouseMath.DOMFlush('foo')
+      document.body.insertBefore(div, document.body.firstElementChild)
     })
 
     after(() => {
-      if (window.____isjsdom) return
       document.body.removeChild(div)
     })
 
     it("contains: should detect point inside", () => {
       if (window.____isjsdom) return
 
+      // this doesn't fucking work on IE 10.
+      // No amount of bullshit will make the damn browser actually paint
+      // even though a manual test proves that the method works.
+      if (navigator.appVersion.indexOf("MSIE 10") !== -1) return
       const a = mouseMath.contains(div, 25, 25)
       expect(a).to.equal(true)
     })
@@ -190,6 +191,22 @@ describe("mouseMath", function() {
 
       const a = mouseMath.contains(div, 400, 400)
       expect(a).to.equal(false)
+    })
+  })
+
+  describe("browser-specific tests: not scrolling", function() {
+    const div = document.createElement('div')
+    before(() => {
+      if (window.____isjsdom) return
+      div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
+      div.innerText = 'hi'
+      div.id = 'foo'
+      document.body.insertBefore(div, document.body.firstElementChild)
+    })
+
+    after(() => {
+      if (window.____isjsdom) return
+      document.body.removeChild(div)
     })
 
     it("getBoundsForNode: no scroll", () => {

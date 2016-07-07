@@ -89,6 +89,7 @@ module.exports = function(config, extraoptions) {
     browserNoActivityTimeout: 240000,
 
     singleRun,
+    concurrency: 1,
 
     ...extraoptions
   })
