@@ -165,10 +165,11 @@ describe("mouseMath", function() {
   describe("browser-specific tests: detecting points inside or out", function() {
     const div = document.createElement('div')
     before(() => {
-      div.style.cssText = 'height: 50px;width:50px;'
+      div.style.cssText = 'height: 50px;width:50px;position:absolute;top:5px;left:5px;'
       div.innerText = 'hi'
       div.id = 'foo'
       document.body.insertBefore(div, document.body.firstElementChild)
+      mouseMath.DOMFlush('foo')
     })
 
     after(() => {

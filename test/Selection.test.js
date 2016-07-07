@@ -103,7 +103,7 @@ describe("Selection", () => {
     let stuff
     let component
     beforeEach(() => {
-      stuff = $(<Thing />).render()
+      stuff = $(<Thing name="buh" />).render()
       component = stuff[0]
     })
     afterEach(() => {
@@ -130,7 +130,7 @@ describe("Selection", () => {
       const spy = sinon.spy()
       stuff.unmount()
       stuff = $((
-        <Thing selectionOptions={{ selectable: true, constant: true }} selectionCallbacks={{
+        <Thing name="boo" selectionOptions={{ selectable: true, constant: true }} selectionCallbacks={{
           onSelectionChange: (...args) => {
             spy(...args)
             return true
@@ -161,7 +161,7 @@ describe("Selection", () => {
       const spy = sinon.spy()
       stuff.unmount()
       stuff = $((
-        <Thing selectionOptions={{selectable: true}} selectionCallbacks={{
+        <Thing name="hur" selectionOptions={{selectable: true}} selectionCallbacks={{
           onSelectionChange: spy
         }}>
           <SelectableChild value="hi" id={1}/>
@@ -185,7 +185,7 @@ describe("Selection", () => {
     })
     it("should do nothing if onSelectionChange returns nothing or true", () => {
       const spy = sinon.spy()
-      stuff = $(<Thing
+      stuff = $(<Thing name="blh"
         selectionOptions={{constant: true}}
         selectionCallbacks={{
           onSelectionChange: () => {spy()}
@@ -201,7 +201,7 @@ describe("Selection", () => {
       expect(component.selectedList.setSelection.called).to.be.false
     })
     it("should call revert of the selection if onSelectionChange returns false", () => {
-      stuff = $(<Thing
+      stuff = $(<Thing name="jpoi"
         selectionOptions={{constant: true}}
         selectionCallbacks={{
           onSelectionChange: () => false
@@ -216,7 +216,7 @@ describe("Selection", () => {
       expect(component.selectedList.setSelection.called).to.be.false
     })
     it("should explicitly set the selection if onSelectionChange returns an array of indices", () => {
-      stuff = $(<Thing
+      stuff = $(<Thing name="ojoj"
         selectionOptions={{constant: true}}
         selectionCallbacks={{
           onSelectionChange: () => [0, 1, 2]
@@ -242,7 +242,7 @@ describe("Selection", () => {
     beforeEach(() => {
       spy = sinon.spy()
       stuff = $((
-        <Thing selectionOptions={{ selectable: true, constant: true }}
+        <Thing selectionOptions={{ selectable: true, constant: true }} name="lala"
                selectionCallbacks={{ onFinishSelect: spy }}>
         <SelectableChild value="hi" id={1}/>
         <SelectableChild value="hi2" id={2}/>
@@ -273,7 +273,7 @@ describe("Selection", () => {
     it("should not call if callback is not set", () => {
       stuff.unmount()
       stuff = $((
-        <Thing selectionOptions={{ selectable: true, constant: true }}>
+        <Thing selectionOptions={{ selectable: true, constant: true }} name="ppp">
           <SelectableChild value="hi" id={1}/>
           <SelectableChild value="hi2" id={2}/>
           <SelectableChild value="hi3" id={3}/>
@@ -299,7 +299,7 @@ describe("Selection", () => {
     })
 
     it("should call onTouchStart if defined and event is a touch event", () => {
-      stuff = $(<Thing onTouchStart={spy}/>).render(true)
+      stuff = $(<Thing onTouchStart={spy} name="iii"/>).render(true)
 
       component = stuff[0]
       component.invalid('hi', 'touchstart')
@@ -307,7 +307,7 @@ describe("Selection", () => {
       expect(spy.called).to.be.true
     })
     it("should call onMouseDown if defined and event is a mouse event", () => {
-      stuff = $(<Thing onMouseDown={spy}/>).render(true)
+      stuff = $(<Thing onMouseDown={spy} name="mmm"/>).render(true)
 
       component = stuff[0]
       component.invalid('hi', 'mousedown')
@@ -326,8 +326,12 @@ describe("Selection", () => {
       spy = sinon.spy()
     })
 
+    afterEach(() => {
+      if (stuff) stuff.unmount()
+    })
+
     it("should call select if selectionOptions.constant is active", () => {
-      stuff = $(<Thing selectionOptions={{ constant: true }} />).render()
+      stuff = $(<Thing selectionOptions={{ constant: true }} name="lla "/>).render()
 
       component = stuff[0]
 
@@ -338,7 +342,7 @@ describe("Selection", () => {
     })
 
     it("should call deselect if selectionOptions.constant is not active", () => {
-      stuff = $(<Thing />).render()
+      stuff = $(<Thing name="rr2" />).render()
 
       component = stuff[0]
 
@@ -348,7 +352,7 @@ describe("Selection", () => {
       expect(spy.called).to.be.true
     })
     it("should call updateState with null if selectionManager.select returns true", () => {
-      stuff = $(<Thing selectionOptions={{ constant: true }} />).render()
+      stuff = $(<Thing selectionOptions={{ constant: true }} name="ak3" />).render()
 
       component = stuff[0]
       component.selectionManager.select = () => true
@@ -368,7 +372,7 @@ describe("Selection", () => {
 
     beforeEach(() => {
       spy = sinon.spy()
-      stuff = $(<Thing />).render(true)
+      stuff = $(<Thing name="p12"/>).render(true)
       component = stuff[0]
     })
     afterEach(() => {
@@ -399,7 +403,7 @@ describe("Selection", () => {
     const Thing = Selection(Blah)
 
     it("should call propagateFinishedSelect and deselect if selectionOptions.constant is on", () => {
-      const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }} />).render()
+      const stuff = $(<Thing selectionOptions={{ selectable: true, constant: true }} name="pop"/>).render()
       const component = stuff[0]
       component.selectionManager.begin(component.props)
       component.propagateFinishedSelect = sinon.spy()
@@ -408,10 +412,11 @@ describe("Selection", () => {
 
       expect(component.propagateFinishedSelect.called).to.be.true
       expect(component.selectionManager.deselect.called).to.be.true
+      stuff.unmount()
     })
 
     it("should select any items in the selection rectangle, and propagateFinishedSelect", () => {
-      const stuff = $(<Thing selectable />).render()
+      const stuff = $(<Thing selectable name="opo"/>).render()
       const component = stuff[0]
       component.selectionManager.begin(component.props)
       component.propagateFinishedSelect = sinon.spy()
@@ -420,13 +425,14 @@ describe("Selection", () => {
 
       expect(component.propagateFinishedSelect.called).to.be.true
       expect(component.selectionManager.select.called).to.be.true
+      stuff.unmount()
     })
   })
 
   describe("click", () => {
     it("should call end with args", () => {
       const Thing = Selection(Blah)
-      const stuff = $(<Thing />).render()
+      const stuff = $(<Thing name="oaaaa" />).render()
       const component = stuff[0]
       component.end = sinon.spy()
       component.click(1, 2, 3)
@@ -516,6 +522,7 @@ describe("Selection", () => {
       stuff[0].makeInputManager(null, im)
 
       expect(spy.called).to.be.false
+      stuff.unmount()
     })
     it("should set up inputManager and ref on first valid call", () => {
       const spy = sinon.spy()
@@ -656,6 +663,7 @@ describe("Selection", () => {
       component.selectionManager.cancelSelection = sinon.spy()
       component.cancelSelection()
       expect(component.selectionManager.cancelSelection.called).to.be.true
+      stuff.unmount()
     })
   })
 })
