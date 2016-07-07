@@ -4,6 +4,7 @@ require('babel-register')
 var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
 var reporters = ['mocha', 'saucelabs', 'coverage']
 var singleRun = true
+var webpack = require('./test/test.config.es6.js')
 
 var sauceParams = {
   testName: "react-selection-hoc unit tests",
@@ -46,7 +47,7 @@ if (isCI) {
   sauceParams.startConnect = false
 }
 
-module.exports = function(config, extraoptions) {
+module.exports = function (config, extraoptions) {
   config.set({
 
     basePath: '',
@@ -61,13 +62,13 @@ module.exports = function(config, extraoptions) {
       'test/*.test.js': ['webpack'],
     },
 
-    webpack: require('./test/test.config.es6.js'),
+    webpack,
 
     webpackMiddleware: {
       noInfo: true
     },
 
-    reporters: reporters,
+    reporters,
 
     mochaReporter: {
       output: 'autowatch'

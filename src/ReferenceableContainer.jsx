@@ -7,7 +7,7 @@ export default function makeReferenceableContainer(Component, componentDisplayNa
       children: PropTypes.any
     }
     render() {
-      const {children, ...props} = this.props
+      const { children, ...props } = this.props
       return (
         <Component {...props}>
           {children}

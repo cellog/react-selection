@@ -59,18 +59,6 @@ const browsers = {
     platform: 'Windows 10',
     version: '44'
   },
-  sl_firefox_10_43: {
-    base: 'SauceLabs',
-    browserName: 'firefox',
-    platform: 'Windows 10',
-    version: '43'
-  },
-  sl_firefox_10_42: {
-    base: 'SauceLabs',
-    browserName: 'firefox',
-    platform: 'Windows 10',
-    version: '42'
-  },
   sl_safari_osx_11_9: {
     base: 'SauceLabs',
     browserName: 'safari',

@@ -8,7 +8,7 @@ import React, { PropTypes } from 'react'
 import { findDOMNode } from 'react-dom'
 import mouseMath from './mouseMath.js'
 
-function makeSelectable( Component) {
+function makeSelectable(Component) {
   // always force a ReferenceableContainer if a stateless functional component is passed in
   const useContainer = verifyComponent(Component)
   const componentDisplayName = Component.displayName || Component.name || 'Component'
@@ -74,8 +74,11 @@ function makeSelectable( Component) {
 
     updateState(selecting) {
       const onSelectionChange = this.props.selectionCallbacks.onSelectionChange
-      if (onSelectionChange && this.props.selectionOptions.constant && this.selectionManager.isSelecting()) {
-        const result = onSelectionChange(this.selectedList.removed, this.selectedList.added, this.selectedList.accessor)
+      if (onSelectionChange &&
+          this.props.selectionOptions.constant &&
+          this.selectionManager.isSelecting()) {
+        const result = onSelectionChange(this.selectedList.removed,
+          this.selectedList.added, this.selectedList.accessor)
         if (result === false) {
           this.selectedList.revert()
         } else if (result && result !== true) {
@@ -99,7 +102,8 @@ function makeSelectable( Component) {
 
     propagateFinishedSelect() {
       if (!this.props.selectionCallbacks.onFinishSelect) return
-      this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices, this.selectedList.accessor, this.bounds)
+      this.props.selectionCallbacks.onFinishSelect(this.state.selectedIndices,
+        this.selectedList.accessor, this.bounds)
     }
 
     getChildContext() {
@@ -178,11 +182,11 @@ function makeSelectable( Component) {
       const old = this.state.selecting
 
       if (!old) {
-        this.setState({selecting: true})
+        this.setState({ selecting: true })
       }
 
       if (this.props.selectionOptions.constant) {
-        if (this.selectionManager.select({selectionRectangle, props: this.props}, findit, mouse)) {
+        if (this.selectionManager.select({ selectionRectangle, props: this.props }, findit, mouse)) {
           if (!this.updateState(null)) {
             this.cancel()
           }

@@ -43,6 +43,7 @@ function Selectable(Component, options) {
     }
 
     register(props, selectable = null) {
+      const optionsSelectable = options.selectable ? options.selectable(props) : true
       let types = ['__default']
       if (options.types) {
         if (options.types instanceof Function) {
@@ -54,8 +55,8 @@ function Selectable(Component, options) {
       this.key = options.key(this.props)
       this.context.selectionManager.registerSelectable(this, {
         key: this.key,
-        selectable: selectable !== null ? selectable : (options.selectable ? options.selectable(props) : true),
-        types: types,
+        selectable: selectable !== null ? selectable : optionsSelectable,
+        types,
         value: options.value(props),
         callback: this.selectItem,
         cacheBounds: options.cacheBounds
@@ -91,9 +92,21 @@ function Selectable(Component, options) {
 
     render() {
       if (useContainer) {
-        return <ReferenceableContainer {...this.props} {...this.state} changeSelectable={this.changeSelectable} />
+        return (
+          <ReferenceableContainer
+            {...this.props}
+            {...this.state}
+            changeSelectable={this.changeSelectable}
+          />
+        )
       }
-      return <Component {...this.props} {...this.state} changeSelectable={this.changeSelectable} />
+      return (
+        <Component
+          {...this.props}
+          {...this.state}
+          changeSelectable={this.changeSelectable}
+        />
+      )
     }
   }
 }
