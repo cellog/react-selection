@@ -341,28 +341,29 @@ storiesOf('module.Selectable', module)
         mostPopular: 'Tuna Melt'
       },
     ]
-    const Tdraw = ({ children, selected, selectable }) => {
+    const TdRaw = ({ children, selected, selectable, disabledRows }) => {
       let classes = ''
       if (selected) classes += 'selected'
       if (!selectable) classes += ' disabled'
       return <td className={classes}>{children}</td>
     }
-    const Td = Selectable(Tdraw, {
+    const Td = Selectable(TdRaw, {
       key: (props) => `${props.children} td ${props.type}`,
       value: (props) => props.children,
-      types: (props) => [props.type]
+      types: (props) => [props.type],
+      selectable: (props) => props.disabledRows.indexOf(props.type) === -1
     })
-    const Tr = Selectable(({ row, name, sales, leads, mostPopular, selected, selectable }) => {
+    const Tr = Selectable(({ row, name, sales, leads, mostPopular, selected, selectable, disabledRows }) => {
       let classes = ''
       if (selected) classes += 'selected'
       if (!selectable) classes += ' disabled'
       return (
         <tr className={classes}>
-          <Td type="row">{row}</Td>
-          <Td type="name">{name}</Td>
-          <Td type="sales">{sales}</Td>
-          <Td type="leads">{leads}</Td>
-          <Td type="most popular items">{mostPopular}</Td>
+          <Td type="row" disabledRows={disabledRows}>{row}</Td>
+          <Td type="name" disabledRows={disabledRows}>{name}</Td>
+          <Td type="sales" disabledRows={disabledRows}>{sales}</Td>
+          <Td type="leads" disabledRows={disabledRows}>{leads}</Td>
+          <Td type="most popular items" disabledRows={disabledRows}>{mostPopular}</Td>
         </tr>
       )
     }, {
@@ -370,41 +371,47 @@ storiesOf('module.Selectable', module)
       value: ({ name, sales, leads, mostPopular }) => {return { name, sales, leads, mostPopular }},
       types: ['row']
     })
-    const Tbody = ({ data }) => {
+    const Tbody = ({ data, disabledRows }) => {
       return (
         <tbody>
-          {data.map((person, row) => <Tr key={person.name} row={row} {...person} />)}
+          {data.map((person, row) => <Tr key={person.name} row={row} {...person} disabledRows={disabledRows} />)}
         </tbody>
       )
     }
-    const th = ({ type, selected }) => (
-      <th className={selected ? 'selected' : ''}>{type.split(' ')
-        .map(st => st ? st[0].toUpperCase() + st.slice(1) : st)
-        .reduce((tot, st) => tot ? tot + ' ' + st : st, '')}</th>
-    )
+    const th = ({ type, selected, selectable }) => {
+      let classes = ''
+      if (selected) classes += 'selected'
+      if (!selectable) classes += ' disabled'
+      return (
+        <th className={classes}>{type.split(' ')
+          .map(st => st ? st[0].toUpperCase() + st.slice(1) : st)
+          .reduce((tot, st) => tot ? tot + ' ' + st : st, '')}</th>
+      )
+    }
     const Th = Selectable(th, {
       key: (props) => `th.${props.type}`,
       value: (props) => props.value || props.type,
-      types: (props) => ['header', props.value || props.type]
+      types: (props) => ['header', props.value || props.type],
+      selectable: (props) => props.disabledRows.indexOf(props.type) === -1
     })
     const WholeTh = Selectable(th, {
       key: () => 'th.wholetable',
       value: () => data,
       types: ['table']
     })
-    const Table = Selection(({ data }) => {
+    const Table = Selection(({ data, disabledRows }) => {
       return (
         <table style={{borderWidth: 1, borderColor: '#000', borderCollapse: 'collapse'}}>
           <thead>
           <tr>
             <WholeTh type={""} />
-            <Th type="people" value="name" />
-            <Th type="sales" />
-            <Th type="leads" />
-            <Th type="most popular items" />
+            <Th type="name" value="name" disabledRows={disabledRows} />
+            <Th type="sales" disabledRows={disabledRows} />
+            <Th type="leads" disabledRows={disabledRows} />
+            <Th type="most popular items" disabledRows={disabledRows} />
           </tr>
           </thead>
-          <Tbody data={data} />
+          <Tbody data={data} disabledRows={disabledRows} />
         </table>
       )
     })
@@ -413,10 +420,29 @@ storiesOf('module.Selectable', module)
       constructor(props) {
         super(props)
         this.state = {
-          thing: ''
+          thing: '',
+          disabledThings: false,
+          disabledRows: []
         }
         this.doSelect = this.doSelect.bind(this)
         this.finishSelect = this.finishSelect.bind(this)
+        this.disableThings = this.disableThings.bind(this)
+      }
+
+      disableThings() {
+        if (!this.state.disabledThings) {
+          const numTypes = Math.round(Math.random() * 4)
+          const newrows = []
+          const types = ['name', 'sales', 'leads', 'most popular items']
+          for (let i = 0; i < numTypes; i++) {
+            const type = types[Math.round(Math.random() * 3)]
+            if (newrows.indexOf(type) !== -1) continue
+            newrows.push(type)
+          }
+          this.setState({ disabledRows: newrows, disabledThings: true })
+        } else {
+          this.setState({ disabledRows: [], disabledThings: false })
+        }
       }
 
       doSelect(removed, added, acc) {
@@ -484,6 +510,7 @@ storiesOf('module.Selectable', module)
                 acceptedTypes: ['row', 'name', 'sales', 'leads', 'most popular items']
               }}
               data={data}
+              disabledRows={this.state.disabledRows}
               selectionCallbacks={{
                 onSelectionChange: this.doSelect,
                 onFinishSelect: this.finishSelect,
@@ -491,6 +518,11 @@ storiesOf('module.Selectable', module)
             />
             <div style={{paddingLeft: 20}}>
               <h1>Stuff</h1>
+              <label htmlFor="disabledlist">
+                Disable Types
+                <input id="disabledlist" type="checkbox" checked={this.state.someDisabled} onChange={this.disableThings} />
+                {this.state.disabledRows.reduce((total, thing) => total + ' ' + thing, '')}
+              </label>
               <div id="hi">
                 {this.state.thing}
               </div>

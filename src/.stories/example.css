@@ -20,7 +20,7 @@ table td {
     border-color: #666666;
     background-color: #ffffff;
 }
-table td.disabled {
+table td.disabled, table th.disabled {
     background-color: gray;
 }
 table td.selected, table tr.selected td {
