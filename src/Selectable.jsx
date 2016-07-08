@@ -66,7 +66,8 @@ function Selectable(Component, options) {
     componentDidMount() {
       if (!this.context || !this.context.selectionManager) return
       this.register(this.props)
-      unregister = this.context.selectionManager.unregisterSelectable.bind(this.context.selectionManager, this, this.key)
+      unregister = this.context.selectionManager.unregisterSelectable
+        .bind(this.context.selectionManager, this, this.key)
     }
 
     componentWillUnmount() {

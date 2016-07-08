@@ -27,3 +27,4 @@ exclude_paths:
 - ".storybook/"
 - "test/"
 - "examples/"
+- "wallaby.js"

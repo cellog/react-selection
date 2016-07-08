@@ -105,15 +105,15 @@ export default class InputManager {
       touchID: e.touches ? e.touches[0].identifier : false
     }
 
-    this._selectRect = mouse.createSelectRect(coords, this.mouseDownData)
-    this.notify.start(this.bounds, this.mouseDownData, this._selectRect)
+    this.selectionRectangle = mouse.createSelectRect(coords, this.mouseDownData)
+    this.notify.start(this.bounds, this.mouseDownData, this.selectionRectangle)
     e.preventDefault()
   }
 
   move(e, mouse = mouseMath) {
     const coords = mouse.getCoordinates(e, this.mouseDownData.touchID)
-    this._selectRect = mouse.createSelectRect(coords, this.mouseDownData)
-    this.notify.change(this._selectRect)
+    this.selectionRectangle = mouse.createSelectRect(coords, this.mouseDownData)
+    this.notify.change(this.selectionRectangle)
   }
 
   end(e, mouse = mouseMath) {
@@ -124,10 +124,10 @@ export default class InputManager {
     this.handlers.stoptouchmove()
 
     if (mouse.isClick(e, this.mouseDownData, this.component.props.clickTolerance)) {
-      this.notify.click(e, this.mouseDownData, this._selectRect)
+      this.notify.click(e, this.mouseDownData, this.selectionRectangle)
       return
     }
-    this.notify.end(e, this.mouseDownData, this._selectRect)
+    this.notify.end(e, this.mouseDownData, this.selectionRectangle)
   }
 
   cancel() {

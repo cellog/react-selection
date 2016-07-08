@@ -155,8 +155,8 @@ var InputManager = function () {
         touchID: e.touches ? e.touches[0].identifier : false
       };
 
-      this._selectRect = mouse.createSelectRect(coords, this.mouseDownData);
-      this.notify.start(this.bounds, this.mouseDownData, this._selectRect);
+      this.selectionRectangle = mouse.createSelectRect(coords, this.mouseDownData);
+      this.notify.start(this.bounds, this.mouseDownData, this.selectionRectangle);
       e.preventDefault();
     }
   }, {
@@ -165,8 +165,8 @@ var InputManager = function () {
       var mouse = arguments.length <= 1 || arguments[1] === undefined ? _mouseMath2.default : arguments[1];
 
       var coords = mouse.getCoordinates(e, this.mouseDownData.touchID);
-      this._selectRect = mouse.createSelectRect(coords, this.mouseDownData);
-      this.notify.change(this._selectRect);
+      this.selectionRectangle = mouse.createSelectRect(coords, this.mouseDownData);
+      this.notify.change(this.selectionRectangle);
     }
   }, {
     key: 'end',
@@ -180,10 +180,10 @@ var InputManager = function () {
       this.handlers.stoptouchmove();
 
       if (mouse.isClick(e, this.mouseDownData, this.component.props.clickTolerance)) {
-        this.notify.click(e, this.mouseDownData, this._selectRect);
+        this.notify.click(e, this.mouseDownData, this.selectionRectangle);
         return;
       }
-      this.notify.end(e, this.mouseDownData, this._selectRect);
+      this.notify.end(e, this.mouseDownData, this.selectionRectangle);
     }
   }, {
     key: 'cancel',

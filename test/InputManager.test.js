@@ -328,7 +328,7 @@ describe("InputManager", function() {
       manager.start({}, 'boohoo', findit, mouse)
 
       expect(manager.mouseDownData).is.undefined
-      expect(manager._selectRect).is.undefined
+      expect(manager.selectionRectangle).is.undefined
       expect(notify.start.called).is.false
     })
 
@@ -352,7 +352,7 @@ describe("InputManager", function() {
       manager.start({}, 'boohoo', findit, mouse)
 
       expect(manager.mouseDownData).is.undefined
-      expect(manager._selectRect).is.undefined
+      expect(manager.selectionRectangle).is.undefined
       expect(notify.start.called).is.false
     })
 
@@ -384,7 +384,7 @@ describe("InputManager", function() {
         clientY: coords.clientY,
         touchID: false
       })
-      expect(manager._selectRect).is.equal(rect)
+      expect(manager.selectionRectangle).is.equal(rect)
       expect(notify.start.called).is.true
       expect(e.preventDefault.called).to.be.true
     })
@@ -417,7 +417,7 @@ describe("InputManager", function() {
         clientY: coords.clientY,
         touchID: 'foo'
       })
-      expect(manager._selectRect).is.equal(rect)
+      expect(manager.selectionRectangle).is.equal(rect)
       expect(notify.start.called).is.true
       expect(e.preventDefault.called).to.be.true
     })
@@ -464,7 +464,7 @@ describe("InputManager", function() {
 
       expect(mouse.getCoordinates.called).is.true
       expect(notify.change.called).is.true
-      manager._selectRect.should.equal(rect)
+      manager.selectionRectangle.should.equal(rect)
     })
   })
 
@@ -682,7 +682,7 @@ describe("InputManager", function() {
       const ev = mouseEvent('mousedown', 25, 25, 25, 25)
       dispatchEvent(thing.dom(), ev)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 25,
@@ -695,7 +695,7 @@ describe("InputManager", function() {
 
       dispatchEvent(thing.dom(), mousemove)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 27,
@@ -708,7 +708,7 @@ describe("InputManager", function() {
 
       dispatchEvent(thing.dom(), mousemove2)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 23,
         left: 23,
         x: 23,
@@ -727,7 +727,7 @@ describe("InputManager", function() {
       const ev = touchEvent('touchstart', touches)
       dispatchEvent(element, ev)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 25,
@@ -740,7 +740,7 @@ describe("InputManager", function() {
       const touchmove = touchEvent('touchmove', touches2)
       dispatchEvent(element, touchmove)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 27,
@@ -753,7 +753,7 @@ describe("InputManager", function() {
       const touchmove2 = touchEvent('touchmove', touches3)
       dispatchEvent(element, touchmove2)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 23,
         left: 23,
         x: 23,
@@ -772,7 +772,7 @@ describe("InputManager", function() {
       const ev = touchEvent('touchstart', touches)
       dispatchEvent(element, ev)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 25,
@@ -785,7 +785,7 @@ describe("InputManager", function() {
       const touchmove = touchEvent('touchmove', touches2)
       dispatchEvent(element, touchmove)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 27,
@@ -843,7 +843,7 @@ describe("InputManager", function() {
       const ev = mouseEvent('mousedown', 25, 25, 25, 25)
       dispatchEvent(thing.dom(), ev)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 25,
@@ -856,7 +856,7 @@ describe("InputManager", function() {
 
       dispatchEvent(thing[0].ref, mousemove)
 
-      manager._selectRect.should.eql({
+      manager.selectionRectangle.should.eql({
         top: 25,
         left: 25,
         x: 26,

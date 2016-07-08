@@ -56,7 +56,7 @@ export default class mouseMath {
       // 'a' top doesn't touch 'b' bottom
       ((aTop - tolerance) > (bBottom)) ||
       // 'a' right doesn't touch 'b' left
-      ((aRight + tolerance) < bLeft ) ||
+      ((aRight + tolerance) < bLeft) ||
       // 'a' left doesn't touch 'b' right
       ((aLeft - tolerance) > (bRight))
     )

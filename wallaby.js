@@ -34,6 +34,7 @@ module.exports = function(wallaby) {
       const jsdom = fool('jsdom').jsdom
       const sinon = fool('sinon')
       const expect = fool('chai').expect
+      const should = fool('should')
 
 // from mocha-jsdom https://github.com/rstacruz/mocha-jsdom/blob/master/index.js#L80
       const propagateToGlobal = (window) => {
@@ -52,6 +53,7 @@ module.exports = function(wallaby) {
       global.window = win
       global.sinon = sinon
       global.expect = expect
+      global.should = should
 
       propagateToGlobal(win)
       global.window.____isjsdom = true

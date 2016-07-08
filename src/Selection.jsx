@@ -186,7 +186,10 @@ function makeSelectable(Component) {
       }
 
       if (this.props.selectionOptions.constant) {
-        if (this.selectionManager.select({ selectionRectangle, props: this.props }, findit, mouse)) {
+        if (this.selectionManager
+              .select({ selectionRectangle, props: this.props },
+                findit,
+                mouse)) {
           if (!this.updateState(null)) {
             this.cancel()
           }

@@ -13,47 +13,51 @@ export default class selectList {
   }
 
   constructor() {
-    const _this = this
+    const self = this
     this.accessor = {
       nodes() {
-        return [..._this.nodes]
+        return [...self.nodes]
       },
 
       node(idx) {
-        return _this.nodes[idx]
+        return self.nodes[idx]
       },
 
       nodeIndicesOfType(types) {
         const mytypes = [].concat(types)
-        return _this.nodes.filter(node => mytypes.every(type => node.types.indexOf(type) !== -1)).map(node => _this.nodes.indexOf(node))
+        return self.nodes.filter(node => mytypes
+          .every(type => node.types.indexOf(type) !== -1))
+          .map(node => self.nodes.indexOf(node))
       },
 
       selectedIndices() {
-        return [..._this.selectedIndices]
+        return [...self.selectedIndices]
       },
 
       selectedNodeList() {
-        return _this.selectedIndices.map(idx => _this.nodes[idx].component)
+        return self.selectedIndices.map(idx => self.nodes[idx].component)
       },
 
       selectedValueList() {
-        return _this.selectedIndices.map(idx => _this.nodes[idx].value)
+        return self.selectedIndices.map(idx => self.nodes[idx].value)
       },
 
       selectedNodes() {
-        return _this.selectedIndices.reduce((val, idx) => {
-          val[_this.nodes[idx].key] = {
-            node: _this.nodes[idx].component,
-            bounds: _this.bounds[idx]
+        return self.selectedIndices.reduce((val, idx) => {
+          const ret = val
+          ret[self.nodes[idx].key] = {
+            node: self.nodes[idx].component,
+            bounds: self.bounds[idx]
           }
-          return val
+          return ret
         }, {})
       },
 
       selectedValues() {
-        return _this.selectedIndices.reduce((val, idx) => {
-          val[_this.nodes[idx].key] = _this.nodes[idx].value
-          return val
+        return self.selectedIndices.reduce((val, idx) => {
+          const ret = val
+          ret[self.nodes[idx].key] = self.nodes[idx].value
+          return ret
         }, {})
       }
     }
@@ -61,7 +65,7 @@ export default class selectList {
 
   setNodes(nodes) {
     this.nodes = nodes
-    this.nodes.forEach((node, idx) => this.indices[node.key] = idx)
+    this.nodes.forEach((node, idx) => { this.indices[node.key] = idx })
   }
 
   begin(selectedIndices, props) {
@@ -129,13 +133,15 @@ export default class selectList {
     if (!node.selectable) return
     if (this.props.hasOwnProperty('acceptedTypes')) {
       // by default we accept all types, this prop restricts types accepted
-      if (!this.props.acceptedTypes.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {
+      if (!this.props.acceptedTypes.reduce((last, type) =>
+          last || node.types.indexOf(type) !== -1, false)) {
         return
       }
     }
     if (this.transaction.firstNode) {
       // does this node share any types in common with the first selected node?
-      if (!this.transaction.firstNode.types.reduce((last, type) => last || node.types.indexOf(type) !== -1, false)) {
+      if (!this.transaction.firstNode.types.reduce((last, type) =>
+          last || node.types.indexOf(type) !== -1, false)) {
         // no
         return
       }
@@ -173,13 +179,17 @@ export default class selectList {
 
   xor(newSelected, prevSelected) {
     const ret = [...prevSelected]
-    newSelected.forEach(idx => prevSelected.indexOf(idx) === -1 ? this.addItem(idx, ret) : ret.splice(ret.indexOf(idx), 1))
+    newSelected.forEach(idx => (prevSelected.indexOf(idx) === -1 ?
+      this.addItem(idx, ret) :
+      ret.splice(ret.indexOf(idx), 1)))
     return ret
   }
 
   or(newSelected, prevSelected) {
     const ret = [...prevSelected]
-    newSelected.forEach(idx => prevSelected.indexOf(idx) === -1 ? this.addItem(idx, ret) : null)
+    newSelected.forEach(idx => prevSelected.indexOf(idx) === -1 ?
+      this.addItem(idx, ret) :
+      null)
     return ret
   }
 
@@ -194,7 +204,7 @@ export default class selectList {
     this.added = []
 
     // get a list of all nodes that are potential selects from the selection rectangle
-    this.nodes.forEach(this.testNodes.bind(this, {selectionRectangle, props, findit, mouse}))
+    this.nodes.forEach(this.testNodes.bind(this, { selectionRectangle, props, findit, mouse }))
 
     // add the nodes that are logically selected in-between
     const options = props.selectionOptions
@@ -218,7 +228,10 @@ export default class selectList {
       this.selectedIndices = test
     }
     if (this.selectedIndices.length === this.transaction.mostRecentSelection.length) {
-      if (this.selectedIndices.every((idx, i) => this.transaction.mostRecentSelection[i] === idx)) return false
+      if (this.selectedIndices
+            .every((idx, i) => this.transaction.mostRecentSelection[i] === idx)) {
+        return false
+      }
     }
     this.removed = this.changed(this.selectedIndices, this.transaction.mostRecentSelection)
     this.added = this.changed(this.transaction.mostRecentSelection, this.selectedIndices)
@@ -228,8 +241,8 @@ export default class selectList {
   }
 
   notifyChangedNodes() {
-    this.removed.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(false) : null)
-    this.added.map(idx => this.nodes[idx].callback ? this.nodes[idx].callback(true) : null)
+    this.removed.map(idx => (this.nodes[idx].callback ? this.nodes[idx].callback(false) : null))
+    this.added.map(idx => (this.nodes[idx].callback ? this.nodes[idx].callback(true) : null))
   }
 
   clear() {
