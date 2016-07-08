@@ -86,8 +86,8 @@ module.exports = function (config, extraoptions) {
 
     coverageReporter,
 
-    captureTimeout: 2400000,
-    browserNoActivityTimeout: 240000,
+    captureTimeout: 24000000,
+    browserNoActivityTimeout: 2400000,
 
     singleRun,
     concurrency: 1,

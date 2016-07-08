@@ -16,7 +16,7 @@ describe("Selection", () => {
     }
     render() {
       return (
-        <div {...this.props} style={{position: 'absolute', top: 0, height: 50, width: 50}}>
+        <div style={{position: 'absolute', top: 0, height: 50, width: 50}}>
           <p>hi! {this.props.name}</p>
           {this.props.children}
         </div>
