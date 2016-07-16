@@ -64,6 +64,11 @@ module.exports = function (config, extraoptions) {
 
     webpack,
 
+    browserStack: {
+      username: process.env.BROWSER_STACK_USERNAME,
+      accessKey: process.env.BROWSER_STACK_ACCESS_KEY
+    },
+
     webpackMiddleware: {
       noInfo: true
     },
