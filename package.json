@@ -50,6 +50,7 @@
     "jsdom": "^9.2.1",
     "karma": "^1.0.0",
     "karma-babel-preprocessor": "^6.0.1",
+    "karma-browserstack-launcher": "^1.0.1",
     "karma-coverage": "^1.0.0",
     "karma-firefox-launcher": "^1.0.0",
     "karma-mocha": "^1.0.1",
