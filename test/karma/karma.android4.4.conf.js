@@ -1,7 +1,7 @@
 /* eslint no-var: 0, babel/object-shorthand: 0, vars-on-top: 0 */
 require('babel-register')
-var karma = require('./karma-common.conf.js')
-var browsers = require('./test/onlyie.js')
+var karma = require('../../karma-common.conf.js')
+var browsers = require('./android4.4.js')
 
 module.exports = function (config) {
   return karma(config, {

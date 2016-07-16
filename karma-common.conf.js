@@ -2,7 +2,7 @@
 require('babel-register')
 
 var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
-var reporters = ['mocha', 'saucelabs', 'coverage']
+var reporters = ['mocha', /* 'saucelabs', */ 'coverage']
 var singleRun = true
 var webpack = require('./test/test.config.es6.js')
 
@@ -55,11 +55,11 @@ module.exports = function (config, extraoptions) {
     frameworks,
 
     files: [
-      'test/*.test.js'
+      '../*.test.js'
     ],
 
     preprocessors: {
-      'test/*.test.js': ['webpack'],
+      '../*.test.js': ['webpack'],
     },
 
     webpack,
@@ -78,7 +78,7 @@ module.exports = function (config, extraoptions) {
 
     colors: true,
 
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_DEBUG,
 
     autoWatch: true,
 
@@ -86,9 +86,10 @@ module.exports = function (config, extraoptions) {
 
     coverageReporter,
 
-    captureTimeout: 24000000,
-    browserNoActivityTimeout: 2400000,
 
+    browserDisconnectTolerance: 1, // default 0
+    browserNoActivityTimeout: 4 * 60 * 1000, // default 10000
+    captureTimeout: 4 * 60 * 1000, // default 60000
     singleRun,
     concurrency: 1,
 

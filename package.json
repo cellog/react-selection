@@ -12,7 +12,7 @@
   "scripts": {
     "clean": "rimraf build",
     "clean:examples": "rimraf examples/static",
-    "test": "NODE_ENV=test ./node_modules/karma/bin/karma start karma.noie.conf.js && NODE_ENV=test ./node_modules/karma/bin/karma start karma.ie.conf.js && NODE_ENV=test ./node_modules/karma/bin/karma start karma.edge.conf.js && ./node_modules/.bin/lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info' && ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+    "test": "./run-tests.sh",
     "local-test": "./local-test.env",
     "build": "npm run clean && babel src --out-dir build",
     "build:examples": "npm run clean:examples && webpack --config examples/examples.config.js",
