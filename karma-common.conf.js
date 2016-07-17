@@ -83,7 +83,7 @@ module.exports = function (config, extraoptions) {
 
     colors: true,
 
-    logLevel: config.LOG_DEBUG,
+    logLevel: config.LOG_INFO,
 
     autoWatch: true,
 

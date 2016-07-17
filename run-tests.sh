@@ -4,7 +4,7 @@ export NODE_ENV=test
 ./node_modules/karma/bin/karma start test/karma/karma.ie10.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.ie11.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.iphone5s.conf.js
-./node_modules/karma/bin/karma start test/karma/karma.iphone6s.conf.js
+./node_modules/karma/bin/karma start test/karma/karma.iphone6.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.iphone6plus.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.android4.1.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.android4.2.conf.js
