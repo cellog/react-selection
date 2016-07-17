@@ -29,5 +29,5 @@ export NODE_ENV=test
 ./node_modules/karma/bin/karma start test/karma/karma.safari7.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.safari8.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.safari9.conf.js
-NODE_ENV=production ./node_modules/.bin/lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info'
-NODE_ENV=production ./node_modules/codeclimate-test-reporter/bin/codeclimate.js
+./node_modules/.bin/lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info'
+./node_modules/codeclimate-test-reporter/bin/codeclimate.js < coverage/lcov.info
