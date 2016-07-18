@@ -34,10 +34,10 @@ for entry in ${data}
 do
   echo ${entry}
 done
-./node_modules/.bin/lcov-result-merger './test/karma/coverage/**/lcov.info' './coverage/lcov.info'
+./node_modules/.bin/lcov-result-merger './test/karma/coverage/**/lcov.info' 'lcov.info'
 data=$(cat coverage/lcov.info)
 for entry in ${data}
 do
   echo ${entry}
 done
-#./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info
+#./node_modules/codeclimate-test-reporter/bin/codeclimate.js < lcov.info
