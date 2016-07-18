@@ -30,10 +30,15 @@ mkdir coverage
 #./node_modules/karma/bin/karma start test/karma/karma.safari7.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.safari8.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.safari9.conf.js
-data=$(ls -l)
+data=$(ls -l coverage)
 for entry in ${data}
 do
   echo ${entry}
 done
 ./node_modules/.bin/lcov-result-merger './coverage/**/lcov.info' './coverage/lcov.info'
+data=$(ls -l coverage)
+for entry in ${data}
+do
+  echo ${entry}
+done
 #./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info
