@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 export NODE_ENV=test
-mkdir coverage
 #./node_modules/karma/bin/karma start test/karma/karma.edge.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.ie10.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.ie11.conf.js
@@ -30,13 +29,13 @@ mkdir coverage
 #./node_modules/karma/bin/karma start test/karma/karma.safari7.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.safari8.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.safari9.conf.js
-data=$(ls -l coverage)
+data=$(ls -l test/karma/coverage)
 for entry in ${data}
 do
   echo ${entry}
 done
-./node_modules/.bin/lcov-result-merger './coverage/**/lcov.info' './coverage/lcov.info'
-data=$(ls -l coverage)
+./node_modules/.bin/lcov-result-merger './test/karma/coverage/**/lcov.info' './coverage/lcov.info'
+data=$(cat coverage/lcov.info)
 for entry in ${data}
 do
   echo ${entry}
