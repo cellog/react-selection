@@ -10,7 +10,7 @@ export NODE_ENV=test
 ./node_modules/karma/bin/karma start test/karma/karma.android4.2.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.android4.3.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.android4.4.conf.js
-./node_modules/karma/bin/karma start test/karma/karma.android5.1.conf.js
+#./node_modules/karma/bin/karma start test/karma/karma.android5.1.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.chrome43.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.chrome44.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.chrome45.conf.js
@@ -29,6 +29,6 @@ export NODE_ENV=test
 ./node_modules/karma/bin/karma start test/karma/karma.safari7.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.safari8.conf.js
 ./node_modules/karma/bin/karma start test/karma/karma.safari9.conf.js
-./node_modules/.bin/lcov-result-merger 'coverage/**/lcov.info' 'coverage/lcov.info'
-ls ./coverage
+ls -l ./coverage
+./node_modules/.bin/lcov-result-merger './coverage/**/lcov.info' './coverage/lcov.info'
 ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info
