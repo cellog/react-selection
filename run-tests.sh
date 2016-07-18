@@ -29,13 +29,8 @@ export NODE_ENV=test
 #./node_modules/karma/bin/karma start test/karma/karma.safari7.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.safari8.conf.js
 #./node_modules/karma/bin/karma start test/karma/karma.safari9.conf.js
-data=$(ls -l test/karma/coverage)
-for entry in ${data}
-do
-  echo ${entry}
-done
 ./node_modules/.bin/lcov-result-merger './test/karma/coverage/**/lcov.info' 'lcov.info'
-data=$(cat coverage/lcov.info)
+data=$(cat lcov.info)
 for entry in ${data}
 do
   echo ${entry}
