@@ -83,14 +83,13 @@ module.exports = function (config, extraoptions) {
 
     colors: true,
 
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_DEBUG,
 
     autoWatch: true,
 
     sauceLabs: sauceParams,
 
     coverageReporter,
-
 
     browserDisconnectTolerance: 1, // default 0
     browserNoActivityTimeout: 4 * 60 * 1000, // default 10000
